@@ -32,7 +32,8 @@ public class AdminUserServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, IllegalArgumentException{
         String action = request.getParameter("action");
         String message = "";
 
@@ -43,26 +44,27 @@ public class AdminUserServlet extends HttpServlet {
                 String role = request.getParameter("role").toUpperCase();
 
                 if (Role.valueOf(role) == null) {
-                    throw new IllegalArgumentException("Invalid role specified.");
+                    throw new IllegalArgumentException("Указана неверная роль.");
                 }
 
-                User user = new User();
-                user.setUsername(username);
-                user.setPassword(PasswordUtil.hashPassword(password));
-                user.setRole(Role.valueOf(role));
+                User user = new User(username, PasswordUtil.hashPassword(password), Role.valueOf(role));
                 userDAO.add(user);
-                message = "User added successfully!";
+                message = "Пользователь успешно добавлен!";
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 userDAO.delete(id);
-                message = "User deleted successfully!";
+                message = "Пользователь успешно удален!";
             }
+        } catch (IllegalArgumentException e) {
+            message = e.getMessage();
+            log.warn("Некорректные данные: {}", e.getMessage());
         } catch (Exception e) {
-            message = "Error: " + e.getMessage();
-            log.error("Error during user operation: {}", e.getMessage(), e);
+            message = "Ошибка: " + e.getMessage();
+            log.error("Ошибка при выполнении операции с пользователем: {}", e.getMessage(), e);
         }
         request.setAttribute("message", message);
         doGet(request, response);
     }
+
 }
 

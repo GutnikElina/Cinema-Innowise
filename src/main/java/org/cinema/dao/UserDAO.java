@@ -3,7 +3,6 @@ package org.cinema.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.User;
 import org.hibernate.query.Query;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +12,20 @@ public class UserDAO extends BaseDao implements Repository<User>{
 
     @Override
     public void add(User user) {
+        Optional<User> existingUser = getByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("Пользователь с таким логином уже существует!");
+        }
         executeTransaction(session -> session.save(user));
-        log.info("User {} added successfully.", user.getUsername());
+        log.info("Пользователь {} успешно добавлен.", user.getUsername());
+    }
+
+    public Optional<User> getByUsername(String username) {
+        return executeTransactionWithResult(session -> {
+            Query<User> query = session.createQuery("FROM User WHERE username = :username", User.class);
+            query.setParameter("username", username);
+            return query.uniqueResultOptional();
+        });
     }
 
     @Override
@@ -22,14 +33,13 @@ public class UserDAO extends BaseDao implements Repository<User>{
         return Optional.ofNullable(executeTransactionWithResult(session -> {
             User user = session.get(User.class, id);
             if (user == null) {
-                log.warn("User with ID {} not found.", id);
+                log.warn("Пользователь с ID {} не найден.", id);
             } else {
-                log.info("User with ID {} retrieved successfully.", id);
+                log.info("Пользователь с ID {} успешно найден.", id);
             }
             return user;
         }));
     }
-
 
     @Override
     public List<User> getAll() {
@@ -38,11 +48,11 @@ public class UserDAO extends BaseDao implements Repository<User>{
             List<User> users = query.list();
 
             if (users == null || users.isEmpty()) {
-                log.warn("No users found in the database.");
+                log.warn("Пользователи не найдены в базе данных.");
                 return Collections.emptyList();
             }
 
-            log.info("{} users retrieved successfully.", users.size());
+            log.info("{} пользователей успешно извлечены.", users.size());
             return users;
         });
     }
@@ -53,10 +63,10 @@ public class UserDAO extends BaseDao implements Repository<User>{
             User existingUser = session.get(User.class, user.getId());
             if (existingUser != null) {
                 session.merge(user);
-                log.info("User with ID {} updated successfully.", user.getId());
+                log.info("Пользователь с ID {} успешно обновлен.", user.getId());
             } else {
-                log.warn("User with this ID doesn't exist.");
-                throw new IllegalArgumentException("User with ID " + user.getId() + " does not exist.");
+                log.warn("Пользователь с таким ID не существует.");
+                throw new IllegalArgumentException("Пользователь с ID " + user.getId() + " не существует.");
             }
         });
     }
@@ -67,10 +77,10 @@ public class UserDAO extends BaseDao implements Repository<User>{
             User user = session.get(User.class, id);
             if (user != null) {
                 session.delete(user);
-                log.info("User with ID {} deleted successfully.", id);
+                log.info("Пользователь с ID {} успешно удален.", id);
             } else {
-                log.warn("User with ID {} does not exist.", id);
-                throw new IllegalArgumentException("User with ID " + id + " does not exist.");
+                log.warn("Пользователь с ID {} не существует.", id);
+                throw new IllegalArgumentException("Пользователь с ID " + id + " не существует.");
             }
         });
     }
