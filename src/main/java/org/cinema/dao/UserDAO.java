@@ -1,10 +1,9 @@
 package org.cinema.dao;
 
 import org.cinema.models.User;
-
 import java.util.List;
 
-public class UserDAO implements Repository<User>{
+public class UserDAO extends BaseDao implements Repository<User>{
     @Override
     public void add(User entity) {
 

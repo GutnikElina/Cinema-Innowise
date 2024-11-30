@@ -20,7 +20,7 @@
     <logback.version>1.5.12</logback.version>
     <junit.version>5.11.3</junit.version>
     <javax.version>2.2</javax.version>
-    <hibernate.version>5.6.15.Final</hibernate.version>
+  <hibernate.version>5.6.15.Final</hibernate.version>
   </properties>
 
   <dependencies>
