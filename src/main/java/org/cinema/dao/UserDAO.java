@@ -20,14 +20,6 @@ public class UserDAO extends BaseDao implements Repository<User>{
         log.info("Пользователь {} успешно добавлен.", user.getUsername());
     }
 
-    public Optional<User> getByUsername(String username) {
-        return executeTransactionWithResult(session -> {
-            Query<User> query = session.createQuery("FROM User WHERE username = :username", User.class);
-            query.setParameter("username", username);
-            return query.uniqueResultOptional();
-        });
-    }
-
     @Override
     public Optional<User> getById(int id) {
         return Optional.ofNullable(executeTransactionWithResult(session -> {
@@ -82,6 +74,14 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 log.warn("Пользователь с ID {} не существует.", id);
                 throw new IllegalArgumentException("Пользователь с ID " + id + " не существует.");
             }
+        });
+    }
+
+    public Optional<User> getByUsername(String username) {
+        return executeTransactionWithResult(session -> {
+            Query<User> query = session.createQuery("FROM User WHERE username = :username", User.class);
+            query.setParameter("username", username);
+            return query.uniqueResultOptional();
         });
     }
 }
