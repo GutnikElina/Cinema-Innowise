@@ -12,5 +12,6 @@
     <property name="hibernate.hbm2ddl.auto">update</property>
 
     <mapping class="org.cinema.model.User"/>
+    <mapping class="org.cinema.model.FilmSession"/>
 </session-factory>
 </hibernate-configuration>

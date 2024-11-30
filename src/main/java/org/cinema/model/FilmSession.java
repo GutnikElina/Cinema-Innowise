@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Table(name = "film_session")
 @NoArgsConstructor
-public class Session {
+public class FilmSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

@@ -20,16 +20,16 @@ public class BaseDao {
     protected void executeTransaction(Consumer<Session> action) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            log.debug("Начало транзакции...");
+            log.debug("Transaction started...");
             transaction = session.beginTransaction();
             action.accept(session);
             transaction.commit();
-            log.debug("Транзакция успешно завершена.");
+            log.debug("Transaction successfully completed.");
         } catch (HibernateException e) {
-            log.error("Ошибка Hibernate во время выполнения транзакции: {}", e.getMessage(), e);
+            log.error("Hibernate error during transaction execution: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);
         } catch (Exception e) {
-            log.error("Неожиданная ошибка во время выполнения транзакции без результата: {}", e.getMessage(), e);
+            log.error("Unexpected error during transaction without result: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);
         }
     }
@@ -44,16 +44,16 @@ public class BaseDao {
         Transaction transaction = null;
         R result = null;
         try (Session session = sessionFactory.openSession()) {
-            log.debug("Начало транзакции с результатом...");
+            log.debug("Transaction with result started...");
             transaction = session.beginTransaction();
             result = action.apply(session);
             transaction.commit();
-            log.debug("Транзакция успешно завершена с результатом: {}", result != null ? result : "Результат не возвращен");
+            log.debug("Transaction successfully completed with result: {}", result != null ? result : "No result returned");
         } catch (HibernateException e) {
-            log.error("Ошибка Hibernate во время транзакции с результатом: {}", e.getMessage(), e);
+            log.error("Hibernate error during transaction with result: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);
         } catch (Exception e) {
-            log.error("Неожиданная ошибка во время транзакции с результатом: {}", e.getMessage(), e);
+            log.error("Unexpected error during transaction with result: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);
         }
         return result;
@@ -63,9 +63,9 @@ public class BaseDao {
         if (transaction != null && transaction.isActive()) {
             try {
                 transaction.rollback();
-                log.warn("Транзакция откатана из-за ошибки.");
+                log.warn("Transaction rolled back due to an error.");
             } catch (HibernateException e) {
-                log.error("Ошибка при откате транзакции: {}", e.getMessage(), e);
+                log.error("Error during transaction rollback: {}", e.getMessage(), e);
             }
         }
     }

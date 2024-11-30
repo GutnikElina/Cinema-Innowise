@@ -1,61 +1,70 @@
 package org.cinema.dao;
 
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.model.Session;
-import org.cinema.model.User;
+import org.cinema.model.FilmSession;
 import org.hibernate.query.Query;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class SessionDAO extends BaseDao implements Repository<Session>{
+public class SessionDAO extends BaseDao implements Repository<FilmSession>{
 
     @Override
-    public void add(Session filmSession) {
+    public void add(FilmSession filmSession) {
+        boolean sessionExists = checkIfSessionExists(filmSession);
+        if (sessionExists) {
+            log.warn("Film session already exists with the same movie, date, and time.");
+            throw new IllegalArgumentException("Session with the same movie, date, and time already exists.");
+        }
         executeTransaction(session -> session.save(filmSession));
-        log.info("Сеанс кинотеатра успешно добавлен.");
+        log.info("Film session successfully added.");
     }
 
     @Override
-    public Optional<Session> getById(int id) {
+    public Optional<FilmSession> getById(int id) {
         return Optional.ofNullable(executeTransactionWithResult(session -> {
-            Session filmSession = session.get(Session.class, id);
+            FilmSession filmSession = session.get(FilmSession.class, id);
             if (filmSession == null) {
-                log.warn("Сеанс кинотеатра с ID {} не найден.", id);
+                log.warn("Film session with ID {} not found.", id);
             } else {
-                log.info("Сеанс кинотеатра с ID {} успешно найден.", id);
+                log.info("Film session with ID {} successfully found.", id);
             }
             return filmSession;
         }));
     }
 
     @Override
-    public List<Session> getAll() {
+    public List<FilmSession> getAll() {
         return executeTransactionWithResult(session -> {
-            Query<Session> query = session.createQuery("FROM Session", Session.class);
-            List<Session> sessions = query.list();
+            Query<FilmSession> query = session.createQuery("FROM FilmSession", FilmSession.class);
+            List<FilmSession> filmSessions = query.list();
 
-            if (sessions == null || sessions.isEmpty()) {
-                log.warn("Сеансы кинотеатра не найдены в базе данных.");
+            if (filmSessions == null || filmSessions.isEmpty()) {
+                log.warn("No film sessions found in the database.");
                 return Collections.emptyList();
             }
-            log.info("{} сеансов успешно извлечены.", sessions.size());
-            return sessions;
+            log.info("{} film sessions successfully retrieved.", filmSessions.size());
+            return filmSessions;
         });
     }
 
     @Override
-    public void update(Session filmSession) {
+    public void update(FilmSession filmSession) {
+        boolean sessionExists = checkIfSessionExists(filmSession);
+        if (sessionExists) {
+            log.warn("Film session already exists with the same movie, date, and start time.");
+            throw new IllegalArgumentException("Session with the same movie, date, and time already exists.");
+        }
+
         executeTransaction(session -> {
-            Session existingSession = session.get(Session.class, filmSession.getId());
-            if (existingSession != null) {
+            FilmSession existingFilmSession = session.get(FilmSession.class, filmSession.getId());
+            if (existingFilmSession != null) {
                 session.merge(filmSession);
-                log.info("Сеанс с ID {} успешно обновлен.", filmSession.getId());
+                log.info("Film session with ID {} successfully updated.", filmSession.getId());
             } else {
-                log.warn("Сеанс с таким ID не существует.");
-                throw new IllegalArgumentException("Сеанс с ID " + filmSession.getId() + " не существует.");
+                log.warn("Film session with such ID does not exist.");
+                throw new IllegalArgumentException("Film session with ID " + filmSession.getId() + " does not exist.");
             }
         });
     }
@@ -63,14 +72,28 @@ public class SessionDAO extends BaseDao implements Repository<Session>{
     @Override
     public void delete(int id) {
         executeTransaction(session -> {
-            Session filmSession = session.get(Session.class, id);
+            FilmSession filmSession = session.get(FilmSession.class, id);
             if (filmSession != null) {
                 session.delete(filmSession);
-                log.info("Сеанс с ID {} успешно удален.", id);
+                log.info("Film session with ID {} successfully deleted.", id);
             } else {
-                log.warn("Сеанс с ID {} не существует.", id);
-                throw new IllegalArgumentException("Сеанс с ID " + id + " не существует.");
+                log.warn("Film session with ID {} does not exist.", id);
+                throw new IllegalArgumentException("Film session with ID " + id + " does not exist.");
             }
+        });
+    }
+
+    private boolean checkIfSessionExists(FilmSession filmSession) {
+        return executeTransactionWithResult(session -> {
+            Query<FilmSession> query = session.createQuery(
+                    "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
+                            "AND fs.date = :date " +
+                            "AND fs.startTime = :startTime", FilmSession.class);
+            query.setParameter("movieTitle", filmSession.getMovieTitle());
+            query.setParameter("date", filmSession.getDate());
+            query.setParameter("startTime", filmSession.getStartTime());
+            List<FilmSession> result = query.list();
+            return !result.isEmpty();
         });
     }
 }
