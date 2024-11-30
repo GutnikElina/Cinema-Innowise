@@ -24,12 +24,12 @@ public class BaseDao {
             transaction = session.beginTransaction();
             action.accept(session);
             transaction.commit();
-            log.info("Transaction committed successfully.");
+            log.debug("Transaction committed successfully.");
         } catch (HibernateException e) {
             log.error("HibernateException during transaction: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);
         } catch (Exception e) {
-            log.error("Unexpected error during transaction: {}", e.getMessage(), e);
+            log.error("Unexpected error during transaction without result: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);
         }
     }
@@ -48,7 +48,7 @@ public class BaseDao {
             transaction = session.beginTransaction();
             result = action.apply(session);
             transaction.commit();
-            log.info("Transaction committed successfully with result: {}", result != null ? result : "No result returned");
+            log.debug("Transaction committed successfully with result: {}", result != null ? result : "No result returned");
         } catch (HibernateException e) {
             log.error("HibernateException during transaction with result: {}", e.getMessage(), e);
             handleTransactionRollback(transaction);

@@ -1,9 +1,11 @@
 package org.cinema.models;
 
+import lombok.Data;
 import javax.persistence.*;
 import java.security.Timestamp;
 
 @Entity
+@Data
 @Table(name = "users")
 public class User {
     @Id
@@ -13,9 +15,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(nullable = false)
     private String password;
 
@@ -23,7 +22,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     private Timestamp createdAt;
 }
 
