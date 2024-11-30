@@ -20,7 +20,9 @@
     <logback.version>1.5.12</logback.version>
     <junit.version>5.11.3</junit.version>
     <javax.version>2.2</javax.version>
-  <hibernate.version>5.6.15.Final</hibernate.version>
+    <hibernate.version>5.6.15.Final</hibernate.version>
+    <jakarta.version>6.1.0</jakarta.version>
+    <jakarta.servlet.jsp.jstl.version>3.0.1</jakarta.servlet.jsp.jstl.version>
   </properties>
 
   <dependencies>
@@ -59,6 +61,24 @@
       <groupId>javax.persistence</groupId>
       <artifactId>javax.persistence-api</artifactId>
       <version>${javax.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>${jakarta.servlet.jsp.jstl.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>${jakarta.servlet.jsp.jstl.version}</version>
     </dependency>
 
     <dependency>

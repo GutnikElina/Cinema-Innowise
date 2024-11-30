@@ -1,4 +1,4 @@
-package org.cinema.models;
+package org.cinema.model;
 
 public enum Role {
     USER, ADMIN

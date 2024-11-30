@@ -2,7 +2,7 @@
                 "http://www.hibernate.org/dtd/hibernate-configuration-5.0.dtd">
 <hibernate-configuration>
 <session-factory>
-    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/cinema_project</property>
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/cinema_innowise</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">gutnikelina</property>
     <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
@@ -11,6 +11,6 @@
     <property name="hibernate.show_sql">true</property>
     <property name="hibernate.hbm2ddl.auto">update</property>
 
-    <mapping class="org.cinema.models.User"/>
+    <mapping class="org.cinema.model.User"/>
 </session-factory>
 </hibernate-configuration>

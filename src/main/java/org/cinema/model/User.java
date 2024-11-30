@@ -1,4 +1,4 @@
-package org.cinema.models;
+package org.cinema.model;
 
 import lombok.Data;
 import javax.persistence.*;
