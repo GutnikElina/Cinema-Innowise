@@ -95,8 +95,8 @@ public class AdminUserServlet extends HttpServlet {
             userDAO.add(user);
             return "User was successfully added!";
         } catch (IllegalArgumentException e) {
-            log.error("Invalid role: {}", role, e);
-            return "Invalid role.";
+            log.error("Occurred error while adding user: {}", e.getMessage(), e);
+            return e.getMessage();
         }
     }
 

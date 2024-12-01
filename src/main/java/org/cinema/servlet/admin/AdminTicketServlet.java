@@ -106,12 +106,15 @@ public class AdminTicketServlet extends HttpServlet {
 
             int seatNum = Integer.parseInt(seatNumber);
             if (seatNum > filmSession.getCapacity()) {
-                return "Your seat number exceeds the session's capacity! Try again.";
+                return "Error! Your seat number exceeds the session's capacity! Try again.";
             }
 
             Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
             ticketDAO.add(ticket);
             return "Ticket was successfully added to the database!";
+        } catch (IllegalArgumentException e) {
+            log.error("Occurred error while adding user: {}", e.getMessage(), e);
+            return e.getMessage();
         } catch (Exception e) {
             log.error("Error adding ticket: {}", e.getMessage(), e);
             return "Failed to add ticket. Please check the entered data.";

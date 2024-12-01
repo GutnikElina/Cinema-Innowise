@@ -23,11 +23,12 @@ public class UserDAO extends BaseDao implements Repository<User>{
             }
 
             if (getByUsername(user.getUsername()).isPresent()) {
-                throw new IllegalArgumentException("User with username " + user.getUsername() + " already exists.");
+                throw new IllegalArgumentException("Error! User with username " + user.getUsername() + " already exists. Try again.");
             }
-
             executeTransaction(session -> session.save(user));
             log.info("User [{}] successfully added.", user.getUsername());
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error while adding user {}: ", user != null ? user.getUsername() : "null");
             throw new RuntimeException("Unexpected error while adding user.", e);
@@ -50,6 +51,8 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 }
                 return user;
             }));
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error while retrieving user with ID {}: ", id);
             throw new RuntimeException("Unexpected error while retrieving user by ID.", e);
@@ -84,6 +87,10 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 throw new IllegalArgumentException("User or ID cannot be null or invalid.");
             }
 
+            if (getByUsername(user.getUsername()).isPresent()) {
+                throw new IllegalArgumentException("User with username " + user.getUsername() + " already exists.");
+            }
+
             executeTransaction(session -> {
                 User existingUser = session.get(User.class, user.getId());
                 if (existingUser == null) {
@@ -93,6 +100,8 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 session.merge(user);
                 log.info("User with ID {} successfully updated.", user.getId());
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error while updating user {}: ", user != null ? user.getId() : "null");
             throw new RuntimeException("Unexpected error while updating user.", e);
@@ -115,6 +124,8 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 session.delete(user);
                 log.info("User with ID {} successfully deleted.", id);
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error while deleting user with ID {}: ", id);
             throw new RuntimeException("Unexpected error while deleting user.", e);
@@ -139,6 +150,8 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 }
                 return result;
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error while retrieving user by username {}: ", username, e);
             throw new RuntimeException("Unexpected error while retrieving user by username.", e);

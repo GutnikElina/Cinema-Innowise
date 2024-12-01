@@ -19,12 +19,14 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
     public void add(FilmSession filmSession) {
         try {
             if (checkIfSessionExists(filmSession)) {
-                String errorMessage = "Film session already exists: " + filmSession;
+                String errorMessage = "Error! Film session already exists on this film and time. Try again.";
                 log.warn("Occurred error while adding film session: {}", errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
             executeTransaction(session -> session.save(filmSession));
             log.info("Film session [{}] successfully added.", filmSession);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error while adding film session: {}", e.getMessage());
             throw new RuntimeException("Unexpected error while adding film session.", e);
@@ -70,6 +72,12 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
     @Override
     public void update(FilmSession filmSession) {
         try {
+            if (checkIfSessionExists(filmSession)) {
+                String errorMessage = "Error! Film session already exists on this film and time. Try again.";
+                log.warn("Occurred error while updating film session: {}", errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+
             executeTransaction(session -> {
                 FilmSession existingFilmSession = session.get(FilmSession.class, filmSession.getId());
                 if (existingFilmSession == null) {
@@ -77,14 +85,12 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
                     log.warn("Occurred error while updating film session: {}", errorMessage);
                     throw new IllegalArgumentException(errorMessage);
                 }
-                if (checkIfSessionExists(filmSession)) {
-                    String errorMessage = "Entered film session already exists.";
-                    log.warn("Occurred error while updating film session: {}", errorMessage);
-                    throw new IllegalArgumentException(errorMessage);
-                }
+
                 session.merge(filmSession);
                 log.info("Film session with ID [{}] successfully updated.", filmSession.getId());
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error while updating film session with ID {}: {}", filmSession.getId(), e.getMessage());
             throw new RuntimeException("Unexpected error while updating film session.", e);
@@ -104,6 +110,8 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
                 session.delete(filmSession);
                 log.info("Film session with ID {} successfully deleted.", id);
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error while deleting film session with ID {}: {}", id, e.getMessage());
             throw new RuntimeException("Unexpected error while deleting film session.", e);

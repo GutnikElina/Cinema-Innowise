@@ -19,12 +19,14 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
     public void add(Ticket ticket) {
         try {
             if (checkIfTicketExists(ticket)) {
-                String errorMessage = "Ticket already exists: " + ticket;
+                String errorMessage = "Error! Ticket already exists with this session and seat. Try again.";
                 log.warn("Error while adding ticket: {}", errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
             executeTransaction(session -> session.save(ticket));
             log.info("Ticket [{}] successfully added.", ticket);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error while adding ticket: {}", e.getMessage());
             throw new RuntimeException("Unexpected error while adding ticket.", e);
@@ -70,6 +72,11 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
     @Override
     public void update(Ticket ticket) {
         try {
+            if (checkIfTicketExists(ticket)) {
+                String errorMessage = "Error! Ticket already exists with this session and seat. Try again.";
+                log.warn("Error while adding ticket: {}", errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
             executeTransaction(session -> {
                 Ticket existingTicket = session.get(Ticket.class, ticket.getId());
                 if (existingTicket == null) {
@@ -80,6 +87,8 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
                 session.merge(ticket);
                 log.info("Ticket with ID [{}] successfully updated.", ticket.getId());
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error while updating ticket with ID {}: {}", ticket.getId(), e.getMessage());
             throw new RuntimeException("Unexpected error while updating ticket.", e);
@@ -99,6 +108,8 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
                 session.delete(ticket);
                 log.info("Ticket with ID {} successfully deleted.", id);
             });
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error while deleting ticket with ID {}: {}", id, e.getMessage());
             throw new RuntimeException("Unexpected error while deleting ticket.", e);
