@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление сеансами</title>
+    <title>Session Management</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
@@ -15,28 +15,28 @@
 <div class="container my-5">
 
     <c:if test="${not empty message}">
-        <div class="alert <c:if test="${message.contains('ошибка')}">error</c:if>
-            <c:if test="${!message.contains('ошибка')}">success</c:if>" role="alert">${message}
+        <div class="alert <c:if test="${message.contains('error')}">error</c:if>
+            <c:if test="${!message.contains('error')}">success</c:if>" role="alert">${message}
         </div>
     </c:if>
 
-    <h1 class="text-center">Управление сеансами</h1>
+    <h1 class="text-center">Session Management</h1>
 
     <c:choose>
         <c:when test="${empty filmSessions}">
-            <p class="text-center">Сеансов нет.</p>
+            <p class="text-center">No sessions available.</p>
         </c:when>
         <c:otherwise>
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th>Фильм</th>
-                    <th>Цена(BYN)</th>
-                    <th>Дата</th>
-                    <th>Время начала</th>
-                    <th>Время конца</th>
-                    <th>Вместимость(чел.)</th>
-                    <th>Действия</th>
+                    <th>Movie</th>
+                    <th>Price (BYN)</th>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Capacity (people)</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -52,12 +52,12 @@
                             <form method="post" action="${pageContext.request.contextPath}/admin/sessions" class="d-inline">
                                 <input type="hidden" name="id" value="${filmSession.id}">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                             <form method="get" action="${pageContext.request.contextPath}/admin/sessions" class="d-inline">
                                 <input type="hidden" name="id" value="${filmSession.id}">
                                 <input type="hidden" name="action" value="edit">
-                                <button type="submit" class="btn btn-warning btn-sm">Редактировать</button>
+                                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
                             </form>
                         </td>
                     </tr>
@@ -69,14 +69,14 @@
 
     <div class="form-row mb-4">
         <div class="col-md-6">
-            <h2 class="text-center">Добавить сеанс</h2>
+            <h2 class="text-center">Add Session</h2>
             <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
-                    <input type="text" class="form-control form-control-sm" id="#movieTitle" name="movieTitle" placeholder="Название фильма" required>
+                    <input type="text" class="form-control form-control-sm" id="#movieTitle" name="movieTitle" placeholder="Movie Title" required>
                 </div>
                 <div class="mb-3">
-                    <input type="number" class="form-control form-control-sm" id="#price" name="price" placeholder="Цена (BYN)" step="0.1" required>
+                    <input type="number" class="form-control form-control-sm" id="#price" name="price" placeholder="Price (BYN)" step="0.1" required>
                 </div>
                 <div class="mb-3">
                     <input type="date" class="form-control form-control-sm" id="#date" name="date" required>
@@ -88,17 +88,17 @@
                     <input type="time" class="form-control form-control-sm" id="#endTime" name="endTime" required>
                 </div>
                 <div class="mb-3">
-                    <input type="number" class="form-control form-control-sm" id="#capacity" name="capacity" placeholder="Вместимость" required>
+                    <input type="number" class="form-control form-control-sm" id="#capacity" name="capacity" placeholder="Capacity" required>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-secondary btn-sm">Добавить</button>
+                    <button type="submit" class="btn btn-secondary btn-sm">Add</button>
                 </div>
             </form>
         </div>
 
         <c:if test="${not empty sessionToEdit}">
             <div class="col-md-6" id="editForm">
-                <h2 class="text-center">Редактировать сеанс</h2>
+                <h2 class="text-center">Edit Session</h2>
                 <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="id" value="${sessionToEdit.id}">
@@ -121,8 +121,8 @@
                         <input type="number" class="form-control form-control-sm" id="capacity" name="capacity" value="${sessionToEdit.capacity}" required>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-sm">Обновить</button>
-                        <button type="button" class="btn btn-secondary btn-sm" id="cancelEditBtn">Отмена</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="cancelEditBtn">Cancel</button>
                     </div>
                 </form>
             </div>

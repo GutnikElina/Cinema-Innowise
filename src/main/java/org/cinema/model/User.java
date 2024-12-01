@@ -26,7 +26,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
     public User (String username, String password, Role role) {

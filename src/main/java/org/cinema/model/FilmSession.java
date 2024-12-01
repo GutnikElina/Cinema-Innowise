@@ -4,29 +4,37 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
 @AllArgsConstructor
-@Table(name = "film_session")
 @NoArgsConstructor
+@Table(name = "film_session")
 public class FilmSession {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "movie_name")
+    @Column(name = "movie_name", nullable = false)
     private String movieTitle;
 
-    private double price;
-    private Timestamp date;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
-    @Column(name = "start_time")
-    private Timestamp startTime;
+    @Column(nullable = false)
+    private LocalDate date;
 
-    @Column(name = "end_time")
-    private Timestamp endTime;
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
+
+    @Column(nullable = false)
     private int capacity;
 }
+

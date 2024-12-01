@@ -13,7 +13,10 @@ import org.cinema.model.User;
 import org.cinema.util.OmdbApiUtil;
 import org.hibernate.HibernateException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,11 +80,11 @@ public class AdminSessionServlet extends HttpServlet {
             String startTimeStr = request.getParameter("startTime");
             String endTimeStr = request.getParameter("endTime");
             int capacity = Integer.parseInt(request.getParameter("capacity"));
-            double price = Double.parseDouble(request.getParameter("price"));
+            BigDecimal price = new BigDecimal(request.getParameter("price"));
 
-            Timestamp startTime = parseTimestamp(dateStr, startTimeStr);
-            Timestamp endTime = parseTimestamp(dateStr, endTimeStr);
-            Timestamp date = Timestamp.valueOf(dateStr + " 00:00:00");
+            LocalDate date = LocalDate.parse(dateStr);
+            LocalTime startTime = LocalTime.parse(startTimeStr);
+            LocalTime endTime = LocalTime.parse(endTimeStr);
 
             Movie movie = OmdbApiUtil.getMovie(movieTitle);
             if (movie == null) {
@@ -120,20 +123,20 @@ public class AdminSessionServlet extends HttpServlet {
             String startTimeStr = request.getParameter("startTime");
             String endTimeStr = request.getParameter("endTime");
             int capacity = Integer.parseInt(request.getParameter("capacity"));
-            double price = Double.parseDouble(request.getParameter("price"));
+            BigDecimal price = new BigDecimal(request.getParameter("price"));
 
-            Timestamp startTime = parseTimestamp(dateStr, startTimeStr);
-            Timestamp endTime = parseTimestamp(dateStr, endTimeStr);
-            Timestamp date = Timestamp.valueOf(dateStr + " 00:00:00");
+            LocalDate date = LocalDate.parse(dateStr);
+            LocalTime startTime = LocalTime.parse(startTimeStr);
+            LocalTime endTime = LocalTime.parse(endTimeStr);
 
             Movie movie = OmdbApiUtil.getMovie(movieTitle);
             if (movie == null) {
                 throw new IllegalArgumentException("Film with this title not found.");
             }
-            FilmSession filmSession = new FilmSession(id, movie.getTitle(), price, date,
-                    startTime, endTime, capacity);
 
+            FilmSession filmSession = new FilmSession(id, movie.getTitle(), price, date, startTime, endTime, capacity);
             sessionDAO.update(filmSession);
+
             return "Session was successfully updated in the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid number format for fields: {}", e.getMessage(), e);
@@ -141,15 +144,9 @@ public class AdminSessionServlet extends HttpServlet {
         } catch (IllegalArgumentException e) {
             log.error("Error updating session: {}", e.getMessage(), e);
             return e.getMessage();
-        }
-    }
-
-    private Timestamp parseTimestamp(String dateStr, String timeStr) {
-        try {
-            String dateTimeStr = dateStr + " " + timeStr;
-            return Timestamp.valueOf(dateTimeStr + ":00");
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid time.");
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e);
+            return "An unexpected error occurred. Please try again.";
         }
     }
 

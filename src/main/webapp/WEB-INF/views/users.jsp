@@ -1,11 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Управление пользователями</title>
+  <title>User Management</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
@@ -15,25 +15,25 @@
 
 <div class="container my-5">
   <c:if test="${not empty message}">
-    <div class="alert <c:if test="${message.contains('ошибка')}">error</c:if><c:if test="${!message.contains('ошибка')}">success</c:if>" role="alert">
+    <div class="alert <c:if test="${message.contains('error')}">error</c:if><c:if test="${!message.contains('error')}">success</c:if>" role="alert">
         ${message}
     </div>
   </c:if>
 
-  <h1 class="text-center">Управление пользователями</h1>
+  <h1 class="text-center">User Management</h1>
 
   <c:choose>
     <c:when test="${empty users}">
-      <p class="text-center">Пользователи отсутствуют.</p>
+      <p class="text-center">No users available.</p>
     </c:when>
     <c:otherwise>
       <table class="table table-bordered">
         <thead>
         <tr>
           <th>ID</th>
-          <th>Имя</th>
-          <th>Роль</th>
-          <th>Действия</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -46,12 +46,12 @@
               <form method="post" action="${pageContext.request.contextPath}/admin/users" class="d-inline">
                 <input type="hidden" name="id" value="${user.id}">
                 <input type="hidden" name="action" value="delete">
-                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
               </form>
               <form method="get" action="${pageContext.request.contextPath}/admin/users" class="d-inline">
                 <input type="hidden" name="id" value="${user.id}">
                 <input type="hidden" name="action" value="edit">
-                <button type="submit" class="btn btn-warning btn-sm">Редактировать</button>
+                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
               </form>
             </td>
           </tr>
@@ -63,48 +63,48 @@
 
   <div class="form-row">
     <div class="form-container">
-      <h2 class="text-center">Добавить пользователя</h2>
+      <h2 class="text-center">Add User</h2>
       <form method="post" action="${pageContext.request.contextPath}/admin/users">
         <div class="mb-3">
-          <input type="text" class="form-control" id="username" name="username" placeholder="Имя" required>
+          <input type="text" class="form-control" id="#username" name="username" placeholder="Name" required>
         </div>
         <div class="mb-3">
-          <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" required>
+          <input type="password" class="form-control" id="#password" name="password" placeholder="Password" required>
         </div>
         <div class="mb-3">
-          <select class="form-select" id="role" name="role">
-            <option value="USER">Пользователь</option>
-            <option value="ADMIN">Администратор</option>
+          <select class="form-select" id="#role" name="role">
+            <option value="USER">User</option>
+            <option value="ADMIN">Administrator</option>
           </select>
         </div>
         <input type="hidden" name="action" value="add">
         <div class="text-center">
-          <button type="submit" class="btn btn-secondary btn-sm">Добавить</button>
+          <button type="submit" class="btn btn-secondary btn-sm">Add</button>
         </div>
       </form>
     </div>
 
     <c:if test="${not empty user}">
       <div class="form-container" id="editForm">
-        <h2>Редактировать пользователя</h2>
+        <h2>Edit User</h2>
         <form method="post" action="${pageContext.request.contextPath}/admin/users">
           <input type="hidden" name="action" value="update">
           <input type="hidden" name="id" value="${user.id}">
           <div class="mb-3">
-            <input type="text" class="form-control" id="username" name="username" value="${user.username}" placeholder="Имя" required>
+            <input type="text" class="form-control" id="username" name="username" value="${user.username}" placeholder="Name" required>
           </div>
           <div class="mb-3">
-            <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" required>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
           </div>
           <div class="mb-3">
             <select class="form-select" id="role" name="role">
-              <option value="USER" <c:if test="${user.role == 'USER'}">selected</c:if>>Пользователь</option>
-              <option value="ADMIN" <c:if test="${user.role == 'ADMIN'}">selected</c:if>>Администратор</option>
+              <option value="USER" <c:if test="${user.role == 'USER'}">selected</c:if>>User</option>
+              <option value="ADMIN" <c:if test="${user.role == 'ADMIN'}">selected</c:if>>Administrator</option>
             </select>
           </div>
           <div class="text-center">
-            <button type="submit" class="btn btn-primary btn-sm">Обновить</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="cancelEditBtn">Отмена</button>
+            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="cancelEditBtn">Cancel</button>
           </div>
         </form>
       </div>

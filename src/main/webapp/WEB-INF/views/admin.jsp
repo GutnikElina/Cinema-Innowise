@@ -4,25 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Панель администратора</title>
+  <title>Administrator Menu</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
 </head>
 <body>
 <div class="container my-5">
-  <h1 class="text-center">Панель администратора</h1>
+  <h1 class="text-center">ADMINISTRATOR MENU</h1>
 
   <nav class="mb-5 text-center">
-    <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-primary">Управление пользователями</a>
-    <a href="${pageContext.request.contextPath}/admin/sessions" class="btn btn-primary">Управление сеансами</a>
-    <a href="${pageContext.request.contextPath}/admin/tickets" class="btn btn-primary">Управление билетами</a>
-    <a href="${pageContext.request.contextPath}/admin/tickets/confirm" class="btn btn-primary">Подтверждение заказов</a>
+    <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-primary">User Management</a>
+    <a href="${pageContext.request.contextPath}/admin/sessions" class="btn btn-primary">Session Management</a>
+    <a href="${pageContext.request.contextPath}/admin/tickets" class="btn btn-primary">Ticket Management</a>
+    <a href="${pageContext.request.contextPath}/admin/tickets/confirm" class="btn btn-primary">Confirm Orders</a>
   </nav>
 
   <form method="get" action="${pageContext.request.contextPath}/admin" class="mb-5">
     <div class="input-group">
-      <input type="text" name="movieTitle" class="form-control" placeholder="Введите название фильма" required>
-      <button type="submit" class="btn btn-secondary">Поиск</button>
+      <input type="text" name="movieTitle" class="form-control" placeholder="Enter movie title" required>
+      <button type="submit" class="btn btn-secondary">Search</button>
     </div>
   </form>
 
@@ -36,7 +36,7 @@
               <div class="card-body">
                 <h5 class="card-title">${movie.title}</h5>
                 <p class="card-text">${movie.genre}</p>
-                <p class="card-text"><small>Рейтинг IMDb: ${movie.imdbRating}</small></p>
+                <p class="card-text"><small>IMDb Rating: ${movie.imdbRating}</small></p>
               </div>
             </div>
           </div>
@@ -45,7 +45,7 @@
       <c:otherwise>
         <div class="col-12">
           <div class="alert alert-warning text-center" role="alert">
-            Фильмы с таким названием не найдены.
+            No movies found with that title.
           </div>
         </div>
       </c:otherwise>
