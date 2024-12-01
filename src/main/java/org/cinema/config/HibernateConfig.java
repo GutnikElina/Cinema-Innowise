@@ -1,6 +1,8 @@
 package org.cinema.config;
 
-import lombok.Getter;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
@@ -11,47 +13,61 @@ import org.hibernate.cfg.Configuration;
  * Отвечает за инициализацию и завершение работы фабрики сессий {@link SessionFactory}.
  */
 @Slf4j
-public class HibernateConfig {
-    /**
-     * Глобальная фабрика сессий Hibernate.
-     * Создаётся при загрузке класса и используется для управления сессиями в приложении.
-     */
-    @Getter
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+@WebListener
+public class HibernateConfig implements ServletContextListener {
+
+    private static SessionFactory sessionFactory;
 
     /**
-     * Создаёт и настраивает фабрику сессий Hibernate.
-     * Загружает настройки из файла конфигурации hibernate.cfg.xml.
+     * Возвращает экземпляр {@link SessionFactory}.
      *
-     * @return настроенная фабрика сессий {@link SessionFactory}.
-     * @throws IllegalStateException если инициализация фабрики завершилась неудачно.
+     * @return {@link SessionFactory}
+     * @throws IllegalStateException если фабрика сессий не была инициализирована.
      */
-    private static SessionFactory buildSessionFactory() {
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            throw new IllegalStateException("SessionFactory isn't initialized.");
+        }
+        return sessionFactory;
+    }
+
+    /**
+     * Инициализирует фабрику сессий при старте приложения.
+     * Этот метод вызывается при запуске сервера.
+     *
+     * @param sce объект, представляющий событие контекста сервлета
+     */
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
         try {
-            log.info("Loading Hibernate SessionFactory...");
-            return new Configuration().configure().buildSessionFactory();
+            log.debug("Initializing Hibernate SessionFactory...");
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            sce.getServletContext().setAttribute("SessionFactory", sessionFactory);
+            log.info("Hibernate SessionFactory initialized successfully.");
         } catch (HibernateException e) {
-            log.error("Error during SessionFactory initialization: {}", e.getMessage(), e);
-            throw new IllegalStateException("Failed to initialize SessionFactory.", e);
+            log.error("Failed to initialize Hibernate SessionFactory(contextInitialized): {}", e.getMessage());
+            throw new RuntimeException("SessionFactory initialization failed.", e);
         }
     }
 
     /**
-     * Завершает работу фабрики сессий Hibernate.
-     * Вызывает метод {@link SessionFactory#close()}, чтобы освободить ресурсы.
-     * Если фабрика уже закрыта или равна {@code null}, выполняет безопасную проверку и выводит предупреждение.
+     * Закрывает фабрику сессий при завершении работы приложения.
+     * Этот метод вызывается при остановке сервера.
+     *
+     * @param sce объект, представляющий событие контекста сервлета
      */
-    public static void shutdown() {
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
         if (sessionFactory != null) {
             try {
-                log.debug("Closing Hibernate SessionFactory...");
+                log.info("Closing Hibernate SessionFactory...");
                 sessionFactory.close();
-                log.info("SessionFactory closed successfully.");
+                log.info("Hibernate SessionFactory closed successfully.");
             } catch (HibernateException e) {
-                log.error("Error closing SessionFactory: {}", e.getMessage(), e);
+                log.error("Error closing Hibernate SessionFactory(contextDestroyed): {}", e.getMessage(), e);
             }
         } else {
-            log.warn("SessionFactory is already null. No action required.");
+            log.warn("SessionFactory is null, nothing to close.");
         }
     }
 }

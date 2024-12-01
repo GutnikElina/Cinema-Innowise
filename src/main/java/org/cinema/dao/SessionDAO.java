@@ -1,6 +1,7 @@
 package org.cinema.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.config.HibernateConfig;
 import org.cinema.model.FilmSession;
 import org.hibernate.query.Query;
 import java.util.Collections;
@@ -8,92 +9,128 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class SessionDAO extends BaseDao implements Repository<FilmSession>{
+public class SessionDAO extends BaseDao implements Repository<FilmSession> {
+
+    public SessionDAO() {
+        super(HibernateConfig.getSessionFactory());
+    }
 
     @Override
     public void add(FilmSession filmSession) {
-        boolean sessionExists = checkIfSessionExists(filmSession);
-        if (sessionExists) {
-            log.warn("Film session already exists with the same movie, date, and time.");
-            throw new IllegalArgumentException("Session with the same movie, date, and time already exists.");
+        try {
+            if (checkIfSessionExists(filmSession)) {
+                String errorMessage = "Film session already exists: " + filmSession;
+                log.warn("Occurred error while adding film session: {}", errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+            executeTransaction(session -> session.save(filmSession));
+            log.info("Film session [{}] successfully added.", filmSession);
+        } catch (Exception e) {
+            log.error("Unexpected error while adding film session: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error while adding film session.", e);
         }
-        executeTransaction(session -> session.save(filmSession));
-        log.info("Film session successfully added.");
     }
 
     @Override
     public Optional<FilmSession> getById(int id) {
-        return Optional.ofNullable(executeTransactionWithResult(session -> {
-            FilmSession filmSession = session.get(FilmSession.class, id);
-            if (filmSession == null) {
-                log.warn("Film session with ID {} not found.", id);
-            } else {
-                log.info("Film session with ID {} successfully found.", id);
-            }
-            return filmSession;
-        }));
+        try {
+            return Optional.ofNullable(executeTransactionWithResult(session -> {
+                FilmSession filmSession = session.get(FilmSession.class, id);
+                if (filmSession == null) {
+                    log.warn("Film session with ID {} not found.", id);
+                } else {
+                    log.info("Film session with ID {} successfully found.", id);
+                }
+                return filmSession;
+            }));
+        } catch (Exception e) {
+            log.error("Unexpected error while retrieving film session by ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Unexpected error while retrieving film session by ID.", e);
+        }
     }
 
     @Override
     public List<FilmSession> getAll() {
-        return executeTransactionWithResult(session -> {
-            Query<FilmSession> query = session.createQuery("FROM FilmSession", FilmSession.class);
-            List<FilmSession> filmSessions = query.list();
-
-            if (filmSessions == null || filmSessions.isEmpty()) {
-                log.warn("No film sessions found in the database.");
-                return Collections.emptyList();
-            }
-            log.info("{} film sessions successfully retrieved.", filmSessions.size());
-            return filmSessions;
-        });
+        try {
+            return executeTransactionWithResult(session -> {
+                List<FilmSession> filmSessions = session.createQuery("FROM FilmSession", FilmSession.class).list();
+                if (filmSessions.isEmpty()) {
+                    log.warn("No film sessions found in the database.");
+                    return Collections.emptyList();
+                }
+                log.info("{} film sessions successfully retrieved.", filmSessions.size());
+                return filmSessions;
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error while retrieving film sessions: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error while retrieving film sessions.", e);
+        }
     }
 
     @Override
     public void update(FilmSession filmSession) {
-        boolean sessionExists = checkIfSessionExists(filmSession);
-        if (sessionExists) {
-            log.warn("Film session already exists with the same movie, date, and start time.");
-            throw new IllegalArgumentException("Session with the same movie, date, and time already exists.");
-        }
-
-        executeTransaction(session -> {
-            FilmSession existingFilmSession = session.get(FilmSession.class, filmSession.getId());
-            if (existingFilmSession != null) {
+        try {
+            executeTransaction(session -> {
+                FilmSession existingFilmSession = session.get(FilmSession.class, filmSession.getId());
+                if (existingFilmSession == null) {
+                    String errorMessage = "Film session with ID " + filmSession.getId() + " doesn't exist.";
+                    log.warn("Occurred error while updating film session: {}", errorMessage);
+                    throw new IllegalArgumentException(errorMessage);
+                }
+                if (checkIfSessionExists(filmSession)) {
+                    String errorMessage = "Entered film session already exists.";
+                    log.warn("Occurred error while updating film session: {}", errorMessage);
+                    throw new IllegalArgumentException(errorMessage);
+                }
                 session.merge(filmSession);
-                log.info("Film session with ID {} successfully updated.", filmSession.getId());
-            } else {
-                log.warn("Film session with such ID does not exist.");
-                throw new IllegalArgumentException("Film session with ID " + filmSession.getId() + " does not exist.");
-            }
-        });
+                log.info("Film session with ID [{}] successfully updated.", filmSession.getId());
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error while updating film session with ID {}: {}", filmSession.getId(), e.getMessage());
+            throw new RuntimeException("Unexpected error while updating film session.", e);
+        }
     }
 
     @Override
     public void delete(int id) {
-        executeTransaction(session -> {
-            FilmSession filmSession = session.get(FilmSession.class, id);
-            if (filmSession != null) {
+        try {
+            executeTransaction(session -> {
+                FilmSession filmSession = session.get(FilmSession.class, id);
+                if (filmSession == null) {
+                    String errorMessage = "Film session with ID " + id + " doesn't exist.";
+                    log.warn(errorMessage);
+                    throw new IllegalArgumentException(errorMessage);
+                }
                 session.delete(filmSession);
-                log.info("Film session with ID {} successfully deleted.", id);
-            } else {
-                log.warn("Film session with ID {} does not exist.", id);
-                throw new IllegalArgumentException("Film session with ID " + id + " does not exist.");
-            }
-        });
+                log.info("Film session with ID [{}] successfully deleted.", id);
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error while deleting film session with ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Unexpected error while deleting film session.", e);
+        }
     }
 
     private boolean checkIfSessionExists(FilmSession filmSession) {
-        return executeTransactionWithResult(session -> {
-            Query<FilmSession> query = session.createQuery(
-                    "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
-                            "AND fs.date = :date " +
-                            "AND fs.startTime = :startTime", FilmSession.class);
-            query.setParameter("movieTitle", filmSession.getMovieTitle());
-            query.setParameter("date", filmSession.getDate());
-            query.setParameter("startTime", filmSession.getStartTime());
-            List<FilmSession> result = query.list();
-            return !result.isEmpty();
-        });
+        try {
+            return executeTransactionWithResult(session -> {
+                Query<FilmSession> query = session.createQuery(
+                        "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
+                                "AND fs.date = :date " +
+                                "AND fs.startTime = :startTime", FilmSession.class);
+                query.setParameter("movieTitle", filmSession.getMovieTitle());
+                query.setParameter("date", filmSession.getDate());
+                query.setParameter("startTime", filmSession.getStartTime());
+
+                boolean exists = !query.list().isEmpty();
+                log.debug("Check for existing session with title '{}', date '{}', start time '{}': {}.",
+                        filmSession.getMovieTitle(), filmSession.getDate(), filmSession.getStartTime(),
+                        exists ? "found" : "not found");
+                return exists;
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error while checking for existing session with title '{}', date '{}', start time '{}': {}",
+                    filmSession.getMovieTitle(), filmSession.getDate(), filmSession.getStartTime(), e.getMessage());
+            throw new RuntimeException("Unexpected error while checking if film session exists.", e);
+        }
     }
 }

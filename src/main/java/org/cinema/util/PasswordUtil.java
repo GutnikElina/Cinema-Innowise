@@ -8,6 +8,7 @@ import java.util.Base64;
 
 @Slf4j
 public class PasswordUtil {
+
     private static final int SALT_LENGTH = 16;
 
     /**
@@ -25,41 +26,11 @@ public class PasswordUtil {
             log.debug("Password hashed successfully.");
             return Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            log.error("Error during password hashing: {}", e.getMessage(), e);
+            log.error("Error during password hashing: {}", e.getMessage());
             throw new RuntimeException("Error hashing password", e);
-        }
-    }
-
-    /**
-     * Проверяет, соответствует ли введённый пароль хэшу.
-     *
-     * @param password введённый пароль.
-     * @param storedHash хэш пароля, сохранённый в базе данных.
-     * @return true, если пароль совпадает.
-     */
-    public static boolean verifyPassword(String password, String storedHash) {
-        try {
-            log.debug("Starting password verification...");
-            String[] parts = storedHash.split(":");
-            if (parts.length != 2) {
-                log.warn("Stored hash format is invalid.");
-                throw new IllegalArgumentException("Invalid stored hash format");
-            }
-            log.debug("Extracted salt and hash from stored hash...");
-            byte[] salt = Base64.getDecoder().decode(parts[0]);
-            byte[] storedHashBytes = Base64.getDecoder().decode(parts[1]);
-            byte[] computedHash = sha256(password, salt);
-            log.debug("Computed hash for verification...");
-            boolean isEqual = MessageDigest.isEqual(storedHashBytes, computedHash);
-            if (isEqual) {
-                log.info("Password verification successful!");
-            } else {
-                log.warn("Password verification failed!");
-            }
-            return isEqual;
-        } catch (NoSuchAlgorithmException e) {
-            log.error("Error during password verification: {}", e.getMessage(), e);
-            throw new RuntimeException("Error verifying password", e);
+        } catch (Exception e) {
+            log.error("Unexpected error during password hashing: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error hashing password", e);
         }
     }
 
@@ -77,7 +48,7 @@ public class PasswordUtil {
             log.debug("Salt generated successfully!");
             return salt;
         } catch (Exception e) {
-            log.error("Error generating salt: {}", e.getMessage(), e);
+            log.error("Error generating salt: {}", e.getMessage());
             throw new RuntimeException("Error generating salt", e);
         }
     }
@@ -97,8 +68,8 @@ public class PasswordUtil {
             log.debug("SHA-256 hash generated successfully!");
             return digest.digest(password.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            log.error("Error during SHA-256 hashing: {}", e.getMessage(), e);
-            throw e;
+            log.error("SHA-256 algorithm not available: {}", e.getMessage());
+            throw new RuntimeException("Error hashing password with SHA-256", e);
         }
     }
 }
