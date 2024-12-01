@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <html>
@@ -36,6 +36,7 @@
                     <th>Seat Number</th>
                     <th>Purchase Time</th>
                     <th>Status</th>
+                    <th>Request Type</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -43,11 +44,15 @@
                 <c:forEach var="ticket" items="${tickets}">
                     <tr>
                         <td>${ticket.id}</td>
-                        <td>${ticket.user.name}</td>
-                        <td>${ticket.filmSession.movieTitle}</td>
+                        <td>${ticket.user.username}</td>
+                        <td>
+                                ${ticket.filmSession.movieTitle} -
+                            <c:out value="${ticket.filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${ticket.filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
+                        </td>
                         <td>${ticket.seatNumber}</td>
                         <td><c:out value="${ticket.purchaseTime.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" /></td>
                         <td>${ticket.status}</td>
+                        <td>${ticket.requestType}</td>
                         <td>
                             <form method="post" action="${pageContext.request.contextPath}/admin/tickets" class="d-inline">
                                 <input type="hidden" name="id" value="${ticket.id}">
@@ -74,28 +79,39 @@
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="userId" required>
-                        <c:forEach var="user" items="${users}">
-                            <option value="${user.id}">${user.name}</option>
-                        </c:forEach>
+                        <option value="" disabled selected>Select user</option>
+                            <c:forEach var="user" items="${users}">
+                                <option value="${user.id}">${user.username}</option>
+                            </c:forEach>
                     </select>
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="sessionId" required>
+                     <option value="" disabled selected>Select film session</option>
                         <c:forEach var="filmSession" items="${filmSessions}">
-                            <option value="${filmSession.id}">${filmSession.movieTitle} - ${filmSession.date}</option>
+                            <option value="${filmSession.id}">
+                                ${filmSession.movieTitle} -
+                                    <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
+                            </option>
                         </c:forEach>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <input type="text" class="form-control form-control-sm" name="seatNumber" placeholder="Seat Number" required>
-                </div>
-                <div class="mb-3">
-                    <input type="datetime-local" class="form-control form-control-sm" name="purchaseTime" required>
+                    <input type="text" class="form-control form-control-sm" name="seatNumber" placeholder="Select seat number" required>
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="status" required>
-                        <option value="Purchased">Purchased</option>
-                        <option value="Refunded">Refunded</option>
+                        <option value="" disabled selected>Select status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <select class="form-control form-control-sm" name="requestType" required>
+                        <option value="" disabled selected>Select request type</option>
+                        <option value="Purchase">Purchase</option>
+                        <option value="Cancel">Cancel</option>
                     </select>
                 </div>
                 <div class="text-center">
@@ -111,29 +127,38 @@
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="id" value="${ticketToEdit.id}">
                     <div class="mb-3">
-                        <select class="form-control form-control-sm" name="userId" required>
+                        <select class="form-control form-control-sm" placeholder="Select user" name="userId" required>
                             <c:forEach var="user" items="${users}">
-                                <option value="${user.id}" <c:if test="${user.id == ticketToEdit.user.id}">selected</c:if>>${user.name}</option>
+                                <option value="${user.id}" <c:if test="${user.id == ticketToEdit.user.id}">selected</c:if>>${user.username}</option>
                             </c:forEach>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <select class="form-control form-control-sm" name="sessionId" required>
+                        <select class="form-control form-control-sm" placeholder="Select film session" name="sessionId" required>
                             <c:forEach var="filmSession" items="${filmSessions}">
-                                <option value="${filmSession.id}" <c:if test="${filmSession.id == ticketToEdit.filmSession.id}">selected</c:if>>${filmSession.movieTitle} - ${filmSession.date}</option>
+                                <option value="${filmSession.id}">
+                                        ${filmSession.movieTitle} -
+                                    <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
+                                </option>
                             </c:forEach>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control form-control-sm" name="seatNumber" value="${ticketToEdit.seatNumber}" required>
+                        <input type="text" class="form-control form-control-sm"  placeholder="Select seat number" name="seatNumber" value="${ticketToEdit.seatNumber}" required>
                     </div>
                     <div class="mb-3">
-                        <input type="datetime-local" class="form-control form-control-sm" name="purchaseTime" value="${ticketToEdit.purchaseTime}" required>
+                        <select class="form-control form-control-sm" placeholder="Select status" name="status" required>
+                            <option value="Pending" <c:if test="${ticketToEdit.status == 'Pending'}">selected</c:if>>Pending</option>
+                            <option value="Confirmed" <c:if test="${ticketToEdit.status == 'Confirmed'}">selected</c:if>>Confirmed</option>
+                            <option value="Cancelled" <c:if test="${ticketToEdit.status == 'Cancelled'}">selected</c:if>>Cancelled</option>
+
+                        </select>
                     </div>
                     <div class="mb-3">
-                        <select class="form-control form-control-sm" name="status" required>
-                            <option value="Purchased" <c:if test="${ticketToEdit.status == 'Purchased'}">selected</c:if>>Purchased</option>
-                            <option value="Refunded" <c:if test="${ticketToEdit.status == 'Refunded'}">selected</c:if>>Refunded</option>
+                        <select class="form-control form-control-sm" placeholder="Select request type" name="requestType" required>
+                            <option value="Purchase" <c:if test="${ticketToEdit.status == 'Purchase'}">selected</c:if>>Purchase</option>
+                            <option value="Cancel" <c:if test="${ticketToEdit.status == 'Cancel'}">selected</c:if>>Cancel</option>
+
                         </select>
                     </div>
                     <div class="text-center">
@@ -144,7 +169,6 @@
             </div>
         </c:if>
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

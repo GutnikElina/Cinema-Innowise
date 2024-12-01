@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dao.UserDAO;
+import org.cinema.model.FilmSession;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
 import org.hibernate.HibernateException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -28,13 +30,25 @@ public class AdminUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getParameter("action");
 
-        if ("edit".equals(action)) {
-            handleEditAction(request);
+        List<User> users = Collections.emptyList();
+        String action = request.getParameter("action");
+        String message = "";
+
+        try {
+            if ("edit".equals(action)) {
+                handleEditAction(request);
+            }
+            users = userDAO.getAll();
+        } catch (Exception e) {
+            log.error("Unexpected error in doGet method (catch AdminUserServlet): {}", e.getMessage(), e);
+            message = "An unknown error occurred.";
         }
-        List<User> users = userDAO.getAll();
+
         request.setAttribute("users", users);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
         request.getRequestDispatcher("/WEB-INF/views/users.jsp").forward(request, response);
     }
 
@@ -64,7 +78,9 @@ public class AdminUserServlet extends HttpServlet {
             log.error("Unknown error (catch AdminUserServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
         }
-        request.setAttribute("message", message);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
         doGet(request, response);
     }
 

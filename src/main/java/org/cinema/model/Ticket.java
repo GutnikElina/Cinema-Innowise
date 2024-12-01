@@ -36,4 +36,11 @@ public class Ticket {
 
     @Column(name = "request_type", length = 50)
     private String requestType;
+
+    @PrePersist
+    private void prePersist() {
+        if (purchaseTime == null) {
+            purchaseTime = LocalDateTime.now();
+        }
+    }
 }

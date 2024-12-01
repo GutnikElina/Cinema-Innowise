@@ -102,7 +102,7 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
                     throw new IllegalArgumentException(errorMessage);
                 }
                 session.delete(filmSession);
-                log.info("Film session with ID [{}] successfully deleted.", id);
+                log.info("Film session with ID {} successfully deleted.", id);
             });
         } catch (Exception e) {
             log.error("Unexpected error while deleting film session with ID {}: {}", id, e.getMessage());

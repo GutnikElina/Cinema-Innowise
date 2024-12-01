@@ -29,7 +29,7 @@ public class UserDAO extends BaseDao implements Repository<User>{
             executeTransaction(session -> session.save(user));
             log.info("User [{}] successfully added.", user.getUsername());
         } catch (Exception e) {
-            log.error("Error while adding user [{}]: ", user != null ? user.getUsername() : "null");
+            log.error("Error while adding user {}: ", user != null ? user.getUsername() : "null");
             throw new RuntimeException("Unexpected error while adding user.", e);
         }
     }
@@ -44,14 +44,14 @@ public class UserDAO extends BaseDao implements Repository<User>{
             return Optional.ofNullable(executeTransactionWithResult(session -> {
                 User user = session.get(User.class, id);
                 if (user == null) {
-                    log.warn("User with ID [{}] not found.", id);
+                    log.warn("User with ID {} not found.", id);
                 } else {
-                    log.info("User with ID [{}] successfully retrieved.", id);
+                    log.info("User with ID {} successfully retrieved.", id);
                 }
                 return user;
             }));
         } catch (Exception e) {
-            log.error("Error while retrieving user with ID [{}]: ", id);
+            log.error("Error while retrieving user with ID {}: ", id);
             throw new RuntimeException("Unexpected error while retrieving user by ID.", e);
         }
     }
@@ -68,7 +68,7 @@ public class UserDAO extends BaseDao implements Repository<User>{
                     return Collections.emptyList();
                 }
 
-                log.info("[{}] users successfully retrieved.", users.size());
+                log.info("{} users successfully retrieved.", users.size());
                 return users;
             });
         } catch (Exception e) {
@@ -91,10 +91,10 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 }
 
                 session.merge(user);
-                log.info("User with ID [{}] successfully updated.", user.getId());
+                log.info("User with ID {} successfully updated.", user.getId());
             });
         } catch (Exception e) {
-            log.error("Error while updating user [{}]: ", user != null ? user.getId() : "null");
+            log.error("Error while updating user {}: ", user != null ? user.getId() : "null");
             throw new RuntimeException("Unexpected error while updating user.", e);
         }
     }
@@ -113,10 +113,10 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 }
 
                 session.delete(user);
-                log.info("User with ID [{}] successfully deleted.", id);
+                log.info("User with ID {} successfully deleted.", id);
             });
         } catch (Exception e) {
-            log.error("Error while deleting user with ID [{}]: ", id);
+            log.error("Error while deleting user with ID {}: ", id);
             throw new RuntimeException("Unexpected error while deleting user.", e);
         }
     }
@@ -133,14 +133,14 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 Optional<User> result = query.uniqueResultOptional();
 
                 if (result.isEmpty()) {
-                    log.warn("User with username [{}] not found.", username);
+                    log.warn("User with username {} not found.", username);
                 } else {
-                    log.info("User with username [{}] successfully retrieved.", username);
+                    log.info("User with username {} successfully retrieved.", username);
                 }
                 return result;
             });
         } catch (Exception e) {
-            log.error("Error while retrieving user by username [{}]: ", username, e);
+            log.error("Error while retrieving user by username {}: ", username, e);
             throw new RuntimeException("Unexpected error while retrieving user by username.", e);
         }
     }

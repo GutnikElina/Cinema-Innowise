@@ -97,7 +97,7 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
                     throw new IllegalArgumentException(errorMessage);
                 }
                 session.delete(ticket);
-                log.info("Ticket with ID [{}] successfully deleted.", id);
+                log.info("Ticket with ID {} successfully deleted.", id);
             });
         } catch (Exception e) {
             log.error("Unexpected error while deleting ticket with ID {}: {}", id, e.getMessage());

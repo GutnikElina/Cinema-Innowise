@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <html>
@@ -80,7 +80,6 @@
                 </div>
                 <div class="mb-3">
                     <input type="date" class="form-control form-control-sm" name="date" placeholder="dd.MM.yyyy" required>
-
                 </div>
                 <div class="mb-3">
                     <input type="time" class="form-control form-control-sm" name="startTime" required>
@@ -110,7 +109,7 @@
                         <input type="number" class="form-control form-control-sm" name="price" value="${sessionToEdit.price}" step="0.1" required>
                     </div>
                     <div class="mb-3">
-                        <input type="date" class="form-control form-control-sm" name="date" value="${sessionToEdit.date}" required>
+                        <input type="date" class="form-control form-control-sm" placeholder="dd.MM.yyyy" name="date" value="${sessionToEdit.date}" required>
                     </div>
                     <div class="mb-3">
                         <input type="time" class="form-control form-control-sm" name="startTime" value="${sessionToEdit.startTime}" required>

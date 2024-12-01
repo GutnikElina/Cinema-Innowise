@@ -21,7 +21,7 @@ public class AdminMainPageServlet extends HttpServlet {
             throws ServletException, IOException {
         String movieTitle = request.getParameter("movieTitle");
         List<Movie> movies = Collections.emptyList();
-        String message = null;
+        String message = "";
 
         try {
             if (movieTitle != null && !movieTitle.trim().isEmpty()) {
@@ -39,7 +39,9 @@ public class AdminMainPageServlet extends HttpServlet {
             log.error("Error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
         }
         request.setAttribute("movies", movies);
-        request.setAttribute("message", message);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
         request.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(request, response);
     }
 }

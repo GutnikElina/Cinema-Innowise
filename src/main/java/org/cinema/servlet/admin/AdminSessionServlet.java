@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,11 +36,23 @@ public class AdminSessionServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<FilmSession> filmSessions = sessionDAO.getAll();
+        List<FilmSession> filmSessions = Collections.emptyList();
         String action = request.getParameter("action");
+        String message = "";
 
-        if ("edit".equals(action)) { handleEditAction(request); }
+        try {
+            if ("edit".equals(action)) {
+                handleEditAction(request);
+            }
+            filmSessions = sessionDAO.getAll();
+        } catch (Exception e) {
+            log.error("Unexpected error in doGet method (catch AdminSessionServlet): {}", e.getMessage(), e);
+            message = "An unknown error occurred.";
+        }
         request.setAttribute("filmSessions", filmSessions);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
         request.getRequestDispatcher("/WEB-INF/views/sessions.jsp").forward(request, response);
     }
 
@@ -69,7 +82,9 @@ public class AdminSessionServlet extends HttpServlet {
             log.error("Unknown error (catch AdminSessionServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
         }
-        request.setAttribute("message", message);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
         doGet(request, response);
     }
 
