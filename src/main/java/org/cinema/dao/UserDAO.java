@@ -60,8 +60,8 @@ public class UserDAO extends BaseDao implements Repository<User>{
     public List<User> getAll() {
         try {
             return executeTransactionWithResult(session -> {
-                Query<User> query = session.createQuery("FROM User", User.class);
-                List<User> users = query.list();
+                log.info("Retrieving all users...");
+                List<User> users = session.createQuery("FROM User", User.class).list();
 
                 if (users.isEmpty()) {
                     log.warn("No users found in the database.");

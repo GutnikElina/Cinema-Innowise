@@ -1,6 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -44,9 +44,9 @@
                     <tr>
                         <td>${filmSession.movieTitle}</td>
                         <td>${filmSession.price}</td>
-                        <td><fmt:formatDate value="${filmSession.date}" pattern="dd.MM.yyyy" /></td>
-                        <td><fmt:formatDate value="${filmSession.startTime}" pattern="HH:mm" /></td>
-                        <td><fmt:formatDate value="${filmSession.endTime}" pattern="HH:mm" /></td>
+                        <td><c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))}" /></td>
+                        <td><c:out value="${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" /></td>
+                        <td><c:out value="${filmSession.endTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" /></td>
                         <td>${filmSession.capacity}</td>
                         <td>
                             <form method="post" action="${pageContext.request.contextPath}/admin/sessions" class="d-inline">
@@ -73,22 +73,23 @@
             <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
-                    <input type="text" class="form-control form-control-sm" id="#movieTitle" name="movieTitle" placeholder="Movie Title" required>
+                    <input type="text" class="form-control form-control-sm" name="movieTitle" placeholder="Movie Title" required>
                 </div>
                 <div class="mb-3">
-                    <input type="number" class="form-control form-control-sm" id="#price" name="price" placeholder="Price (BYN)" step="0.1" required>
+                    <input type="number" class="form-control form-control-sm" name="price" placeholder="Price (BYN)" step="0.1" required>
                 </div>
                 <div class="mb-3">
-                    <input type="date" class="form-control form-control-sm" id="#date" name="date" required>
+                    <input type="date" class="form-control form-control-sm" name="date" placeholder="dd.MM.yyyy" required>
+
                 </div>
                 <div class="mb-3">
-                    <input type="time" class="form-control form-control-sm" id="#startTime" name="startTime" required>
+                    <input type="time" class="form-control form-control-sm" name="startTime" required>
                 </div>
                 <div class="mb-3">
-                    <input type="time" class="form-control form-control-sm" id="#endTime" name="endTime" required>
+                    <input type="time" class="form-control form-control-sm" name="endTime" required>
                 </div>
                 <div class="mb-3">
-                    <input type="number" class="form-control form-control-sm" id="#capacity" name="capacity" placeholder="Capacity" required>
+                    <input type="number" class="form-control form-control-sm" name="capacity" placeholder="Capacity" required>
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-secondary btn-sm">Add</button>
@@ -103,22 +104,22 @@
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="id" value="${sessionToEdit.id}">
                     <div class="mb-3">
-                        <input type="text" class="form-control form-control-sm" id="movieTitle" name="movieTitle" value="${sessionToEdit.movieTitle}" required>
+                        <input type="text" class="form-control form-control-sm" name="movieTitle" value="${sessionToEdit.movieTitle}" required>
                     </div>
                     <div class="mb-3">
-                        <input type="number" class="form-control form-control-sm" id="price" name="price" value="${sessionToEdit.price}" step="0.1" required>
+                        <input type="number" class="form-control form-control-sm" name="price" value="${sessionToEdit.price}" step="0.1" required>
                     </div>
                     <div class="mb-3">
-                        <input type="date" class="form-control form-control-sm" id="date" name="date" value="${sessionToEdit.date}" required>
+                        <input type="date" class="form-control form-control-sm" name="date" value="${sessionToEdit.date}" required>
                     </div>
                     <div class="mb-3">
-                        <input type="time" class="form-control form-control-sm" id="startTime" name="startTime" value="${sessionToEdit.startTime}" required>
+                        <input type="time" class="form-control form-control-sm" name="startTime" value="${sessionToEdit.startTime}" required>
                     </div>
                     <div class="mb-3">
-                        <input type="time" class="form-control form-control-sm" id="endTime" name="endTime" value="${sessionToEdit.endTime}" required>
+                        <input type="time" class="form-control form-control-sm" name="endTime" value="${sessionToEdit.endTime}" required>
                     </div>
                     <div class="mb-3">
-                        <input type="number" class="form-control form-control-sm" id="capacity" name="capacity" value="${sessionToEdit.capacity}" required>
+                        <input type="number" class="form-control form-control-sm" name="capacity" value="${sessionToEdit.capacity}" required>
                     </div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-sm">Update</button>

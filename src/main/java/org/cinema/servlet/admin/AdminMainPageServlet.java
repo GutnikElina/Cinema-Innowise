@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @WebServlet("/admin")
-public class AdminServlet extends HttpServlet {
+public class AdminMainPageServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 

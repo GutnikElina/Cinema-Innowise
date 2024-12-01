@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -29,7 +29,7 @@ public class Ticket {
     private String seatNumber;
 
     @Column(name = "purchase_time")
-    private Timestamp purchaseTime;
+    private LocalDateTime purchaseTime;
 
     @Column(name = "status", nullable = false, length = 50)
     private String status;

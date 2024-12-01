@@ -1,5 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,6 +34,7 @@
           <th>ID</th>
           <th>Name</th>
           <th>Role</th>
+          <th>Created At</th>
           <th>Actions</th>
         </tr>
         </thead>
@@ -42,6 +44,7 @@
             <td>${user.id}</td>
             <td>${user.username}</td>
             <td>${user.role}</td>
+            <td><c:out value="${user.createdAt.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" /></td>
             <td>
               <form method="post" action="${pageContext.request.contextPath}/admin/users" class="d-inline">
                 <input type="hidden" name="id" value="${user.id}">
@@ -66,13 +69,13 @@
       <h2 class="text-center">Add User</h2>
       <form method="post" action="${pageContext.request.contextPath}/admin/users">
         <div class="mb-3">
-          <input type="text" class="form-control" id="#username" name="username" placeholder="Name" required>
+          <input type="text" class="form-control" name="username" placeholder="Name" required>
         </div>
         <div class="mb-3">
-          <input type="password" class="form-control" id="#password" name="password" placeholder="Password" required>
+          <input type="password" class="form-control" name="password" placeholder="Password" required>
         </div>
         <div class="mb-3">
-          <select class="form-select" id="#role" name="role">
+          <select class="form-select" name="role">
             <option value="USER">User</option>
             <option value="ADMIN">Administrator</option>
           </select>
@@ -91,13 +94,13 @@
           <input type="hidden" name="action" value="update">
           <input type="hidden" name="id" value="${user.id}">
           <div class="mb-3">
-            <input type="text" class="form-control" id="username" name="username" value="${user.username}" placeholder="Name" required>
+            <input type="text" class="form-control" name="username" value="${user.username}" placeholder="Name" required>
           </div>
           <div class="mb-3">
-            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            <input type="password" class="form-control"  name="password" placeholder="Password" required>
           </div>
           <div class="mb-3">
-            <select class="form-select" id="role" name="role">
+            <select class="form-select" name="role">
               <option value="USER" <c:if test="${user.role == 'USER'}">selected</c:if>>User</option>
               <option value="ADMIN" <c:if test="${user.role == 'ADMIN'}">selected</c:if>>Administrator</option>
             </select>
