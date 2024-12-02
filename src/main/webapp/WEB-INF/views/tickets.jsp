@@ -15,8 +15,11 @@
 <div class="container my-5">
 
     <c:if test="${not empty message}">
-        <div class="alert <c:if test="${message.contains('error')}">error</c:if>
-            <c:if test="${!message.contains('error')}">success</c:if>" role="alert">${message}
+        <div class="alert
+        <c:if test="${message.toLowerCase().contains('error')}">error</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">success</c:if>"
+             role="alert">
+                ${message}
         </div>
     </c:if>
 
@@ -79,7 +82,7 @@
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="userId" required>
-                        <option value="" disabled selected>Select user</option>
+                        <option value="" disabled selected>-- Select user --</option>
                             <c:forEach var="user" items="${users}">
                                 <option value="${user.id}">${user.username}</option>
                             </c:forEach>
@@ -87,7 +90,7 @@
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="sessionId" required>
-                     <option value="" disabled selected>Select film session</option>
+                     <option value="" disabled selected>-- Select film session --</option>
                         <c:forEach var="filmSession" items="${filmSessions}">
                             <option value="${filmSession.id}">
                                 ${filmSession.movieTitle} -
@@ -101,18 +104,20 @@
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="status" required>
-                        <option value="" disabled selected>Select status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Cancelled">Cancelled</option>
+                        <option value="" disabled selected>-- Select status --</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="CONFIRMED">Confirmed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        <option value="RETURNED">Returned</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="requestType" required>
-                        <option value="" disabled selected>Select request type</option>
-                        <option value="Purchase">Purchase</option>
-                        <option value="Cancel">Cancel</option>
+                        <option value="" disabled selected>-- Select request type --</option>
+                        <option value="PURCHASE">Purchase</option>
+                        <option value="RETURN">Return</option>
                     </select>
+
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-secondary btn-sm">Add</button>
@@ -148,17 +153,16 @@
                     </div>
                     <div class="mb-3">
                         <select class="form-control form-control-sm" placeholder="Select status" name="status" required>
-                            <option value="Pending" <c:if test="${ticketToEdit.status == 'Pending'}">selected</c:if>>Pending</option>
-                            <option value="Confirmed" <c:if test="${ticketToEdit.status == 'Confirmed'}">selected</c:if>>Confirmed</option>
-                            <option value="Cancelled" <c:if test="${ticketToEdit.status == 'Cancelled'}">selected</c:if>>Cancelled</option>
-
+                            <option value="PENDING" <c:if test="${ticketToEdit.status == 'PENDING'}">selected</c:if>>Pending</option>
+                            <option value="CONFIRMED" <c:if test="${ticketToEdit.status == 'CONFIRMED'}">selected</c:if>>Confirmed</option>
+                            <option value="CANCELLED" <c:if test="${ticketToEdit.status == 'CANCELLED'}">selected</c:if>>Cancelled</option>
+                            <option value="RETURNED"  <c:if test="${ticketToEdit.status == 'RETURNED'}">selected</c:if>>Returned</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <select class="form-control form-control-sm" placeholder="Select request type" name="requestType" required>
-                            <option value="Purchase" <c:if test="${ticketToEdit.status == 'Purchase'}">selected</c:if>>Purchase</option>
-                            <option value="Cancel" <c:if test="${ticketToEdit.status == 'Cancel'}">selected</c:if>>Cancel</option>
-
+                            <option value="PURCHASE" <c:if test="${ticketToEdit.requestType == 'PURCHASE'}">selected</c:if>>Purchase</option>
+                            <option value="RETURN" <c:if test="${ticketToEdit.requestType == 'RETURN'}">selected</c:if>>Return</option>
                         </select>
                     </div>
                     <div class="text-center">

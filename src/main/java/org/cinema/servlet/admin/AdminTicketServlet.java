@@ -12,6 +12,8 @@ import org.cinema.dao.UserDAO;
 import org.cinema.model.Ticket;
 import org.cinema.model.User;
 import org.cinema.model.FilmSession;
+import org.cinema.model.Status;
+import org.cinema.model.RequestType;
 import org.hibernate.HibernateException;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -51,8 +53,11 @@ public class AdminTicketServlet extends HttpServlet {
             filmSessions = sessionDAO.getAll();
             tickets = ticketDAO.getAll();
             users = userDAO.getAll();
+        } catch (IllegalArgumentException e) {
+            log.error("Error in doGet method (catch AdminTicketServlet): {}", e.getMessage(), e);
+            message = "Error! " + e.getMessage();
         } catch (Exception e) {
-            log.error("Unexpected error in doGet method (catch AdminSessionServlet): {}", e.getMessage(), e);
+            log.error("Unexpected error in doGet method (catch AdminTicketServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
         }
         request.setAttribute("users", users);
@@ -77,7 +82,7 @@ public class AdminTicketServlet extends HttpServlet {
                 case "update" -> handleUpdateAction(request);
                 default -> {
                     log.warn("Unknown action: {}", action);
-                    yield "Unknown action.";
+                    yield "Error! Unknown action.";
                 }
             };
         } catch (HibernateException e) {
@@ -98,8 +103,11 @@ public class AdminTicketServlet extends HttpServlet {
             int userId = Integer.parseInt(request.getParameter("userId"));
             int sessionId = Integer.parseInt(request.getParameter("sessionId"));
             String seatNumber = request.getParameter("seatNumber");
-            String status = request.getParameter("status");
-            String requestType = request.getParameter("requestType");
+            String statusStr = request.getParameter("status");
+            String requestTypeStr = request.getParameter("requestType");
+
+            Status status = Status.valueOf(statusStr.toUpperCase());
+            RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
 
             User user = userDAO.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             FilmSession filmSession = sessionDAO.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
@@ -111,13 +119,13 @@ public class AdminTicketServlet extends HttpServlet {
 
             Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
             ticketDAO.add(ticket);
-            return "Ticket was successfully added to the database!";
+            return "Success! Ticket was successfully added to the database!";
         } catch (IllegalArgumentException e) {
-            log.error("Occurred error while adding user: {}", e.getMessage(), e);
-            return e.getMessage();
+            log.error("Occurred error while adding ticket: {}", e.getMessage(), e);
+            return "Error! " + e.getMessage();
         } catch (Exception e) {
             log.error("Error adding ticket: {}", e.getMessage(), e);
-            return "Failed to add ticket. Please check the entered data.";
+            return "Error! Failed to add ticket. Please check the entered data.";
         }
     }
 
@@ -125,10 +133,10 @@ public class AdminTicketServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             ticketDAO.delete(id);
-            return "Ticket was successfully deleted from the database!";
+            return "Success! Ticket was successfully deleted from the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid ticket ID format during delete: {}", e.getMessage(), e);
-            return "Invalid ticket ID format.";
+            return "Error! Invalid ticket ID format.";
         }
     }
 
@@ -138,34 +146,41 @@ public class AdminTicketServlet extends HttpServlet {
             int userId = Integer.parseInt(request.getParameter("userId"));
             int sessionId = Integer.parseInt(request.getParameter("sessionId"));
             String seatNumber = request.getParameter("seatNumber");
-            String status = request.getParameter("status");
-            String requestType = request.getParameter("requestType");
+            String statusStr = request.getParameter("status");
+            String requestTypeStr = request.getParameter("requestType");
+
+            Status status = Status.valueOf(statusStr.toUpperCase());
+            RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
 
             User user = userDAO.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             FilmSession filmSession = sessionDAO.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
 
             int seatNum = Integer.parseInt(seatNumber);
             if (seatNum > filmSession.getCapacity()) {
-                return "Error: Seat number exceeds the session's capacity.";
+                return "Error! Seat number exceeds the session's capacity.";
             }
+
             Ticket ticket = new Ticket(id, user, filmSession, seatNumber, null, status, requestType);
             ticketDAO.update(ticket);
-            return "Ticket was successfully updated in the database!";
+            return "Success! Ticket was successfully updated in the database!";
+        } catch (IllegalArgumentException e) {
+            log.error("Occurred error while updating ticket: {}", e.getMessage(), e);
+            return "Error! " + e.getMessage();
         } catch (Exception e) {
             log.error("Error updating ticket: {}", e.getMessage(), e);
-            return "Failed to update ticket. Please check the entered data.";
+            return "Error! Failed to update ticket. Please check the entered data.";
         }
     }
 
     private void handleEditAction(HttpServletRequest request) {
         try {
             int ticketId = Integer.parseInt(request.getParameter("id"));
-            Ticket ticketToEdit = ticketDAO.getById(ticketId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
+            Ticket ticketToEdit = ticketDAO.getById(ticketId).orElseThrow(() -> new IllegalArgumentException("Ticket with this ID doesn't exist!"));
 
             request.setAttribute("ticketToEdit", ticketToEdit);
         } catch (NumberFormatException e) {
             log.error("Invalid ticket ID format: {}", e.getMessage(), e);
-            request.setAttribute("message", "Invalid ticket ID format.");
+            request.setAttribute("message", "Error! Invalid ticket ID format.");
         }
     }
 }

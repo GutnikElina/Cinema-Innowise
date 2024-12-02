@@ -27,11 +27,11 @@ public class AdminMainPageServlet extends HttpServlet {
             if (movieTitle != null && !movieTitle.trim().isEmpty()) {
                 movies = OmdbApiUtil.searchMovies(movieTitle.trim());
                 if (movies.isEmpty()) {
-                    message = "No movies found for the title: " + movieTitle;
+                    message = "Error! No movies found for the title: " + movieTitle;
                     log.warn(message);
                 }
             } else {
-                message = "Please provide a valid movie title.";
+                message = "Error! Please provide a valid movie title.";
                 log.warn("Movie title is missing or empty in the request.");
             }
         } catch (Exception e) {

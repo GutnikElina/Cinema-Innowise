@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dao.UserDAO;
-import org.cinema.model.FilmSession;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
@@ -15,6 +14,7 @@ import org.hibernate.HibernateException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import static org.cinema.util.ValidationUtil.*;
 
 @Slf4j
 @WebServlet("/admin/users")
@@ -65,7 +65,7 @@ public class AdminUserServlet extends HttpServlet {
                 case "update" -> handleUpdateAction(request);
                 default -> {
                     log.warn("Unknown action: {}", action);
-                    yield "Unknown action.";
+                    yield "Error! Unknown action.";
                 }
             };
         } catch (HibernateException e) {
@@ -87,27 +87,20 @@ public class AdminUserServlet extends HttpServlet {
     private String handleAddAction(HttpServletRequest request) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        String role = request.getParameter("role").toUpperCase();
+        String role = request.getParameter("role");
 
         try {
-            Role userRole = Role.valueOf(role);
+            validateUsername(username);
+            validatePassword(password);
+            validateRole(role);
+
+            Role userRole = Role.valueOf(role.toUpperCase());
             User user = new User(username, PasswordUtil.hashPassword(password), userRole);
             userDAO.add(user);
-            return "User was successfully added!";
+            return "Success! User was successfully added!";
         } catch (IllegalArgumentException e) {
             log.error("Occurred error while adding user: {}", e.getMessage(), e);
-            return e.getMessage();
-        }
-    }
-
-    private String handleDeleteAction(HttpServletRequest request) {
-        try {
-            int id = Integer.parseInt(request.getParameter("id"));
-            userDAO.delete(id);
-            return "User was successfully deleted!";
-        } catch (NumberFormatException e) {
-            log.error("Invalid user ID format during delete: {}", e.getMessage(), e);
-            return "Invalid user ID format.";
+            return "Error! " + e.getMessage();
         }
     }
 
@@ -116,20 +109,35 @@ public class AdminUserServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             String username = request.getParameter("username");
             String password = request.getParameter("password");
-            String role = request.getParameter("role").toUpperCase();
+            String role = request.getParameter("role");
 
-            Role userRole = Role.valueOf(role);
+            validateUsername(username);
+            validatePassword(password);
+            validateRole(role);
+
+            Role userRole = Role.valueOf(role.toUpperCase());
             User existingUser = userDAO.getById(id).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             existingUser.setUsername(username);
             existingUser.setPassword(PasswordUtil.hashPassword(password));
             existingUser.setRole(userRole);
 
             userDAO.update(existingUser);
-            return "User was successfully updated!";
+            return "Success! User was successfully updated!";
         } catch (IllegalArgumentException e) {
             log.error("Error updating user, illegal argument (catch AdminUserServlet): {}", e.getMessage(), e);
-            return e.getMessage();
-            }
+            return "Error! " + e.getMessage();
+        }
+    }
+
+    private String handleDeleteAction(HttpServletRequest request) {
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            userDAO.delete(id);
+            return "Success! User was successfully deleted!";
+        } catch (NumberFormatException e) {
+            log.error("Invalid user ID format during delete: {}", e.getMessage(), e);
+            return "Error! Invalid user ID format.";
+        }
     }
 
     private void handleEditAction(HttpServletRequest request) {
@@ -139,7 +147,7 @@ public class AdminUserServlet extends HttpServlet {
             request.setAttribute("user", user);
         } catch (NumberFormatException e) {
             log.error("Invalid user ID format: {}", e.getMessage(), e);
-            request.setAttribute("message", "Invalid user ID format.");
+            request.setAttribute("message", "Error! Invalid user ID format.");
             //request.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(request, response);
         }
     }

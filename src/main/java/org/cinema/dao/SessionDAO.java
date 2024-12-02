@@ -19,7 +19,7 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
     public void add(FilmSession filmSession) {
         try {
             if (checkIfSessionExists(filmSession)) {
-                String errorMessage = "Error! Film session already exists on this film and time. Try again.";
+                String errorMessage = "Film session already exists on this film and time. Try again.";
                 log.warn("Occurred error while adding film session: {}", errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
@@ -73,7 +73,7 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
     public void update(FilmSession filmSession) {
         try {
             if (checkIfSessionExists(filmSession)) {
-                String errorMessage = "Error! Film session already exists on this film and time. Try again.";
+                String errorMessage = "Film session already exists on this film and time. Try again.";
                 log.warn("Occurred error while updating film session: {}", errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }

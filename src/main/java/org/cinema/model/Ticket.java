@@ -31,11 +31,13 @@ public class Ticket {
     @Column(name = "purchase_time")
     private LocalDateTime purchaseTime;
 
-    @Column(name = "status", nullable = false, length = 50)
-    private String status;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    @Column(name = "request_type", length = 50)
-    private String requestType;
+    @Column(name = "request_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RequestType requestType;
 
     @PrePersist
     private void prePersist() {

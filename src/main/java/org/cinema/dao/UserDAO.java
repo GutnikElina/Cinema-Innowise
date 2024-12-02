@@ -23,7 +23,7 @@ public class UserDAO extends BaseDao implements Repository<User>{
             }
 
             if (getByUsername(user.getUsername()).isPresent()) {
-                throw new IllegalArgumentException("Error! User with username " + user.getUsername() + " already exists. Try again.");
+                throw new IllegalArgumentException("User with username " + user.getUsername() + " already exists. Try again.");
             }
             executeTransaction(session -> session.save(user));
             log.info("User [{}] successfully added.", user.getUsername());
@@ -87,23 +87,24 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 throw new IllegalArgumentException("User or ID cannot be null or invalid.");
             }
 
-            if (getByUsername(user.getUsername()).isPresent()) {
-                throw new IllegalArgumentException("User with username " + user.getUsername() + " already exists.");
-            }
-
             executeTransaction(session -> {
                 User existingUser = session.get(User.class, user.getId());
                 if (existingUser == null) {
                     throw new IllegalArgumentException("User with ID " + user.getId() + " doesn't exist.");
                 }
 
+                if (!existingUser.getUsername().equals(user.getUsername())) {
+                    if (getByUsername(user.getUsername()).isPresent()) {
+                        throw new IllegalArgumentException("User with username " + user.getUsername() + " already exists.");
+                    }
+                }
                 session.merge(user);
                 log.info("User with ID {} successfully updated.", user.getId());
             });
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            log.error("Error while updating user {}: ", user != null ? user.getId() : "null");
+            log.error("Error while updating user {}: ", user != null ? user.getId() : "null", e);
             throw new RuntimeException("Unexpected error while updating user.", e);
         }
     }

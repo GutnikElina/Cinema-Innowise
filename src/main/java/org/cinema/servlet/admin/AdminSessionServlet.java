@@ -69,7 +69,7 @@ public class AdminSessionServlet extends HttpServlet {
                 case "update" -> handleUpdateAction(request);
                 default -> {
                     log.warn("Unknown action: {}", action);
-                    yield "Unknown action.";
+                    yield "Error! Unknown action.";
                 }
             };
         } catch (HibernateException e) {
@@ -109,13 +109,13 @@ public class AdminSessionServlet extends HttpServlet {
                     startTime, endTime, capacity);
 
             sessionDAO.add(filmSession);
-            return "Session was successfully added to the database!";
+            return "Success! Session was successfully added to the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid number format for fields: {}", e.getMessage(), e);
-            return "Invalid input for price, capacity, or other fields. Please check your data.";
+            return "Error! Invalid input for price, capacity, or other fields. Please check your data.";
         } catch (IllegalArgumentException e) {
             log.error("Error adding session: {}", e.getMessage(), e);
-            return e.getMessage();
+            return "Error! " + e.getMessage();
         }
     }
 
@@ -123,10 +123,10 @@ public class AdminSessionServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             sessionDAO.delete(id);
-            return "Session was successfully deleted from the database!";
+            return "Success! Session was successfully deleted from the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid session ID format during delete: {}", e.getMessage(), e);
-            return "Invalid session ID format.";
+            return "Error! Invalid session ID format.";
         }
     }
 
@@ -152,13 +152,13 @@ public class AdminSessionServlet extends HttpServlet {
             FilmSession filmSession = new FilmSession(id, movie.getTitle(), price, date, startTime, endTime, capacity);
             sessionDAO.update(filmSession);
 
-            return "Session was successfully updated in the database!";
+            return "Success! Session was successfully updated in the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid number format for fields: {}", e.getMessage(), e);
-            return "Invalid input for price, capacity, or other fields. Please check your data.";
+            return "Error! Invalid input for price, capacity, or other fields. Please check your data.";
         } catch (IllegalArgumentException e) {
             log.error("Error updating session: {}", e.getMessage(), e);
-            return e.getMessage();
+            return "Error! " + e.getMessage();
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage(), e);
             return "An unexpected error occurred. Please try again.";
@@ -172,7 +172,7 @@ public class AdminSessionServlet extends HttpServlet {
             sessionToEditOpt.ifPresent(session -> request.setAttribute("sessionToEdit", session));
         } catch (NumberFormatException e) {
             log.error("Invalid session ID format: {}", e.getMessage(), e);
-            request.setAttribute("message", "Invalid session ID format.");
+            request.setAttribute("message", "Error! Invalid session ID format.");
             //request.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(request, response);
         }
     }

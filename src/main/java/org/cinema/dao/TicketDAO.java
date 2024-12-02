@@ -19,7 +19,7 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
     public void add(Ticket ticket) {
         try {
             if (checkIfTicketExists(ticket)) {
-                String errorMessage = "Error! Ticket already exists with this session and seat. Try again.";
+                String errorMessage = "Ticket already exists with this session and seat. Try again.";
                 log.warn("Error while adding ticket: {}", errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
@@ -72,11 +72,6 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
     @Override
     public void update(Ticket ticket) {
         try {
-            if (checkIfTicketExists(ticket)) {
-                String errorMessage = "Error! Ticket already exists with this session and seat. Try again.";
-                log.warn("Error while adding ticket: {}", errorMessage);
-                throw new IllegalArgumentException(errorMessage);
-            }
             executeTransaction(session -> {
                 Ticket existingTicket = session.get(Ticket.class, ticket.getId());
                 if (existingTicket == null) {
@@ -84,6 +79,16 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
                     log.warn("Error while updating ticket: {}", errorMessage);
                     throw new IllegalArgumentException(errorMessage);
                 }
+
+                if (!(existingTicket.getFilmSession().equals(ticket.getFilmSession()) &&
+                        existingTicket.getSeatNumber().equals(ticket.getSeatNumber()) )) {
+                    if (checkIfTicketExists(ticket)) {
+                        String errorMessage = "Ticket already exists with this session and seat. Try again.";
+                        log.warn("Error while updating ticket: {}", errorMessage);
+                        throw new IllegalArgumentException(errorMessage);
+                    }
+                }
+                ticket.setPurchaseTime(existingTicket.getPurchaseTime());
                 session.merge(ticket);
                 log.info("Ticket with ID [{}] successfully updated.", ticket.getId());
             });

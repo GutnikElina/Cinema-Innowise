@@ -30,6 +30,8 @@ public class BaseDao {
             action.accept(session);
             transaction.commit();
             log.debug("Transaction successfully completed.");
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (HibernateException e) {
             log.error("Hibernate error during transaction execution: {}", e.getMessage());
             handleTransactionRollback(transaction);

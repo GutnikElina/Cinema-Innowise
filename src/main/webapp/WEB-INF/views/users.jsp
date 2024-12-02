@@ -16,7 +16,10 @@
 
 <div class="container my-5">
   <c:if test="${not empty message}">
-    <div class="alert <c:if test="${message.contains('error')}">error</c:if><c:if test="${!message.contains('error')}">success</c:if>" role="alert">
+    <div class="alert
+        <c:if test="${message.toLowerCase().contains('error')}">error</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">success</c:if>"
+         role="alert">
         ${message}
     </div>
   </c:if>
