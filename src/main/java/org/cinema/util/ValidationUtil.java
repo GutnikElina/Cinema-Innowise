@@ -1,7 +1,11 @@
 package org.cinema.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.Role;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
+@Slf4j
 public class ValidationUtil {
 
     public static void validateUsername(String username) {
@@ -35,6 +39,51 @@ public class ValidationUtil {
             Integer.parseInt(ticketIdParam);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid Ticket ID format!");
+        }
+    }
+
+    public static void validateDate(String dateStr) {
+        try {
+            LocalDate date = LocalDate.parse(dateStr);
+            if (date.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Date cannot be in the past.");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date format or value.");
+        }
+    }
+
+    public static void validatePrice(String priceStr) {
+        try {
+            BigDecimal price = new BigDecimal(priceStr);
+            if (price.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Price must be a positive value.");
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid price format.");
+        }
+    }
+
+    public static void validateCapacity(String capacityStr) {
+        try {
+            int capacity = Integer.parseInt(capacityStr);
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("Capacity must be a positive number.");
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid capacity format.");
+        }
+    }
+
+    public static void validateSeatNumber(String seatNumberStr, int capacity) {
+        try {
+            int seatNum = Integer.parseInt(seatNumberStr);
+            if (seatNum > capacity || seatNum <= 0) {
+                log.warn("Invalid seat number.");
+                throw new IllegalArgumentException("Your seat number exceeds the session's capacity or not positive number! Try again.");
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid seat number format.");
         }
     }
 }

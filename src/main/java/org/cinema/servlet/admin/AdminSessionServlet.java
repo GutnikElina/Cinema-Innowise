@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.cinema.util.ValidationUtil.*;
+
 @Slf4j
 @WebServlet("/admin/sessions")
 public class AdminSessionServlet extends HttpServlet {
@@ -94,30 +96,33 @@ public class AdminSessionServlet extends HttpServlet {
             String dateStr = request.getParameter("date");
             String startTimeStr = request.getParameter("startTime");
             String endTimeStr = request.getParameter("endTime");
-            int capacity = Integer.parseInt(request.getParameter("capacity"));
-            BigDecimal price = new BigDecimal(request.getParameter("price"));
+            String capacityStr = request.getParameter("capacity");
+            String priceStr = request.getParameter("price");
+
+            validateDate(dateStr);
+            validatePrice(priceStr);
+            validateCapacity(capacityStr);
 
             LocalDate date = LocalDate.parse(dateStr);
             LocalTime startTime = LocalTime.parse(startTimeStr);
             LocalTime endTime = LocalTime.parse(endTimeStr);
+            int capacity = Integer.parseInt(capacityStr);
+            BigDecimal price = new BigDecimal(priceStr);
 
             Movie movie = OmdbApiUtil.getMovie(movieTitle);
             if (movie == null) {
                 throw new IllegalArgumentException("Film with this title not found.");
             }
-            FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date,
-                    startTime, endTime, capacity);
+            FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date, startTime, endTime, capacity);
 
             sessionDAO.add(filmSession);
             return "Success! Session was successfully added to the database!";
-        } catch (NumberFormatException e) {
-            log.error("Invalid number format for fields: {}", e.getMessage(), e);
-            return "Error! Invalid input for price, capacity, or other fields. Please check your data.";
         } catch (IllegalArgumentException e) {
-            log.error("Error adding session: {}", e.getMessage(), e);
+            log.error("Validation error during adding session: {}", e.getMessage(), e);
             return "Error! " + e.getMessage();
         }
     }
+
 
     private String handleDeleteAction(HttpServletRequest request) {
         try {
@@ -137,12 +142,18 @@ public class AdminSessionServlet extends HttpServlet {
             String dateStr = request.getParameter("date");
             String startTimeStr = request.getParameter("startTime");
             String endTimeStr = request.getParameter("endTime");
-            int capacity = Integer.parseInt(request.getParameter("capacity"));
-            BigDecimal price = new BigDecimal(request.getParameter("price"));
+            String capacityStr = request.getParameter("capacity");
+            String priceStr = request.getParameter("price");
+
+            validateDate(dateStr);
+            validatePrice(priceStr);
+            validateCapacity(capacityStr);
 
             LocalDate date = LocalDate.parse(dateStr);
             LocalTime startTime = LocalTime.parse(startTimeStr);
             LocalTime endTime = LocalTime.parse(endTimeStr);
+            int capacity = Integer.parseInt(capacityStr);
+            BigDecimal price = new BigDecimal(priceStr);
 
             Movie movie = OmdbApiUtil.getMovie(movieTitle);
             if (movie == null) {

@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.cinema.util.ValidationUtil.validateSeatNumber;
+
 @Slf4j
 @WebServlet("/admin/tickets")
 public class AdminTicketServlet extends HttpServlet {
@@ -112,10 +114,7 @@ public class AdminTicketServlet extends HttpServlet {
             User user = userDAO.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             FilmSession filmSession = sessionDAO.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
 
-            int seatNum = Integer.parseInt(seatNumber);
-            if (seatNum > filmSession.getCapacity()) {
-                return "Error! Your seat number exceeds the session's capacity! Try again.";
-            }
+            validateSeatNumber(seatNumber, filmSession.getCapacity());
 
             Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
             ticketDAO.add(ticket);

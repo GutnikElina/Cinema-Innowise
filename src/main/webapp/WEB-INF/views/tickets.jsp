@@ -14,6 +14,11 @@
 
 <div class="container my-5">
 
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="text-center">Ticket Management</h1>
+        <a href="${pageContext.request.contextPath}/admin" class="btn btn-danger">Back</a>
+    </div>
+
     <c:if test="${not empty message}">
         <div class="alert
         <c:if test="${message.toLowerCase().contains('error')}">error</c:if>
@@ -22,8 +27,6 @@
                 ${message}
         </div>
     </c:if>
-
-    <h1 class="text-center">Ticket Management</h1>
 
     <c:choose>
         <c:when test="${empty tickets}">
@@ -100,7 +103,7 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <input type="text" class="form-control form-control-sm" name="seatNumber" placeholder="Select seat number" required>
+                    <input type="number" class="form-control form-control-sm" name="seatNumber" placeholder="Select seat number" required>
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="status" required>
@@ -149,7 +152,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control form-control-sm"  placeholder="Select seat number" name="seatNumber" value="${ticketToEdit.seatNumber}" required>
+                        <input type="number" class="form-control form-control-sm"  placeholder="Select seat number" name="seatNumber" value="${ticketToEdit.seatNumber}" required>
                     </div>
                     <div class="mb-3">
                         <select class="form-control form-control-sm" placeholder="Select status" name="status" required>

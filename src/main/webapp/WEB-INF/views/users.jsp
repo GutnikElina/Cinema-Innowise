@@ -15,7 +15,13 @@
 <body>
 
 <div class="container my-5">
-  <c:if test="${not empty message}">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="text-center">User Management</h1>
+      <a href="${pageContext.request.contextPath}/admin" class="btn btn-danger">Back</a>
+    </div>
+
+    <c:if test="${not empty message}">
     <div class="alert
         <c:if test="${message.toLowerCase().contains('error')}">error</c:if>
         <c:if test="${message.toLowerCase().contains('success')}">success</c:if>"
@@ -23,8 +29,6 @@
         ${message}
     </div>
   </c:if>
-
-  <h1 class="text-center">User Management</h1>
 
   <c:choose>
     <c:when test="${empty users}">
