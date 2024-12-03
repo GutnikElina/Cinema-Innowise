@@ -184,7 +184,6 @@ public class AdminSessionServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             log.error("Invalid session ID format: {}", e.getMessage(), e);
             request.setAttribute("message", "Error! Invalid session ID format.");
-            //request.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(request, response);
         }
     }
 }

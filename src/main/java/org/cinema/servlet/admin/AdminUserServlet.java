@@ -12,6 +12,7 @@ import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
 import org.hibernate.HibernateException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import static org.cinema.util.ValidationUtil.*;
@@ -95,7 +96,11 @@ public class AdminUserServlet extends HttpServlet {
             validateRole(role);
 
             Role userRole = Role.valueOf(role.toUpperCase());
-            User user = new User(username, PasswordUtil.hashPassword(password), userRole);
+
+            String salt = PasswordUtil.generateSalt();
+            String hashedPassword = PasswordUtil.hashPassword(password, salt);
+
+            User user = new User(username, hashedPassword, userRole);
             userDAO.add(user);
             return "Success! User was successfully added!";
         } catch (IllegalArgumentException e) {
@@ -118,7 +123,12 @@ public class AdminUserServlet extends HttpServlet {
             Role userRole = Role.valueOf(role.toUpperCase());
             User existingUser = userDAO.getById(id).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             existingUser.setUsername(username);
-            existingUser.setPassword(PasswordUtil.hashPassword(password));
+
+            String salt = PasswordUtil.generateSalt();
+            String hashedPassword = PasswordUtil.hashPassword(password, salt);
+
+            existingUser.setPassword(hashedPassword);
+            existingUser.setSalt(salt);
             existingUser.setRole(userRole);
 
             userDAO.update(existingUser);
@@ -148,7 +158,6 @@ public class AdminUserServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             log.error("Invalid user ID format: {}", e.getMessage(), e);
             request.setAttribute("message", "Error! Invalid user ID format.");
-            //request.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(request, response);
         }
     }
 }
