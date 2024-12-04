@@ -7,11 +7,13 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "film_session")
 public class FilmSession {
 
@@ -36,5 +38,19 @@ public class FilmSession {
 
     @Column(nullable = false)
     private int capacity;
+
+    @Transient
+    private List<Integer> takenSeats = new ArrayList<>();
+
+    public FilmSession(int id, String movieTitle, BigDecimal price, LocalDate date, LocalTime startTime, LocalTime endTime, int capacity) {
+        this.id = id;
+        this.movieTitle = movieTitle;
+        this.price = price;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.capacity = capacity;
+        this.takenSeats = new ArrayList<>();
+    }
 }
 

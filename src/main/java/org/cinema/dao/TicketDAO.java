@@ -141,4 +141,21 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
             throw new RuntimeException("Unexpected error while checking if ticket exists.", e);
         }
     }
+
+    public List<Ticket> getTicketsBySession(int sessionId) {
+        try {
+            return executeTransactionWithResult(session -> {
+                Query<Ticket> query = session.createQuery(
+                        "FROM Ticket t WHERE t.filmSession.id = :sessionId", Ticket.class);
+                query.setParameter("sessionId", sessionId);
+
+                List<Ticket> tickets = query.list();
+                log.info("Found {} tickets for session with ID {}", tickets.size(), sessionId);
+                return tickets;
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error while retrieving tickets for session ID {}: {}", sessionId, e.getMessage());
+            throw new RuntimeException("Unexpected error while retrieving tickets for session.", e);
+        }
+    }
 }

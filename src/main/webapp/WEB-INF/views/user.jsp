@@ -13,7 +13,6 @@
     <h1 class="text-center">USER MENU</h1>
 
     <nav class="mb-5 text-center">
-        <a href="${pageContext.request.contextPath}/user/sessions" class="btn btn-primary">View Film Sessions</a>
         <a href="${pageContext.request.contextPath}/user/tickets/purchase" class="btn btn-primary">Buy Tickets</a>
         <a href="${pageContext.request.contextPath}/user/tickets" class="btn btn-primary">My Tickets</a>
         <a href="${pageContext.request.contextPath}/user/edit" class="btn btn-primary">Edit Account</a>
