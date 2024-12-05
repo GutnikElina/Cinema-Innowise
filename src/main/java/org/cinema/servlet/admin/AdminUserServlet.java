@@ -100,7 +100,7 @@ public class AdminUserServlet extends HttpServlet {
             String salt = PasswordUtil.generateSalt();
             String hashedPassword = PasswordUtil.hashPassword(password, salt);
 
-            User user = new User(username, hashedPassword, userRole);
+            User user = new User(username, hashedPassword, salt, userRole);
             userDAO.add(user);
             return "Success! User was successfully added!";
         } catch (IllegalArgumentException e) {
