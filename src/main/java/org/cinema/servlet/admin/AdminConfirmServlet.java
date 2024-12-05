@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.TicketDAO;
+import org.cinema.repository.TicketRepository;
 import org.cinema.model.*;
 import org.hibernate.HibernateException;
 
@@ -20,11 +20,11 @@ import static org.cinema.util.ValidationUtil.validateParameters;
 @WebServlet(name = "AdminConfirmServlet", urlPatterns = {"/admin/tickets/confirm"})
 public class AdminConfirmServlet extends HttpServlet {
 
-    private TicketDAO ticketDAO;
+    private TicketRepository ticketRepository;
 
     @Override
     public void init() {
-        ticketDAO = new TicketDAO();
+        ticketRepository = new TicketRepository();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class AdminConfirmServlet extends HttpServlet {
         String message = "";
 
         try {
-            tickets = ticketDAO.getAll();
+            tickets = ticketRepository.getAll();
         } catch (IllegalArgumentException e) {
             log.error("Error in doGet method (catch AdminTicketServlet): {}", e.getMessage(), e);
             message = "Error! " + e.getMessage();
@@ -61,7 +61,7 @@ public class AdminConfirmServlet extends HttpServlet {
         try {
             validateParameters(action, ticketIdParam);
             int ticketId = Integer.parseInt(ticketIdParam);
-            Ticket ticket = ticketDAO.getById(ticketId).orElseThrow(() ->
+            Ticket ticket = ticketRepository.getById(ticketId).orElseThrow(() ->
                     new IllegalArgumentException("Ticket with this ID doesn't exist!"));
 
             message = processAction(action, ticket);
@@ -97,7 +97,7 @@ public class AdminConfirmServlet extends HttpServlet {
     private String confirmTicket(Ticket ticket) {
         if (ticket.getStatus() == Status.PENDING && ticket.getRequestType() == RequestType.PURCHASE) {
             ticket.setStatus(Status.CONFIRMED);
-            ticketDAO.update(ticket);
+            ticketRepository.update(ticket);
             return "Success! Ticket Confirmed!";
         }
         return "Error! Invalid action for this ticket.";
@@ -106,7 +106,7 @@ public class AdminConfirmServlet extends HttpServlet {
     private String returnTicket(Ticket ticket) {
         if (ticket.getRequestType() == RequestType.RETURN) {
             ticket.setStatus(Status.RETURNED);
-            ticketDAO.update(ticket);
+            ticketRepository.update(ticket);
             return "Success! Ticket Returned!";
         }
         return "Error! Invalid action for this ticket.";
@@ -115,7 +115,7 @@ public class AdminConfirmServlet extends HttpServlet {
     private String cancelTicket(Ticket ticket) {
         if (ticket.getStatus() == Status.PENDING) {
             ticket.setStatus(Status.CANCELLED);
-            ticketDAO.update(ticket);
+            ticketRepository.update(ticket);
             return "Success! Ticket Cancelled!";
         }
         return "Error! Invalid action for this ticket.";

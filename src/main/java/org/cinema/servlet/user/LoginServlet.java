@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.UserDAO;
+import org.cinema.repository.UserRepository;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
@@ -17,11 +17,11 @@ import java.io.IOException;
 @Slf4j
 public class LoginServlet extends HttpServlet {
 
-    private UserDAO userDAO;
+    private UserRepository userRepository;
 
     @Override
     public void init() {
-        userDAO = new UserDAO();
+        userRepository = new UserRepository();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
-            User user = userDAO.getByUsername(username).orElse(null);
+            User user = userRepository.getByUsername(username).orElse(null);
 
             if (user == null || !PasswordUtil.checkPassword(password, user.getPassword())) {
                 request.setAttribute("message", "Invalid username or password.");

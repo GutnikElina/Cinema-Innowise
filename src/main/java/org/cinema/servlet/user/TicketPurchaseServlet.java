@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.SessionDAO;
-import org.cinema.dao.TicketDAO;
+import org.cinema.repository.SessionRepository;
+import org.cinema.repository.TicketRepository;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Ticket;
 import org.cinema.model.User;
@@ -21,13 +21,13 @@ import java.util.List;
 @Slf4j
 public class TicketPurchaseServlet extends HttpServlet {
 
-    private TicketDAO ticketDAO;
-    private SessionDAO sessionDAO;
+    private TicketRepository ticketRepository;
+    private SessionRepository sessionRepository;
 
     @Override
     public void init() {
-        ticketDAO = new TicketDAO();
-        sessionDAO = new SessionDAO();
+        ticketRepository = new TicketRepository();
+        sessionRepository = new SessionRepository();
         log.info("TicketPurchaseServlet initialized with TicketDAO and SessionDAO.");
     }
 
@@ -37,16 +37,16 @@ public class TicketPurchaseServlet extends HttpServlet {
         log.info("Handling GET request for ticket purchase...");
 
         try {
-            List<FilmSession> filmSessions = sessionDAO.getAll();
+            List<FilmSession> filmSessions = sessionRepository.getAll();
             request.setAttribute("filmSessions", filmSessions);
 
             String sessionIdStr = request.getParameter("sessionId");
             if (sessionIdStr != null) {
                 int sessionId = Integer.parseInt(sessionIdStr);
-                FilmSession session = sessionDAO.getById(sessionId)
+                FilmSession session = sessionRepository.getById(sessionId)
                         .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
 
-                List<Ticket> tickets = ticketDAO.getTicketsBySession(sessionId);
+                List<Ticket> tickets = ticketRepository.getTicketsBySession(sessionId);
                 List<Integer> takenSeats = tickets.stream()
                         .map(ticket -> Integer.parseInt(ticket.getSeatNumber()))
                         .toList();
@@ -71,7 +71,7 @@ public class TicketPurchaseServlet extends HttpServlet {
             String seatNumber = request.getParameter("seatNumber");
             log.info("Received POST data: sessionId={}, seatNumber={}", sessionId, seatNumber);
 
-            FilmSession session = sessionDAO.getById(sessionId)
+            FilmSession session = sessionRepository.getById(sessionId)
                     .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
 
             ValidationUtil.validateSeatNumber(seatNumber, session.getCapacity());
@@ -84,7 +84,7 @@ public class TicketPurchaseServlet extends HttpServlet {
             ticket.setStatus(Status.PENDING);
             ticket.setPurchaseTime(LocalDateTime.now());
 
-            ticketDAO.add(ticket);
+            ticketRepository.add(ticket);
             log.info("Ticket successfully created for session {} and seat {}.", sessionId, seatNumber);
 
             message = "Ticket purchased successfully! Awaiting confirmation.";

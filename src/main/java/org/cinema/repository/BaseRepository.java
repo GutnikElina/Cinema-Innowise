@@ -1,4 +1,4 @@
-package org.cinema.dao;
+package org.cinema.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
@@ -15,7 +15,7 @@ import java.util.function.Function;
  * This class is intended to be extended by other DAO classes that interact with specific entities.
  */
 @Slf4j
-public class BaseDao {
+public class BaseRepository {
 
     protected final SessionFactory sessionFactory;
 
@@ -24,7 +24,7 @@ public class BaseDao {
      *
      * @param sessionFactory the Hibernate {@link SessionFactory} to be used for creating sessions
      */
-    protected BaseDao(SessionFactory sessionFactory) {
+    protected BaseRepository(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 

@@ -1,4 +1,4 @@
-package org.cinema.dao;
+package org.cinema.repository;
 
 import java.util.List;
 import java.util.Optional;

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.UserDAO;
+import org.cinema.repository.UserRepository;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
@@ -17,11 +17,11 @@ import java.io.IOException;
 @Slf4j
 public class RegisterServlet extends HttpServlet {
 
-    private UserDAO userDAO;
+    private UserRepository userRepository;
 
     @Override
     public void init() {
-        userDAO = new UserDAO();
+        userRepository = new UserRepository();
         log.info("RegisterServlet initialized with UserDAO.");
     }
 
@@ -48,7 +48,7 @@ public class RegisterServlet extends HttpServlet {
             ValidationUtil.validatePassword(password);
 
             User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
-            userDAO.add(user);
+            userRepository.add(user);
 
             log.info("User [{}] registered successfully.", username);
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);

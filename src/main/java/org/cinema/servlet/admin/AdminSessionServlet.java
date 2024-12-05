@@ -6,15 +6,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.SessionDAO;
+import org.cinema.repository.SessionRepository;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
-import org.cinema.model.User;
 import org.cinema.util.OmdbApiUtil;
 import org.hibernate.HibernateException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -27,11 +25,11 @@ import static org.cinema.util.ValidationUtil.*;
 @WebServlet("/admin/sessions")
 public class AdminSessionServlet extends HttpServlet {
 
-    private SessionDAO sessionDAO;
+    private SessionRepository sessionRepository;
 
     @Override
     public void init() {
-        sessionDAO = new SessionDAO();
+        sessionRepository = new SessionRepository();
     }
 
     @Override
@@ -46,7 +44,7 @@ public class AdminSessionServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 handleEditAction(request);
             }
-            filmSessions = sessionDAO.getAll();
+            filmSessions = sessionRepository.getAll();
         } catch (Exception e) {
             log.error("Unexpected error in doGet method (catch AdminSessionServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
@@ -115,7 +113,7 @@ public class AdminSessionServlet extends HttpServlet {
             }
             FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date, startTime, endTime, capacity);
 
-            sessionDAO.add(filmSession);
+            sessionRepository.add(filmSession);
             return "Success! Session was successfully added to the database!";
         } catch (IllegalArgumentException e) {
             log.error("Validation error during adding session: {}", e.getMessage(), e);
@@ -127,7 +125,7 @@ public class AdminSessionServlet extends HttpServlet {
     private String handleDeleteAction(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            sessionDAO.delete(id);
+            sessionRepository.delete(id);
             return "Success! Session was successfully deleted from the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid session ID format during delete: {}", e.getMessage(), e);
@@ -161,7 +159,7 @@ public class AdminSessionServlet extends HttpServlet {
             }
 
             FilmSession filmSession = new FilmSession(id, movie.getTitle(), price, date, startTime, endTime, capacity);
-            sessionDAO.update(filmSession);
+            sessionRepository.update(filmSession);
 
             return "Success! Session was successfully updated in the database!";
         } catch (NumberFormatException e) {
@@ -179,7 +177,7 @@ public class AdminSessionServlet extends HttpServlet {
     private void handleEditAction(HttpServletRequest request) {
         try {
             int sessionId = Integer.parseInt(request.getParameter("id"));
-            Optional<FilmSession> sessionToEditOpt = sessionDAO.getById(sessionId);
+            Optional<FilmSession> sessionToEditOpt = sessionRepository.getById(sessionId);
             sessionToEditOpt.ifPresent(session -> request.setAttribute("sessionToEdit", session));
         } catch (NumberFormatException e) {
             log.error("Invalid session ID format: {}", e.getMessage(), e);

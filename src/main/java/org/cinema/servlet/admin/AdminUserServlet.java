@@ -6,13 +6,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.UserDAO;
+import org.cinema.repository.UserRepository;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
 import org.hibernate.HibernateException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import static org.cinema.util.ValidationUtil.*;
@@ -21,11 +20,11 @@ import static org.cinema.util.ValidationUtil.*;
 @WebServlet("/admin/users")
 public class AdminUserServlet extends HttpServlet {
 
-    private UserDAO userDAO;
+    private UserRepository userRepository;
 
     @Override
     public void init() {
-        userDAO = new UserDAO();
+        userRepository = new UserRepository();
     }
 
     @Override
@@ -40,7 +39,7 @@ public class AdminUserServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 handleEditAction(request);
             }
-            users = userDAO.getAll();
+            users = userRepository.getAll();
         } catch (Exception e) {
             log.error("Unexpected error in doGet method (catch AdminUserServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
@@ -98,7 +97,7 @@ public class AdminUserServlet extends HttpServlet {
             Role userRole = Role.valueOf(role.toUpperCase());
 
             User user = new User(username, PasswordUtil.hashPassword(password), userRole);
-            userDAO.add(user);
+            userRepository.add(user);
             return "Success! User was successfully added!";
         } catch (IllegalArgumentException e) {
             log.error("Occurred error while adding user: {}", e.getMessage(), e);
@@ -118,13 +117,13 @@ public class AdminUserServlet extends HttpServlet {
             validateRole(role);
 
             Role userRole = Role.valueOf(role.toUpperCase());
-            User existingUser = userDAO.getById(id).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
+            User existingUser = userRepository.getById(id).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             existingUser.setUsername(username);
 
             existingUser.setPassword(PasswordUtil.hashPassword(password));
             existingUser.setRole(userRole);
 
-            userDAO.update(existingUser);
+            userRepository.update(existingUser);
             return "Success! User was successfully updated!";
         } catch (IllegalArgumentException e) {
             log.error("Error updating user, illegal argument (catch AdminUserServlet): {}", e.getMessage(), e);
@@ -135,7 +134,7 @@ public class AdminUserServlet extends HttpServlet {
     private String handleDeleteAction(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            userDAO.delete(id);
+            userRepository.delete(id);
             return "Success! User was successfully deleted!";
         } catch (NumberFormatException e) {
             log.error("Invalid user ID format during delete: {}", e.getMessage(), e);
@@ -146,7 +145,7 @@ public class AdminUserServlet extends HttpServlet {
     private void handleEditAction(HttpServletRequest request) {
         try {
             int userId = Integer.parseInt(request.getParameter("id"));
-            User user = userDAO.getById(userId).orElse(null);
+            User user = userRepository.getById(userId).orElse(null);
             request.setAttribute("user", user);
         } catch (NumberFormatException e) {
             log.error("Invalid user ID format: {}", e.getMessage(), e);

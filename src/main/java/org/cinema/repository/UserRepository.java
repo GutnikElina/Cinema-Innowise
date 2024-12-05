@@ -1,4 +1,4 @@
-package org.cinema.dao;
+package org.cinema.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class UserDAO extends BaseDao implements Repository<User>{
+public class UserRepository extends BaseRepository implements Repository<User>{
 
-    public UserDAO() {
+    public UserRepository() {
         super(HibernateConfig.getSessionFactory());
     }
 

@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dao.SessionDAO;
-import org.cinema.dao.TicketDAO;
-import org.cinema.dao.UserDAO;
+import org.cinema.repository.SessionRepository;
+import org.cinema.repository.TicketRepository;
+import org.cinema.repository.UserRepository;
 import org.cinema.model.Ticket;
 import org.cinema.model.User;
 import org.cinema.model.FilmSession;
@@ -16,10 +16,8 @@ import org.cinema.model.Status;
 import org.cinema.model.RequestType;
 import org.hibernate.HibernateException;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.cinema.util.ValidationUtil.validateSeatNumber;
 
@@ -27,15 +25,15 @@ import static org.cinema.util.ValidationUtil.validateSeatNumber;
 @WebServlet("/admin/tickets")
 public class AdminTicketServlet extends HttpServlet {
 
-    private TicketDAO ticketDAO;
-    private UserDAO userDAO;
-    private SessionDAO sessionDAO;
+    private TicketRepository ticketRepository;
+    private UserRepository userRepository;
+    private SessionRepository sessionRepository;
 
     @Override
     public void init() {
-        ticketDAO = new TicketDAO();
-        userDAO = new UserDAO();
-        sessionDAO = new SessionDAO();
+        ticketRepository = new TicketRepository();
+        userRepository = new UserRepository();
+        sessionRepository = new SessionRepository();
     }
 
     @Override
@@ -52,9 +50,9 @@ public class AdminTicketServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 handleEditAction(request);
             }
-            filmSessions = sessionDAO.getAll();
-            tickets = ticketDAO.getAll();
-            users = userDAO.getAll();
+            filmSessions = sessionRepository.getAll();
+            tickets = ticketRepository.getAll();
+            users = userRepository.getAll();
         } catch (IllegalArgumentException e) {
             log.error("Error in doGet method (catch AdminTicketServlet): {}", e.getMessage(), e);
             message = "Error! " + e.getMessage();
@@ -111,13 +109,13 @@ public class AdminTicketServlet extends HttpServlet {
             Status status = Status.valueOf(statusStr.toUpperCase());
             RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
 
-            User user = userDAO.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
-            FilmSession filmSession = sessionDAO.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
+            User user = userRepository.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
+            FilmSession filmSession = sessionRepository.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
 
             validateSeatNumber(seatNumber, filmSession.getCapacity());
 
             Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
-            ticketDAO.add(ticket);
+            ticketRepository.add(ticket);
             return "Success! Ticket was successfully added to the database!";
         } catch (IllegalArgumentException e) {
             log.error("Occurred error while adding ticket: {}", e.getMessage(), e);
@@ -131,7 +129,7 @@ public class AdminTicketServlet extends HttpServlet {
     private String handleDeleteAction(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            ticketDAO.delete(id);
+            ticketRepository.delete(id);
             return "Success! Ticket was successfully deleted from the database!";
         } catch (NumberFormatException e) {
             log.error("Invalid ticket ID format during delete: {}", e.getMessage(), e);
@@ -151,8 +149,8 @@ public class AdminTicketServlet extends HttpServlet {
             Status status = Status.valueOf(statusStr.toUpperCase());
             RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
 
-            User user = userDAO.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
-            FilmSession filmSession = sessionDAO.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
+            User user = userRepository.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
+            FilmSession filmSession = sessionRepository.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
 
             int seatNum = Integer.parseInt(seatNumber);
             if (seatNum > filmSession.getCapacity()) {
@@ -160,7 +158,7 @@ public class AdminTicketServlet extends HttpServlet {
             }
 
             Ticket ticket = new Ticket(id, user, filmSession, seatNumber, null, status, requestType);
-            ticketDAO.update(ticket);
+            ticketRepository.update(ticket);
             return "Success! Ticket was successfully updated in the database!";
         } catch (IllegalArgumentException e) {
             log.error("Occurred error while updating ticket: {}", e.getMessage(), e);
@@ -174,7 +172,7 @@ public class AdminTicketServlet extends HttpServlet {
     private void handleEditAction(HttpServletRequest request) {
         try {
             int ticketId = Integer.parseInt(request.getParameter("id"));
-            Ticket ticketToEdit = ticketDAO.getById(ticketId).orElseThrow(() -> new IllegalArgumentException("Ticket with this ID doesn't exist!"));
+            Ticket ticketToEdit = ticketRepository.getById(ticketId).orElseThrow(() -> new IllegalArgumentException("Ticket with this ID doesn't exist!"));
 
             request.setAttribute("ticketToEdit", ticketToEdit);
         } catch (NumberFormatException e) {
