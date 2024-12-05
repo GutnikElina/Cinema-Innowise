@@ -45,7 +45,7 @@ public class LoginServlet extends HttpServlet {
 
         User user = userDAO.getByUsername(username).orElse(null);
 
-        if (user == null || !PasswordUtil.hashPassword(password, user.getSalt()).equals(user.getPassword())) {
+        if (user == null || !PasswordUtil.checkPassword(password, user.getPassword())) {
             request.setAttribute("message", "Invalid username or password.");
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
             return;

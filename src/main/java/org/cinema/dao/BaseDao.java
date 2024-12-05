@@ -8,19 +8,30 @@ import org.hibernate.Transaction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Base DAO class that provides common methods for handling database transactions.
+ * This class contains methods to execute Hibernate transactions that either do or don't return results.
+ * It abstracts the session management and transaction handling to simplify database operations for subclasses.
+ * This class is intended to be extended by other DAO classes that interact with specific entities.
+ */
 @Slf4j
 public class BaseDao {
 
     protected final SessionFactory sessionFactory;
 
+    /**
+     * Constructor to initialize the DAO with a {@link SessionFactory}.
+     *
+     * @param sessionFactory the Hibernate {@link SessionFactory} to be used for creating sessions
+     */
     protected BaseDao(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
     /**
-     * Выполняет транзакцию без возврата результата (добавление, обновление, удаление).
+     * Executes a transaction that does not return a result (e.g., insert, update, delete).
      *
-     * @param action действие, которое должно быть выполнено в рамках транзакции
+     * @param action the operation to be performed within the transaction
      */
     protected void executeTransaction(Consumer<Session> action) {
         Transaction transaction = null;
@@ -44,11 +55,11 @@ public class BaseDao {
     }
 
     /**
-     * Выполняет транзакцию, которая возвращает результат (получение данных).
+     * Executes a transaction that returns a result (e.g., fetching data).
      *
-     * @param action действие, которое должно быть выполнено в рамках транзакции
-     * @param <R> тип результата
-     * @return результат выполнения действия
+     * @param action the operation to be performed within the transaction
+     * @param <R>    the type of the result
+     * @return the result of the operation
      */
     protected <R> R executeTransactionWithResult(Function<Session, R> action) {
         Transaction transaction = null;
@@ -70,6 +81,11 @@ public class BaseDao {
         }
     }
 
+    /**
+     * Handles transaction rollback in case of an error.
+     *
+     * @param transaction the transaction to roll back
+     */
     private void handleTransactionRollback(Transaction transaction) {
         if (transaction != null && transaction.isActive()) {
             try {

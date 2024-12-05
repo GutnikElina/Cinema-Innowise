@@ -47,10 +47,8 @@ public class RegisterServlet extends HttpServlet {
             ValidationUtil.validateUsername(username);
             ValidationUtil.validatePassword(password);
 
-            String salt = PasswordUtil.generateSalt();
-            String hashedPassword = PasswordUtil.hashPassword(password, salt);
 
-            User user = new User(username, hashedPassword, salt, Role.USER);
+            User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
             userDAO.add(user);
 
             log.info("User [{}] registered successfully.", username);

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Универсальный интерфейс для CRUD операций.
+ * A generic interface for CRUD operations.
  *
- * @param <T> тип сущности
+ * @param <T> the type of the entity
  */
 public interface Repository<T> {
     void add(T entity);

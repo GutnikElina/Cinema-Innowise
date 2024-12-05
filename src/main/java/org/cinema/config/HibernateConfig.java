@@ -9,8 +9,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 /**
- * Конфигурационный класс для работы с Hibernate.
- * Отвечает за инициализацию и завершение работы фабрики сессий {@link SessionFactory}.
+ * Configuration class for managing Hibernate.
+ * Responsible for initializing and shutting down the {@link SessionFactory}.
  */
 @Slf4j
 @WebListener
@@ -19,10 +19,10 @@ public class HibernateConfig implements ServletContextListener {
     private static SessionFactory sessionFactory;
 
     /**
-     * Возвращает экземпляр {@link SessionFactory}.
+     * Returns the {@link SessionFactory} instance.
      *
      * @return {@link SessionFactory}
-     * @throws IllegalStateException если фабрика сессий не была инициализирована.
+     * @throws IllegalStateException if the session factory has not been initialized.
      */
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
@@ -32,10 +32,10 @@ public class HibernateConfig implements ServletContextListener {
     }
 
     /**
-     * Инициализирует фабрику сессий при старте приложения.
-     * Этот метод вызывается при запуске сервера.
+     * Initializes the session factory at the application startup.
+     * This method is called when the server starts.
      *
-     * @param sce объект, представляющий событие контекста сервлета
+     * @param sce the servlet context event object
      */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -51,10 +51,10 @@ public class HibernateConfig implements ServletContextListener {
     }
 
     /**
-     * Закрывает фабрику сессий при завершении работы приложения.
-     * Этот метод вызывается при остановке сервера.
+     * Closes the session factory when the application shuts down.
+     * This method is called when the server stops.
      *
-     * @param sce объект, представляющий событие контекста сервлета
+     * @param sce the servlet context event object
      */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {

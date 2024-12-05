@@ -97,10 +97,7 @@ public class AdminUserServlet extends HttpServlet {
 
             Role userRole = Role.valueOf(role.toUpperCase());
 
-            String salt = PasswordUtil.generateSalt();
-            String hashedPassword = PasswordUtil.hashPassword(password, salt);
-
-            User user = new User(username, hashedPassword, salt, userRole);
+            User user = new User(username, PasswordUtil.hashPassword(password), userRole);
             userDAO.add(user);
             return "Success! User was successfully added!";
         } catch (IllegalArgumentException e) {
@@ -124,11 +121,7 @@ public class AdminUserServlet extends HttpServlet {
             User existingUser = userDAO.getById(id).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
             existingUser.setUsername(username);
 
-            String salt = PasswordUtil.generateSalt();
-            String hashedPassword = PasswordUtil.hashPassword(password, salt);
-
-            existingUser.setPassword(hashedPassword);
-            existingUser.setSalt(salt);
+            existingUser.setPassword(PasswordUtil.hashPassword(password));
             existingUser.setRole(userRole);
 
             userDAO.update(existingUser);

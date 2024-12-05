@@ -24,19 +24,15 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String salt;
-
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String username, String password, String salt, Role role) {
+    public User(String username, String password, Role role) {
         this.username = username;
         this.password = password;
-        this.salt = salt;
         this.role = role;
     }
 
