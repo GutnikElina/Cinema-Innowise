@@ -36,7 +36,7 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
     @Override
     public Optional<FilmSession> getById(int id) {
         try {
-            return Optional.ofNullable(executeTransactionWithResult(session -> {
+            return Optional.ofNullable(executeWithResult(session -> {
                 FilmSession filmSession = session.get(FilmSession.class, id);
                 if (filmSession == null) {
                     log.warn("Film session with ID {} not found.", id);
@@ -54,7 +54,7 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
     @Override
     public List<FilmSession> getAll() {
         try {
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 List<FilmSession> filmSessions = session.createQuery("FROM FilmSession", FilmSession.class).list();
                 if (filmSessions.isEmpty()) {
                     log.warn("No film sessions found in the database.");
@@ -120,7 +120,7 @@ public class SessionDAO extends BaseDao implements Repository<FilmSession> {
 
     private boolean checkIfSessionExists(FilmSession filmSession) {
         try {
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 Query<FilmSession> query = session.createQuery(
                         "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
                                 "AND fs.date = :date " +

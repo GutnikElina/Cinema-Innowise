@@ -39,7 +39,7 @@ public class FilmSession {
     @Column(nullable = false)
     private int capacity;
 
-    @Transient
+    @Transient 
     private List<Integer> takenSeats = new ArrayList<>();
 
     public FilmSession(int id, String movieTitle, BigDecimal price, LocalDate date, LocalTime startTime, LocalTime endTime, int capacity) {

@@ -42,7 +42,7 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 throw new IllegalArgumentException("ID must be a positive number.");
             }
 
-            return Optional.ofNullable(executeTransactionWithResult(session -> {
+            return Optional.ofNullable(executeWithResult(session -> {
                 User user = session.get(User.class, id);
                 if (user == null) {
                     log.warn("User with ID {} not found.", id);
@@ -62,7 +62,7 @@ public class UserDAO extends BaseDao implements Repository<User>{
     @Override
     public List<User> getAll() {
         try {
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 log.info("Retrieving all users...");
                 List<User> users = session.createQuery("FROM User", User.class).list();
 
@@ -139,7 +139,7 @@ public class UserDAO extends BaseDao implements Repository<User>{
                 throw new IllegalArgumentException("Username cannot be null or blank.");
             }
 
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 Query<User> query = session.createQuery("FROM User WHERE username = :username", User.class);
                 query.setParameter("username", username);
                 Optional<User> result = query.uniqueResultOptional();

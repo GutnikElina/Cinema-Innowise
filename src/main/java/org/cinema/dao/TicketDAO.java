@@ -36,7 +36,7 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
     @Override
     public Optional<Ticket> getById(int id) {
         try {
-            return Optional.ofNullable(executeTransactionWithResult(session -> {
+            return Optional.ofNullable(executeWithResult(session -> {
                 Ticket ticket = session.get(Ticket.class, id);
                 if (ticket == null) {
                     log.warn("Ticket with ID {} not found.", id);
@@ -54,7 +54,7 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
     @Override
     public List<Ticket> getAll() {
         try {
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 List<Ticket> tickets = session.createQuery("FROM Ticket", Ticket.class).list();
                 if (tickets.isEmpty()) {
                     log.warn("No tickets found in the database.");
@@ -123,7 +123,7 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
 
     private boolean checkIfTicketExists(Ticket ticket) {
         try {
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 Query<Ticket> query = session.createQuery(
                         "FROM Ticket t WHERE t.filmSession.id = :sessionId " +
                                 "AND t.seatNumber = :seatNumber", Ticket.class);
@@ -144,7 +144,7 @@ public class TicketDAO extends BaseDao implements Repository<Ticket> {
 
     public List<Ticket> getTicketsBySession(int sessionId) {
         try {
-            return executeTransactionWithResult(session -> {
+            return executeWithResult(session -> {
                 Query<Ticket> query = session.createQuery(
                         "FROM Ticket t WHERE t.filmSession.id = :sessionId", Ticket.class);
                 query.setParameter("sessionId", sessionId);

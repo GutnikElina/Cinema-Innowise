@@ -55,29 +55,24 @@ public class BaseDao {
     }
 
     /**
-     * Executes a transaction that returns a result (e.g., fetching data).
+     * Executes an operation that returns a result (e.g., fetching data).
      *
-     * @param action the operation to be performed within the transaction
+     * @param action the operation to be performed
      * @param <R>    the type of the result
      * @return the result of the operation
      */
-    protected <R> R executeTransactionWithResult(Function<Session, R> action) {
-        Transaction transaction = null;
+    protected <R> R executeWithResult(Function<Session, R> action) {
         try (Session session = sessionFactory.openSession()) {
-            log.debug("Transaction with result started...");
-            transaction = session.beginTransaction();
+            log.debug("Session opened for operation...");
             R result = action.apply(session);
-            transaction.commit();
-            log.debug("Transaction successfully completed with result: {}", result != null ? result : "No result returned");
+            log.debug("Operation successfully completed with result: {}", result != null ? result : "No result returned");
             return result;
         } catch (HibernateException e) {
-            log.error("Hibernate error during transaction with result: {}", e.getMessage());
-            handleTransactionRollback(transaction);
-            throw new RuntimeException("Hibernate error during transaction with result.", e);
+            log.error("Hibernate error during operation: {}", e.getMessage());
+            throw new RuntimeException("Hibernate error during operation.", e);
         } catch (Exception e) {
-            log.error("Unexpected error during transaction with result: {}", e.getMessage());
-            handleTransactionRollback(transaction);
-            throw new RuntimeException("Unexpected error during transaction with result.", e);
+            log.error("Unexpected error during operation: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error during operation.", e);
         }
     }
 
