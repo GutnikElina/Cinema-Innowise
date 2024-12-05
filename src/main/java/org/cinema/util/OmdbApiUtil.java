@@ -54,6 +54,8 @@ public class OmdbApiUtil {
                 log.warn("No movie found for title: {}", title);
                 throw new IllegalArgumentException("Movie not found with the given title: " + title);
             }
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (JsonSyntaxException e) {
             log.error("Error parsing JSON response for movie title: {}", title, e);
             throw new RuntimeException("Error parsing response from OMDB API", e);
@@ -103,6 +105,8 @@ public class OmdbApiUtil {
                 log.warn("No movies found for search query: {}", title);
                 throw new IllegalArgumentException("No movies found for the given title: " + title);
             }
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (JsonSyntaxException e) {
             log.error("Error parsing JSON response for movie search: {}", title, e);
             throw new RuntimeException("Error parsing response from OMDB API", e);
@@ -137,7 +141,6 @@ public class OmdbApiUtil {
                 throw new IllegalArgumentException("Movie details not found for ID: " + movieId);
             }
         } catch (IllegalArgumentException e) {
-            log.error("Invalid input or movie details not found: {}", e.getMessage());
             throw e;
         } catch (JsonSyntaxException e) {
             log.error("Error parsing JSON response for movie ID: {}", movieId);
@@ -188,6 +191,9 @@ public class OmdbApiUtil {
         } catch (IOException e) {
             log.error("IO error while communicating with OMDB API: {}", urlString, e);
             throw new RuntimeException("Error fetching response from OMDB API", e);
+        } catch (Exception e) {
+            log.error("Unexpected error while fetching API response: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error occurred while fetching API response", e);
         }
     }
 }

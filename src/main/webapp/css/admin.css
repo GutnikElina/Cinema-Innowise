@@ -19,16 +19,6 @@ h1, h2 {
     border-radius: 3px;
 }
 
-.alert.success {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.alert.error {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
 .table th, .table td {
     vertical-align: middle;
     text-align: center;
@@ -140,8 +130,13 @@ h1, h2 {
 
 .seat-map {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 10px;
+    align-items: center;
+}
+.seat-row {
+    display: flex;
+    gap: 5px;
     justify-content: center;
 }
 .seat {

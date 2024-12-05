@@ -19,6 +19,7 @@ public class UserMainPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String movieTitle = request.getParameter("movieTitle");
         List<Movie> movies = Collections.emptyList();
         String message = "";
@@ -32,12 +33,14 @@ public class UserMainPageServlet extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            message = "An error occurred while searching for movies. Please try again later.";
+            message = e.getMessage();
             log.error("Error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
         }
 
         request.setAttribute("movies", movies);
-        request.setAttribute("message", message);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
         request.getRequestDispatcher("/WEB-INF/views/user.jsp").forward(request, response);
     }
 }

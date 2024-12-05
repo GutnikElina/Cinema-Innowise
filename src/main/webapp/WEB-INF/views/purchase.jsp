@@ -5,16 +5,16 @@
   <meta charset="UTF-8">
   <title>Purchase Ticket</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
 </head>
 <body>
 <div class="container my-5">
   <h1 class="text-center">Purchase Ticket</h1>
 
   <c:if test="${not empty message}">
-    <div class="alert alert-info">${message}</div>
+    <div class="alert alert-danger">${message}</div>
   </c:if>
 
-  <c:if test="${empty selectedSession}">
     <form action="${pageContext.request.contextPath}/user/tickets/purchase" method="get">
       <div class="mb-3">
         <label for="sessionId" class="form-label">Select Film Session:</label>
@@ -28,7 +28,6 @@
       </div>
       <button type="submit" class="btn btn-primary">Choose Seat</button>
     </form>
-  </c:if>
 
   <c:if test="${not empty selectedSession}">
     <h2 class="text-center">Select your seat for '${selectedSession.movieTitle}'</h2>
@@ -51,39 +50,5 @@
     </form>
   </c:if>
 </div>
-
-<style>
-  .seat-map {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-  }
-  .seat-row {
-    display: flex;
-    gap: 5px;
-    justify-content: center;
-  }
-  .seat {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    line-height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #62b365;
-    color: white;
-    cursor: pointer;
-  }
-  .seat.taken {
-    background-color: #cc625b;
-    cursor: not-allowed;
-  }
-  input[type="radio"]:checked + .seat {
-    background-color: #5d8fb8;
-  }
-</style>
-
 </body>
-</html>
+</html>>

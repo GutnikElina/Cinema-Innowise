@@ -19,6 +19,7 @@ public class AdminMainPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+
         String movieTitle = request.getParameter("movieTitle");
         List<Movie> movies = Collections.emptyList();
         String message = "";
@@ -35,7 +36,7 @@ public class AdminMainPageServlet extends HttpServlet {
                 log.warn("Movie title is missing or empty in the request.");
             }
         } catch (Exception e) {
-            message = "An error occurred while searching for movies. Please try again later.";
+            message = e.getMessage();
             log.error("Error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
         }
         request.setAttribute("movies", movies);

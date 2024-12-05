@@ -21,8 +21,8 @@
 
     <c:if test="${not empty message}">
         <div class="alert
-        <c:if test="${message.toLowerCase().contains('error')}">error</c:if>
-        <c:if test="${message.toLowerCase().contains('success')}">success</c:if>"
+        <c:if test="${message.toLowerCase().contains('error')}">alert-danger</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">alert-success</c:if>"
              role="alert">
                 ${message}
         </div>

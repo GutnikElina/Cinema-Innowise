@@ -47,7 +47,6 @@ public class RegisterServlet extends HttpServlet {
             ValidationUtil.validateUsername(username);
             ValidationUtil.validatePassword(password);
 
-
             User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
             userDAO.add(user);
 
@@ -58,6 +57,7 @@ public class RegisterServlet extends HttpServlet {
             message = e.getMessage();
             log.error("Error during registration: {}", e.getMessage());
         }
+
         if (!message.isEmpty()) {
             request.setAttribute("message", message);
         }

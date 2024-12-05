@@ -26,9 +26,14 @@
     </div>
   </form>
 
+  <c:if test="${not empty message}">
+    <div class="alert alert-warning text-center">
+        ${message}
+    </div>
+  </c:if>
+
   <div class="row">
-    <c:choose>
-      <c:when test="${not empty movies}">
+      <c:if test="${not empty movies}">
         <c:forEach var="movie" items="${movies}">
           <div class="col-md-3 mb-4">
             <div class="card">
@@ -41,15 +46,7 @@
             </div>
           </div>
         </c:forEach>
-      </c:when>
-      <c:otherwise>
-        <div class="col-12">
-          <div class="alert alert-warning text-center" role="alert">
-            No movies found with that title.
-          </div>
-        </div>
-      </c:otherwise>
-    </c:choose>
+      </c:if>
   </div>
 </div>
 

@@ -25,30 +25,27 @@
         </div>
     </form>
 
+    <c:if test="${not empty message}">
+        <div class="alert alert-warning text-center">
+                ${message}
+        </div>
+    </c:if>
+
     <div class="row">
-        <c:choose>
-            <c:when test="${not empty movies}">
-                <c:forEach var="movie" items="${movies}">
-                    <div class="col-md-3 mb-4">
-                        <div class="card">
-                            <img src="${movie.poster}" class="card-img-top" alt="${movie.title}">
-                            <div class="card-body">
-                                <h5 class="card-title">${movie.title}</h5>
-                                <p class="card-text">${movie.genre}</p>
-                                <p class="card-text"><small>IMDb Rating: ${movie.imdbRating}</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </c:forEach>
-            </c:when>
-            <c:otherwise>
-                <div class="col-12">
-                    <div class="alert alert-warning text-center" role="alert">
-                        No movies found with that title.
-                    </div>
-                </div>
-            </c:otherwise>
-        </c:choose>
+        <c:if test="${not empty movies}">
+          <c:forEach var="movie" items="${movies}">
+           <div class="col-md-3 mb-4">
+             <div class="card">
+                 <img src="${movie.poster}" class="card-img-top" alt="${movie.title}">
+                 <div class="card-body">
+                     <h5 class="card-title">${movie.title}</h5>
+                     <p class="card-text">${movie.genre}</p>
+                     <p class="card-text"><small>IMDb Rating: ${movie.imdbRating}</small></p>
+                 </div>
+             </div>
+           </div>
+          </c:forEach>
+        </c:if>
     </div>
 </div>
 

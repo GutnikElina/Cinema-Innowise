@@ -8,10 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dao.UserDAO;
+import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.util.PasswordUtil;
 import java.io.IOException;
-import java.util.Objects;
 
 @WebServlet("/login")
 @Slf4j
@@ -38,24 +38,35 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            request.setAttribute("errorMessage", "Username and password cannot be empty.");
+            request.setAttribute("message", "Username and password cannot be empty.");
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
             return;
         }
 
-        User user = userDAO.getByUsername(username).orElse(null);
+        try {
+            User user = userDAO.getByUsername(username).orElse(null);
 
-        if (user == null || !PasswordUtil.checkPassword(password, user.getPassword())) {
-            request.setAttribute("message", "Invalid username or password.");
+            if (user == null || !PasswordUtil.checkPassword(password, user.getPassword())) {
+                request.setAttribute("message", "Invalid username or password.");
+                request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+                return;
+            }
+
+            HttpSession session = request.getSession();
+            session.setAttribute("username", user.getUsername());
+            session.setAttribute("role", user.getRole().toString());
+
+            if (user.getRole() == Role.ADMIN) {
+                log.info("Admin [{}] logged in successfully.", username);
+                response.sendRedirect(request.getContextPath() + "/admin");
+            } else {
+                log.info("User [{}] logged in successfully.", username);
+                response.sendRedirect(request.getContextPath() + "/user");
+            }
+        } catch (Exception e) {
+            log.error("Error during authorization: {}", e.getMessage());
+            request.setAttribute("message", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
-            return;
         }
-
-        HttpSession session = request.getSession();
-        session.setAttribute("username", user.getUsername());
-        session.setAttribute("role", user.getRole().toString());
-
-        log.info("User [{}] logged in successfully.", username);
-        response.sendRedirect(request.getContextPath() + "/user");
     }
 }
