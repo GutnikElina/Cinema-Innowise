@@ -8,13 +8,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.Ticket;
 import org.cinema.model.User;
-import org.cinema.model.FilmSession;
-import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
-import org.cinema.service.UserService;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.hibernate.HibernateException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -32,16 +30,15 @@ public class AdminTicketServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Ticket> tickets = ticketService.findAll();
-
+        List<Ticket> tickets = Collections.emptyList();
         String message = "";
-        String action = request.getParameter("action");
-
         try {
-            if ("edit".equals(action)) {
+            if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
+            tickets = ticketService.findAll();
         } catch (Exception e) {
+            log.error("Unexpected error (catch AdminTicketServlet): {}", e.getMessage(), e);
             message = "An unexpected error occurred.";
         }
 
@@ -56,19 +53,20 @@ public class AdminTicketServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getParameter("action");
         String message = "";
-
         try {
-            message = switch (action) {
+            message = switch (request.getParameter("action")) {
                 case "add" -> handleAddAction(request);
                 case "delete" -> handleDeleteAction(request);
                 case "update" -> handleUpdateAction(request);
-                default -> "Error! Unknown action.";
+                default -> {
+                    log.warn("Unknown action: {}", request.getParameter("action"));
+                    yield "Error! Unknown action.";
+                }
             };
-        } catch (HibernateException e) {
-            log.error("Hibernate error (catch AdminTicketServlet): ", e);
-            message = "Occurred error while performing database operation.";
+        } catch (Exception e) {
+            log.error("Unknown error (catch AdminUserServlet): {}", e.getMessage(), e);
+            message = "An unknown error occurred.";
         }
 
         if (!message.isEmpty()) {
