@@ -1,4 +1,4 @@
-package org.cinema.servlet.user;
+package org.cinema.controller.user;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

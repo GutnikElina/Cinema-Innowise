@@ -1,4 +1,4 @@
-package org.cinema.servlet.user;
+package org.cinema.controller.user;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -48,7 +48,7 @@ public class RegisterServlet extends HttpServlet {
             ValidationUtil.validatePassword(password);
 
             User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
-            userRepository.add(user);
+            userRepository.save(user);
 
             log.info("User [{}] registered successfully.", username);
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);

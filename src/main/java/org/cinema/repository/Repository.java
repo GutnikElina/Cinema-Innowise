@@ -9,9 +9,9 @@ import java.util.Optional;
  * @param <T> the type of the entity
  */
 public interface Repository<T> {
-    void add(T entity);
+    void save(T entity);
     Optional<T> getById(int id);
-    List<T> getAll();
+    List<T> findAll();
     void update(T entity);
     void delete(int id);
 }

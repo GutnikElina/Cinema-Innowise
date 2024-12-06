@@ -1,4 +1,4 @@
-package org.cinema.servlet.admin;
+package org.cinema.controller.admin;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,11 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.repository.TicketRepository;
 import org.cinema.model.*;
 import org.hibernate.HibernateException;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
 import static org.cinema.util.ValidationUtil.validateParameters;
 
 @Slf4j
@@ -35,7 +33,7 @@ public class AdminConfirmServlet extends HttpServlet {
         String message = "";
 
         try {
-            tickets = ticketRepository.getAll();
+            tickets = ticketRepository.findAll();
         } catch (IllegalArgumentException e) {
             log.error("Error in doGet method (catch AdminTicketServlet): {}", e.getMessage(), e);
             message = "Error! " + e.getMessage();

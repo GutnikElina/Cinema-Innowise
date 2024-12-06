@@ -1,4 +1,4 @@
-package org.cinema.servlet.admin;
+package org.cinema.controller.admin;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -44,7 +44,7 @@ public class AdminSessionServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 handleEditAction(request);
             }
-            filmSessions = sessionRepository.getAll();
+            filmSessions = sessionRepository.findAll();
         } catch (Exception e) {
             log.error("Unexpected error in doGet method (catch AdminSessionServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
@@ -113,7 +113,7 @@ public class AdminSessionServlet extends HttpServlet {
             }
             FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date, startTime, endTime, capacity);
 
-            sessionRepository.add(filmSession);
+            sessionRepository.save(filmSession);
             return "Success! Session was successfully added to the database!";
         } catch (IllegalArgumentException e) {
             log.error("Validation error during adding session: {}", e.getMessage(), e);

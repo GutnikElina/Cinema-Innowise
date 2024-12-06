@@ -1,4 +1,4 @@
-package org.cinema.servlet.user;
+package org.cinema.controller.user;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -84,7 +84,7 @@ public class TicketPurchaseServlet extends HttpServlet {
             ticket.setStatus(Status.PENDING);
             ticket.setPurchaseTime(LocalDateTime.now());
 
-            ticketRepository.add(ticket);
+            ticketRepository.save(ticket);
             log.info("Ticket successfully created for session {} and seat {}.", sessionId, seatNumber);
 
             message = "Ticket purchased successfully! Awaiting confirmation.";

@@ -1,4 +1,4 @@
-package org.cinema.servlet.admin;
+package org.cinema.controller.admin;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,7 +39,7 @@ public class AdminUserServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 handleEditAction(request);
             }
-            users = userRepository.getAll();
+            users = userRepository.findAll();
         } catch (Exception e) {
             log.error("Unexpected error in doGet method (catch AdminUserServlet): {}", e.getMessage(), e);
             message = "An unknown error occurred.";
@@ -97,7 +97,7 @@ public class AdminUserServlet extends HttpServlet {
             Role userRole = Role.valueOf(role.toUpperCase());
 
             User user = new User(username, PasswordUtil.hashPassword(password), userRole);
-            userRepository.add(user);
+            userRepository.save(user);
             return "Success! User was successfully added!";
         } catch (IllegalArgumentException e) {
             log.error("Occurred error while adding user: {}", e.getMessage(), e);

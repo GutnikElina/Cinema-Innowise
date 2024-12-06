@@ -1,5 +1,6 @@
 package org.cinema.repository;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
 import org.cinema.model.FilmSession;
@@ -11,12 +12,15 @@ import java.util.Optional;
 @Slf4j
 public class SessionRepository extends BaseRepository implements Repository<FilmSession> {
 
+    @Getter
+    private static final SessionRepository instance = new SessionRepository();
+
     public SessionRepository() {
         super(HibernateConfig.getSessionFactory());
     }
 
     @Override
-    public void add(FilmSession filmSession) {
+    public void save(FilmSession filmSession) {
         try {
             if (checkIfSessionExists(filmSession)) {
                 String errorMessage = "Film session already exists on this film and time. Try again.";
@@ -52,7 +56,7 @@ public class SessionRepository extends BaseRepository implements Repository<Film
     }
 
     @Override
-    public List<FilmSession> getAll() {
+    public List<FilmSession> findAll() {
         try {
             return executeWithResult(session -> {
                 List<FilmSession> filmSessions = session.createQuery("FROM FilmSession", FilmSession.class).list();

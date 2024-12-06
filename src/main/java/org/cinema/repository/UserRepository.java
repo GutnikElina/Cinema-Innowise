@@ -1,5 +1,6 @@
 package org.cinema.repository;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
 import org.cinema.model.User;
@@ -11,12 +12,15 @@ import java.util.Optional;
 @Slf4j
 public class UserRepository extends BaseRepository implements Repository<User>{
 
+    @Getter
+    private static final UserRepository instance = new UserRepository();
+
     public UserRepository() {
         super(HibernateConfig.getSessionFactory());
     }
 
     @Override
-    public void add(User user) {
+    public void save(User user) {
         try {
             if (user == null || user.getUsername() == null) {
                 throw new IllegalArgumentException("User or username cannot be null");
@@ -60,7 +64,7 @@ public class UserRepository extends BaseRepository implements Repository<User>{
     }
 
     @Override
-    public List<User> getAll() {
+    public List<User> findAll() {
         try {
             return executeWithResult(session -> {
                 log.info("Retrieving all users...");
