@@ -24,6 +24,7 @@
     <jakarta.version>6.1.0</jakarta.version>
     <jakarta.servlet.jsp.jstl.version>3.0.1</jakarta.servlet.jsp.jstl.version>
     <gson.version>2.10.1</gson.version>
+    <jbcrypt.version>0.4</jbcrypt.version>
   </properties>
 
   <dependencies>
@@ -31,7 +32,7 @@
     <dependency>
       <groupId>org.mindrot</groupId>
       <artifactId>jbcrypt</artifactId>
-      <version>0.4</version>
+      <version>${jbcrypt.version}</version>
     </dependency>
 
     <dependency>

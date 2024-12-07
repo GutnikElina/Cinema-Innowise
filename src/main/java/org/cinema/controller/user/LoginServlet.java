@@ -7,21 +7,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.repository.UserRepository;
-import org.cinema.model.Role;
-import org.cinema.model.User;
-import org.cinema.util.PasswordUtil;
+import org.cinema.service.UserService;
+import org.cinema.service.impl.UserServiceImpl;
+
 import java.io.IOException;
 
 @WebServlet("/login")
 @Slf4j
 public class LoginServlet extends HttpServlet {
 
-    private UserRepository userRepository;
+    private UserService loginService;
 
     @Override
     public void init() {
-        userRepository = new UserRepository();
+        this.loginService = UserServiceImpl.getInstance();
     }
 
     @Override
@@ -33,38 +32,22 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String username = request.getParameter("login");
         String password = request.getParameter("password");
 
-        if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            request.setAttribute("message", "Username and password cannot be empty.");
-            request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
-            return;
-        }
-
         try {
-            User user = userRepository.getByUsername(username).orElse(null);
+            HttpSession session = loginService.auth(username, password, request.getSession());
+            String role = (String) session.getAttribute("role");
 
-            if (user == null || !PasswordUtil.checkPassword(password, user.getPassword())) {
-                request.setAttribute("message", "Invalid username or password.");
-                request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
-                return;
-            }
-
-            HttpSession session = request.getSession();
-            session.setAttribute("username", user.getUsername());
-            session.setAttribute("role", user.getRole().toString());
-
-            if (user.getRole() == Role.ADMIN) {
+            if ("ADMIN".equals(role)) {
                 log.info("Admin [{}] logged in successfully.", username);
                 response.sendRedirect(request.getContextPath() + "/admin");
             } else {
                 log.info("User [{}] logged in successfully.", username);
                 response.sendRedirect(request.getContextPath() + "/user");
             }
-        } catch (Exception e) {
-            log.error("Error during authorization: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("Authentication error: {}", e.getMessage());
             request.setAttribute("message", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
         }

@@ -23,7 +23,7 @@ public class AdminTicketServlet extends HttpServlet {
 
     @Override
     public void init() {
-        ticketService = new TicketServiceImpl();
+        ticketService = TicketServiceImpl.getInstance();
     }
 
     @Override

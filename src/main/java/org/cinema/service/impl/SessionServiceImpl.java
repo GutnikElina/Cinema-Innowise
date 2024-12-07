@@ -1,5 +1,6 @@
 package org.cinema.service.impl;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
@@ -16,11 +17,10 @@ import java.util.Optional;
 @Slf4j
 public class SessionServiceImpl implements SessionService {
 
-    private final SessionRepository sessionRepository;
+    @Getter
+    private static final SessionServiceImpl instance = new SessionServiceImpl();
 
-    public SessionServiceImpl() {
-        this.sessionRepository = new SessionRepository();
-    }
+    private static final SessionRepository sessionRepository = SessionRepository.getInstance();
 
     @Override
     public List<FilmSession> findAll() {

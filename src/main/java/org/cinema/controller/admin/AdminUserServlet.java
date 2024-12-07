@@ -22,7 +22,7 @@ public class AdminUserServlet extends HttpServlet {
 
     @Override
     public void init() {
-        userService = new UserServiceImpl();
+        userService = UserServiceImpl.getInstance();
     }
 
     @Override

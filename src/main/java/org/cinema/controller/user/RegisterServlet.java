@@ -6,29 +6,25 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.repository.UserRepository;
-import org.cinema.model.Role;
-import org.cinema.model.User;
-import org.cinema.util.PasswordUtil;
-import org.cinema.util.ValidationUtil;
+import org.cinema.service.UserService;
+import org.cinema.service.impl.UserServiceImpl;
+
 import java.io.IOException;
 
 @WebServlet("/registration")
 @Slf4j
 public class RegisterServlet extends HttpServlet {
 
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
     public void init() {
-        userRepository = new UserRepository();
-        log.info("RegisterServlet initialized with UserDAO.");
+        this.userService = UserServiceImpl.getInstance();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         log.info("Handling GET request for registration...");
         request.getRequestDispatcher("/WEB-INF/views/registration.jsp").forward(request, response);
     }
@@ -36,31 +32,24 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String message = "";
 
         try {
-
             String username = request.getParameter("newLogin");
             String password = request.getParameter("newPassword");
 
-            ValidationUtil.validateUsername(username);
-            ValidationUtil.validatePassword(password);
-
-            User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
-            userRepository.save(user);
-
+            userService.register(username, password);
             log.info("User [{}] registered successfully.", username);
-            request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
 
+            request.setAttribute("successMessage", "Registration successful! Please log in.");
+            request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+            return;
         } catch (Exception e) {
             message = e.getMessage();
             log.error("Error during registration: {}", e.getMessage());
         }
 
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
+        request.setAttribute("message", message);
         request.getRequestDispatcher("/WEB-INF/views/registration.jsp").forward(request, response);
     }
 }

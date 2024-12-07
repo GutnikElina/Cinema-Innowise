@@ -1,20 +1,24 @@
 package org.cinema.service.impl;
 
+import jakarta.servlet.http.HttpSession;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.repository.UserRepository;
 import org.cinema.service.UserService;
 import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class UserServiceImpl implements UserService {
 
+    @Getter
+    private static final UserServiceImpl instance = new UserServiceImpl();
+
     private static final UserRepository userRepository = UserRepository.getInstance();
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
     public List<User> findAll() {
@@ -76,5 +80,43 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getById(int userId) {
         return userRepository.getById(userId);
+    }
+
+    @Override
+    public HttpSession auth(String username, String password, HttpSession session) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            throw new IllegalArgumentException("Username and password cannot be empty.");
+        }
+
+        User user = userRepository.getByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password."));
+
+        if (!PasswordUtil.checkPassword(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid username or password.");
+        }
+
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("role", user.getRole().toString());
+        return session;
+    }
+
+    @Override
+    public void register(String username, String password) {
+        try {
+            ValidationUtil.validateUsername(username);
+            ValidationUtil.validatePassword(password);
+
+            if (userRepository.getByUsername(username).isPresent()) {
+                throw new IllegalArgumentException("Username already exists. Please choose another one.");
+            }
+
+            User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
+            userRepository.save(user);
+
+            log.info("User [{}] registered successfully.", username);
+        } catch (Exception e) {
+            log.error("Error during user registration: {}", e.getMessage());
+            throw new IllegalArgumentException("Registration failed: " + e.getMessage());
+        }
     }
 }

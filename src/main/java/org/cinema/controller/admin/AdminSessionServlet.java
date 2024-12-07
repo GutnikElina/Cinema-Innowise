@@ -27,7 +27,7 @@ public class AdminSessionServlet extends HttpServlet {
 
     @Override
     public void init() {
-        sessionService = new SessionServiceImpl();
+        sessionService = SessionServiceImpl.getInstance();
     }
 
     @Override
