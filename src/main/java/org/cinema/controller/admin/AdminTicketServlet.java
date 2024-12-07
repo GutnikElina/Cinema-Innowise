@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-@WebServlet("/admin/tickets")
+@WebServlet(name = "AdminTicketServlet", urlPatterns = {"/admin/tickets"})
 public class AdminTicketServlet extends HttpServlet {
 
     private TicketService ticketService;

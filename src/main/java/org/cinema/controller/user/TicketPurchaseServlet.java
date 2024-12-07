@@ -6,29 +6,27 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.repository.SessionRepository;
-import org.cinema.repository.TicketRepository;
 import org.cinema.model.FilmSession;
-import org.cinema.model.Ticket;
-import org.cinema.model.User;
-import org.cinema.model.Status;
-import org.cinema.util.ValidationUtil;
+import org.cinema.service.SessionService;
+import org.cinema.service.TicketService;
+import org.cinema.service.impl.SessionServiceImpl;
+import org.cinema.service.impl.TicketServiceImpl;
+
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@WebServlet("/user/tickets/purchase")
 @Slf4j
+@WebServlet(name = "TicketPurchaseServlet", urlPatterns = {"/user/tickets/purchase"})
 public class TicketPurchaseServlet extends HttpServlet {
 
-    private TicketRepository ticketRepository;
-    private SessionRepository sessionRepository;
+    private TicketService ticketService;
+    private SessionService sessionService;
 
     @Override
     public void init() {
-        ticketRepository = new TicketRepository();
-        sessionRepository = new SessionRepository();
-        log.info("TicketPurchaseServlet initialized with TicketDAO and SessionDAO.");
+        ticketService = TicketServiceImpl.getInstance();
+        sessionService = SessionServiceImpl.getInstance();
+        log.info("TicketPurchaseServlet initialized.");
     }
 
     @Override
@@ -37,22 +35,14 @@ public class TicketPurchaseServlet extends HttpServlet {
         log.info("Handling GET request for ticket purchase...");
 
         try {
-            List<FilmSession> filmSessions = sessionRepository.getAll();
+            List<FilmSession> filmSessions = sessionService.findAll();
             request.setAttribute("filmSessions", filmSessions);
 
             String sessionIdStr = request.getParameter("sessionId");
             if (sessionIdStr != null) {
                 int sessionId = Integer.parseInt(sessionIdStr);
-                FilmSession session = sessionRepository.getById(sessionId)
-                        .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
-
-                List<Ticket> tickets = ticketRepository.getTicketsBySession(sessionId);
-                List<Integer> takenSeats = tickets.stream()
-                        .map(ticket -> Integer.parseInt(ticket.getSeatNumber()))
-                        .toList();
-
-                session.setTakenSeats(takenSeats);
-                request.setAttribute("selectedSession", session);
+                FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
+                request.setAttribute("selectedSession", selectedSession);
             }
         } catch (Exception e) {
             log.error("Error loading film sessions: {}", e.getMessage(), e);
@@ -67,27 +57,12 @@ public class TicketPurchaseServlet extends HttpServlet {
         log.info("Handling POST request for ticket purchase.");
         String message;
         try {
+            int userId = (int) request.getSession().getAttribute("userId");
             int sessionId = Integer.parseInt(request.getParameter("sessionId"));
             String seatNumber = request.getParameter("seatNumber");
-            log.info("Received POST data: sessionId={}, seatNumber={}", sessionId, seatNumber);
 
-            FilmSession session = sessionRepository.getById(sessionId)
-                    .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
-
-            ValidationUtil.validateSeatNumber(seatNumber, session.getCapacity());
-            log.info("Seat number {} validated successfully for session {}.", seatNumber, sessionId);
-
-            Ticket ticket = new Ticket();
-            ticket.setUser(new User());
-            ticket.setFilmSession(session);
-            ticket.setSeatNumber(seatNumber);
-            ticket.setStatus(Status.PENDING);
-            ticket.setPurchaseTime(LocalDateTime.now());
-
-            ticketRepository.save(ticket);
-            log.info("Ticket successfully created for session {} and seat {}.", sessionId, seatNumber);
-
-            message = "Ticket purchased successfully! Awaiting confirmation.";
+            ticketService.purchaseTicket(userId, sessionId, seatNumber);
+            message = "Success! Ticket purchased, awaiting confirmation.";
         } catch (Exception e) {
             log.error("Error purchasing ticket: {}", e.getMessage(), e);
             message = "Error purchasing ticket: " + e.getMessage();

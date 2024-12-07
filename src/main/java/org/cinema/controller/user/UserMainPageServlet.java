@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-@WebServlet("/user")
+@WebServlet(name = "UserMainPageServlet", urlPatterns = {"/user"})
 public class UserMainPageServlet extends HttpServlet {
 
     @Override

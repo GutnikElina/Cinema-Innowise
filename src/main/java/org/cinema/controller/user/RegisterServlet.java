@@ -11,8 +11,8 @@ import org.cinema.service.impl.UserServiceImpl;
 
 import java.io.IOException;
 
-@WebServlet("/registration")
 @Slf4j
+@WebServlet(name = "RegisterServlet", urlPatterns = {"/registration"})
 public class RegisterServlet extends HttpServlet {
 
     private UserService userService;

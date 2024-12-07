@@ -12,7 +12,12 @@
   <h1 class="text-center">Purchase Ticket</h1>
 
   <c:if test="${not empty message}">
-    <div class="alert alert-danger">${message}</div>
+    <div class="alert
+        <c:if test="${message.toLowerCase().contains('error')}">alert-danger</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">alert-success</c:if>"
+         role="alert">
+        ${message}
+    </div>
   </c:if>
 
     <form action="${pageContext.request.contextPath}/user/tickets/purchase" method="get">
@@ -51,4 +56,4 @@
   </c:if>
 </div>
 </body>
-</html>>
+</html>

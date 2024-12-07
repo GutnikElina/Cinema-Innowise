@@ -60,7 +60,7 @@ public class HibernateConfig implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent sce) {
         if (sessionFactory != null) {
             try {
-                log.info("Closing Hibernate SessionFactory...");
+                log.debug("Closing Hibernate SessionFactory...");
                 sessionFactory.close();
                 log.info("Hibernate SessionFactory closed successfully.");
             } catch (HibernateException e) {

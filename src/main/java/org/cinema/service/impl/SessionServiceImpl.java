@@ -24,12 +24,12 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public List<FilmSession> findAll() {
-        return sessionRepository.findAll();
-    }
-
-    @Override
-    public Optional<FilmSession> findById(int id) {
-        return sessionRepository.getById(id);
+        try {
+            return sessionRepository.findAll();
+        } catch (Exception e) {
+            log.error("Error fetching film sessions: {}", e.getMessage(), e);
+            throw new IllegalStateException("Unable to load film sessions.");
+        }
     }
 
     @Override
@@ -100,4 +100,10 @@ public class SessionServiceImpl implements SessionService {
             return "Error! Unable to delete the session.";
         }
     }
+
+    @Override
+    public Optional<FilmSession> findById(int id) {
+        return sessionRepository.getById(id);
+    }
+
 }

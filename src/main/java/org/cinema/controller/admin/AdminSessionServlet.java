@@ -20,7 +20,7 @@ import java.util.List;
 import static org.cinema.util.ValidationUtil.*;
 
 @Slf4j
-@WebServlet("/admin/sessions")
+@WebServlet(name = "AdminSessionServlet", urlPatterns = {"/admin/sessions"})
 public class AdminSessionServlet extends HttpServlet {
 
     private SessionService sessionService;
