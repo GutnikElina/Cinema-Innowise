@@ -15,6 +15,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.Movie;
 
 /**
@@ -52,7 +53,7 @@ public class OmdbApiUtil {
                 return movie;
             } else {
                 log.warn("No movie found for title: {}", title);
-                throw new IllegalArgumentException("Movie not found with the given title: " + title);
+                throw new NoDataFoundException("Movie not found with the given title: " + title);
             }
         } catch (IllegalArgumentException e) {
             throw e;
@@ -103,7 +104,7 @@ public class OmdbApiUtil {
                 }
             } else {
                 log.warn("No movies found for search query: {}", title);
-                throw new IllegalArgumentException("No movies found for the given title: " + title);
+                throw new NoDataFoundException("No movies found for the given title: " + title);
             }
         } catch (IllegalArgumentException e) {
             throw e;
@@ -138,7 +139,7 @@ public class OmdbApiUtil {
                 return movie;
             } else {
                 log.warn("No movie details found for ID: {}", movieId);
-                throw new IllegalArgumentException("Movie details not found for ID: " + movieId);
+                throw new NoDataFoundException("Movie details not found for ID: " + movieId);
             }
         } catch (IllegalArgumentException e) {
             throw e;

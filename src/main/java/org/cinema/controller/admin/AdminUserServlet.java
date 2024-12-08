@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.EntityAlreadyExistException;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
@@ -13,6 +15,7 @@ import org.cinema.service.impl.UserServiceImpl;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @WebServlet(name = "AdminUserServlet", urlPatterns = {"/admin/users"})
@@ -23,13 +26,15 @@ public class AdminUserServlet extends HttpServlet {
     @Override
     public void init() {
         userService = UserServiceImpl.getInstance();
+        log.info("AdminUserServlet initialized.");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log.debug("Handling GET request for get users...");
 
-        List<User> users = Collections.emptyList();
+        Set<User> users = Collections.emptySet();
         String message = "";
 
         try {
@@ -37,14 +42,20 @@ public class AdminUserServlet extends HttpServlet {
                 handleEditAction(request);
             }
             users = userService.findAll();
+        } catch (IllegalArgumentException e) {
+            message = e.getMessage();
+            log.error("Validation error! {}", message, e);
+        } catch (NoDataFoundException e) {
+            message = e.getMessage();
+            log.error("Error while doing users operation: {}", message, e);
         } catch (Exception e) {
-            log.error("Unexpected error in doGet method (catch AdminUserServlet): {}", e.getMessage(), e);
-            message = "An unknown error occurred.";
+            message = "Unexpected error occurred during fetching users";
+            log.error("{}: {}", message, e.getMessage(), e);
         }
 
         request.setAttribute("users", users);
         if (!message.isEmpty()) {
-            request.setAttribute("message", message);
+            request.setAttribute("message", "Error!" + message);
         }
         request.getRequestDispatcher("/WEB-INF/views/users.jsp").forward(request, response);
     }
@@ -52,10 +63,12 @@ public class AdminUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log.debug("Handling POST request for users operations...");
 
         String message = "";
+        String action = request.getParameter("action");
         try {
-            message = switch (request.getParameter("action")) {
+            message = switch (action) {
                 case "add" -> handleAddAction(request);
                 case "delete" -> handleDeleteAction(request);
                 case "update" -> handleUpdateAction(request);
@@ -64,9 +77,15 @@ public class AdminUserServlet extends HttpServlet {
                     yield "Error! Unknown action.";
                 }
             };
+        } catch (IllegalArgumentException e) {
+            message = "Validation error! " + e.getMessage();
+            log.error("Validation error during user operation: {}", message, e);
+        } catch (NoDataFoundException | EntityAlreadyExistException e) {
+            message = e.getMessage();
+            log.error("Error while doing users operation: {}", message, e);
         } catch (Exception e) {
-            log.error("Unexpected error in doPost method (catch AdminUserServlet): {}", e.getMessage(), e);
-            message = "An unknown error occurred.";
+            message = "Unexpected error occurred during handling users operation '" + action + "'";
+            log.error("{}: {}", message, e.getMessage(), e);
         }
 
         if (!message.isEmpty()) {
@@ -77,30 +96,22 @@ public class AdminUserServlet extends HttpServlet {
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String role = request.getParameter("role");
-
-        return userService.save(username, password, role);
+        return userService.save(request.getParameter("username"),
+                request.getParameter("password"), request.getParameter("role"));
     }
 
     private String handleUpdateAction(HttpServletRequest request) {
-        int userId = Integer.parseInt(request.getParameter("id"));
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String role = request.getParameter("role");
-
-        return userService.update(userId, username, password, role);
+        return userService.update(request.getParameter("id"), request.getParameter("username"),
+                request.getParameter("password"), request.getParameter("role"));
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
-        int userId = Integer.parseInt(request.getParameter("id"));
-        return userService.delete(userId);
+        return userService.delete(request.getParameter("id"));
     }
 
     private void handleEditAction(HttpServletRequest request) {
-        int userId = Integer.parseInt(request.getParameter("id"));
-        User user = userService.getById(userId).orElse(null);
+        User user = userService.getById(request.getParameter("id"))
+                .orElseThrow(() -> new NoDataFoundException("User with this ID doesn't exist."));
         request.setAttribute("user", user);
     }
 }

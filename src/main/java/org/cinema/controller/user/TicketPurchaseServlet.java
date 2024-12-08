@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.EntityAlreadyExistException;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
@@ -14,6 +16,7 @@ import org.cinema.service.impl.TicketServiceImpl;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @WebServlet(name = "TicketPurchaseServlet", urlPatterns = {"/user/tickets/purchase"})
@@ -32,21 +35,24 @@ public class TicketPurchaseServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.info("Handling GET request for ticket purchase...");
+        log.debug("Handling GET request for ticket purchase...");
 
         try {
-            List<FilmSession> filmSessions = sessionService.findAll();
+            Set<FilmSession> filmSessions = sessionService.findAll();
             request.setAttribute("filmSessions", filmSessions);
 
-            String sessionIdStr = request.getParameter("sessionId");
-            if (sessionIdStr != null) {
-                int sessionId = Integer.parseInt(sessionIdStr);
-                FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
-                request.setAttribute("selectedSession", selectedSession);
-            }
-        } catch (Exception e) {
-            log.error("Error loading film sessions: {}", e.getMessage(), e);
+            String sessionId = request.getParameter("sessionId");
+            FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
+            request.setAttribute("selectedSession", selectedSession);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error! {}", e.getMessage(), e);
+            request.setAttribute("message", "Validation error: " + e.getMessage());
+        } catch (NoDataFoundException e) {
+            log.error("Error during fetching film sessions: {}", e.getMessage(), e);
             request.setAttribute("message", "Error loading data: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error during fetching film sessions: {}", e.getMessage(), e);
+            request.setAttribute("message", "Unexpected error loading data: " + e.getMessage());
         }
         request.getRequestDispatcher("/WEB-INF/views/purchase.jsp").forward(request, response);
     }
@@ -54,21 +60,24 @@ public class TicketPurchaseServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.info("Handling POST request for ticket purchase.");
-        String message;
+        log.debug("Handling POST request for ticket purchase.");
+        String message = "";
         try {
-            int userId = (int) request.getSession().getAttribute("userId");
-            int sessionId = Integer.parseInt(request.getParameter("sessionId"));
-            String seatNumber = request.getParameter("seatNumber");
-
-            ticketService.purchaseTicket(userId, sessionId, seatNumber);
-            message = "Success! Ticket purchased, awaiting confirmation.";
+            String userId = (String) request.getSession().getAttribute("userId");
+            message = ticketService.purchaseTicket(userId, request.getParameter("sessionId"),
+                    request.getParameter("seatNumber"));
+        } catch (IllegalArgumentException e) {
+            message = "Validation error! " + e.getMessage();
+            log.error("Validation error during purchasing ticket: {}", message, e);
+        } catch (NoDataFoundException | EntityAlreadyExistException e) {
+            message = e.getMessage();
+            log.error("Error during purchasing ticket: {}", message, e);
         } catch (Exception e) {
-            log.error("Error purchasing ticket: {}", e.getMessage(), e);
-            message = "Error purchasing ticket: " + e.getMessage();
+            message = "Unexpected error while purchasing ticket";
+            log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        request.setAttribute("message", message);
+        request.setAttribute("message", message + ". Please try again.");
         doGet(request, response);
     }
 }

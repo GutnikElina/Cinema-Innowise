@@ -24,8 +24,8 @@ public class PasswordUtil {
             log.debug("Password hashed successfully.");
             return hashedPassword;
         } catch (Exception e) {
-            log.error("Unexpected error during password hashing: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error hashing password", e);
+            log.error("Unexpected error during password hashing: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error during hashing password", e);
         }
     }
 
@@ -42,7 +42,7 @@ public class PasswordUtil {
         try {
             return BCrypt.checkpw(password, storedHash);
         } catch (Exception e) {
-            log.error("Error during password checking: {}", e.getMessage(), e);
+            log.error("Error during password checking: {}", e.getMessage());
             throw new RuntimeException("Error checking password", e);
         }
     }

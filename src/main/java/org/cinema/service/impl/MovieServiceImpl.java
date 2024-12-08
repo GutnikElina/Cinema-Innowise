@@ -2,6 +2,7 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.Movie;
 import org.cinema.service.MovieService;
 import org.cinema.util.OmdbApiUtil;
@@ -19,17 +20,21 @@ public class MovieServiceImpl implements MovieService {
             throw new IllegalArgumentException("Movie title mustn't be null or empty.");
         }
 
-        log.debug("Service layer: Initiating search for movies with title: {} ...", title);
-        try {
-            List<Movie> movies = OmdbApiUtil.searchMovies(title.trim());
-            if (movies.isEmpty()) {
-                log.warn("Error! No movies found for the title: {}", title);
-                throw new IllegalArgumentException("Error! Please provide a valid movie title.");
-            }
-            return movies;
-        } catch (Exception e) {
-            log.error("Unexpected error in service layer while searching for movies: {}", e.getMessage());
-            throw new RuntimeException("Unexpected error occurred while searching for movies", e);
+        List<Movie> movies = OmdbApiUtil.searchMovies(title.trim());
+
+        if (movies.isEmpty()) {
+            log.warn("Error! No movies found for the title: {}", title);
+            throw new NoDataFoundException("Error! Please provide a valid movie title.");
         }
+        return movies;
+    }
+
+    @Override
+    public Movie getMovie(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Movie title mustn't be null or empty.");
+        }
+
+        return OmdbApiUtil.getMovie(title.trim());
     }
 }

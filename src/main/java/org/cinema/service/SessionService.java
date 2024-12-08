@@ -1,15 +1,15 @@
 package org.cinema.service;
 
 import org.cinema.model.FilmSession;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface SessionService {
-    List<FilmSession> findAll();
-    Optional<FilmSession> findById(int id);
+    Set<FilmSession> findAll();
+    Optional<FilmSession> getById(String id);
     String save(String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                 String capacityStr, String priceStr);
-    String update(int id, String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
+    String update(String id, String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                   String capacityStr, String priceStr);
-    String delete(int id);
+    String delete(String id);
 }

@@ -8,14 +8,29 @@ import java.time.LocalDate;
 @Slf4j
 public class ValidationUtil {
 
+    public static void validateIsPositive(int id) {
+        if (id < 0) {
+            throw new IllegalArgumentException("ID must be a positive integer.");
+        }
+    }
+
     public static void validateUsername(String username) {
-        if (username == null || username.length() < 5 || !Character.isLetter(username.charAt(0))) {
-            throw new IllegalArgumentException("Username must be at least 5 characters long and start with a letter.");
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be null or empty.");
+        }
+        if (username.length() < 5) {
+            throw new IllegalArgumentException("Username must be at least 5 characters long.");
+        }
+        if (!Character.isLetter(username.charAt(0))) {
+            throw new IllegalArgumentException("Username must start with a letter.");
         }
     }
 
     public static void validatePassword(String password) {
-        if (password == null || password.length() < 5) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("Password cannot be null or empty.");
+        }
+        if (password.length() < 5) {
             throw new IllegalArgumentException("Password must be at least 5 characters long.");
         }
     }
@@ -84,6 +99,15 @@ public class ValidationUtil {
             }
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid seat number format.");
+        }
+    }
+
+    public static int parseId(String id) {
+        try {
+            return Integer.parseInt(id);
+        } catch (NumberFormatException e) {
+            log.warn("Invalid ID format: {}", id);
+            throw new IllegalArgumentException("ID must be a valid positive integer.");
         }
     }
 }

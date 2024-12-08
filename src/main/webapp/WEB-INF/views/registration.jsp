@@ -11,10 +11,16 @@
 <div class="container mt-5">
   <div class="form-container mx-auto">
     <h2 class="text-center mb-4">Registration</h2>
-    <c:if test="${not empty message}">
 
-      <div class="alert alert-danger">${message}</div>
+    <c:if test="${not empty message}">
+      <div class="alert
+        <c:if test="${message.toLowerCase().contains('error')}">alert-danger</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">alert-success</c:if>"
+           role="alert">
+          ${message}
+      </div>
     </c:if>
+
     <form method="post" action="${pageContext.request.contextPath}/registration">
       <div class="mb-3">
         <label for="newLogin" class="form-label">Username:</label>

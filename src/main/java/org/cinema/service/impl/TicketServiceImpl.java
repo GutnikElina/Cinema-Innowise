@@ -2,15 +2,18 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.EntityAlreadyExistException;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.*;
-import org.cinema.repository.SessionRepository;
-import org.cinema.repository.TicketRepository;
-import org.cinema.repository.UserRepository;
+import org.cinema.repository.impl.SessionRepositoryImpl;
+import org.cinema.repository.impl.TicketRepositoryImpl;
+import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.TicketService;
 import org.cinema.util.ValidationUtil;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public class TicketServiceImpl implements TicketService {
@@ -18,153 +21,157 @@ public class TicketServiceImpl implements TicketService {
     @Getter
     private static final TicketServiceImpl instance = new TicketServiceImpl();
 
-    private static final TicketRepository ticketRepository = TicketRepository.getInstance();
-    private static final UserRepository userRepository = UserRepository.getInstance();
-    private static final SessionRepository sessionRepository = SessionRepository.getInstance();
+    private final TicketRepositoryImpl ticketRepository = TicketRepositoryImpl.getInstance();
+    private final UserRepositoryImpl userRepository = UserRepositoryImpl.getInstance();
+    private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
 
     @Override
-    public String save(int userId, int sessionId, String seatNumber, String statusStr, String requestTypeStr) {
-        try {
-            Status status = Status.valueOf(statusStr.toUpperCase());
-            RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
+    public String save(String userId, String sessionId, String seatNumber, String statusStr, String requestTypeStr) {
 
-            User user = userRepository.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
-            FilmSession filmSession = sessionRepository.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
+        Status status = Status.valueOf(statusStr.toUpperCase());
+        RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
 
-            ValidationUtil.validateSeatNumber(seatNumber, filmSession.getCapacity());
+        User user = userRepository.getById(ValidationUtil.parseId(userId)).orElseThrow(() ->
+                new NoDataFoundException("User with this ID doesn't exist!"));
+        FilmSession filmSession = sessionRepository.getById(ValidationUtil.parseId(sessionId)).orElseThrow(() ->
+                new NoDataFoundException("Session with this ID doesn't exist!"));
 
-            Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
-            ticketRepository.save(ticket);
-            return "Success! Ticket was successfully added to the database!";
-        } catch (IllegalArgumentException e) {
-            log.error("Occurred error while adding ticket: {}", e.getMessage(), e);
-            return "Error! " + e.getMessage();
-        } catch (Exception e) {
-            log.error("Error adding ticket: {}", e.getMessage(), e);
-            return "Error! Failed to add ticket. Please check the entered data.";
+        ValidationUtil.validateSeatNumber(seatNumber, filmSession.getCapacity());
+
+        Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
+
+        if (ticketRepository.checkIfTicketExists(ticket)) {
+            throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
         }
+
+        ticketRepository.save(ticket);
+
+        if (ticketRepository.checkIfTicketExists(ticket)) {
+            throw new NoDataFoundException("Ticket not found in database after adding. Try again.");
+        }
+        return "Success! Ticket was successfully added to the database!";
     }
 
     @Override
-    public String update(int id, int userId, int sessionId, String seatNumber, String statusStr, String requestTypeStr) {
-        try {
-            Status status = Status.valueOf(statusStr.toUpperCase());
-            RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
+    public String update(String id, String userId, String sessionId, String seatNumber, String statusStr, String requestTypeStr) {
+        Status status = Status.valueOf(statusStr.toUpperCase());
+        RequestType requestType = RequestType.valueOf(requestTypeStr.toUpperCase());
 
-            User user = userRepository.getById(userId).orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
-            FilmSession filmSession = sessionRepository.getById(sessionId).orElseThrow(() -> new IllegalArgumentException("Session with this ID doesn't exist!"));
+        User user = userRepository.getById(ValidationUtil.parseId(userId)).orElseThrow(() ->
+                new NoDataFoundException("User with this ID doesn't exist!"));
+        FilmSession filmSession = sessionRepository.getById(ValidationUtil.parseId(sessionId)).orElseThrow(() ->
+                new NoDataFoundException("Session with this ID doesn't exist!"));
 
-            ValidationUtil.validateSeatNumber(seatNumber, filmSession.getCapacity());
+        ValidationUtil.validateSeatNumber(seatNumber, filmSession.getCapacity());
 
-            Ticket ticket = new Ticket(id, user, filmSession, seatNumber, null, status, requestType);
-            ticketRepository.update(ticket);
-            return "Success! Ticket was successfully updated in the database!";
-        } catch (IllegalArgumentException e) {
-            log.error("Occurred error while updating ticket: {}", e.getMessage(), e);
-            return "Error! " + e.getMessage();
-        } catch (Exception e) {
-            log.error("Error updating ticket: {}", e.getMessage(), e);
-            return "Error! Failed to update ticket. Please check the entered data.";
+        int ticketId = ValidationUtil.parseId(id);
+        Ticket ticket = new Ticket(ticketId, user, filmSession, seatNumber, null, status, requestType);
+
+        Ticket existingTicket = ticketRepository.getById(ticketId).orElseThrow(() ->
+                new NoDataFoundException("Ticket with this ID doesn't exist!"));
+
+        if (!(existingTicket.getFilmSession().equals(ticket.getFilmSession()) &&
+                existingTicket.getSeatNumber().equals(ticket.getSeatNumber()) )) {
+            if (ticketRepository.checkIfTicketExists(ticket)) {
+                throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
+            }
         }
+
+        ticketRepository.update(ticket, existingTicket.getPurchaseTime());
+
+        if (ticketRepository.checkIfTicketExists(ticket)) {
+            throw new NoDataFoundException("Ticket not found in database after updating. Try again.");
+        }
+
+        return "Success! Ticket was successfully updated in the database!";
     }
 
     @Override
-    public String delete(int id) {
-        try {
-            ticketRepository.delete(id);
-            return "Success! Ticket was successfully deleted from the database!";
-        } catch (NumberFormatException e) {
-            log.error("Invalid ticket ID format during delete: {}", e.getMessage(), e);
-            return "Error! Invalid ticket ID format.";
-        }
+    public String delete(String ticketIdStr) {
+        int ticketId = ValidationUtil.parseId(ticketIdStr);
+        ValidationUtil.validateIsPositive(ticketId);
+        ticketRepository.delete(ticketId);
+        return "Success! Ticket was successfully deleted!";
     }
 
     @Override
-    public Optional<Ticket> getById(int ticketId) {
+    public Optional<Ticket> getById(String ticketIdStr) {
+        int ticketId = ValidationUtil.parseId(ticketIdStr);
+        ValidationUtil.validateIsPositive(ticketId);
         return ticketRepository.getById(ticketId);
     }
 
     @Override
-    public List<Ticket> findAll() {
-        return ticketRepository.findAll();
+    public Set<Ticket> findAll() {
+        Set<Ticket> tickets = ticketRepository.findAll();
+
+        if (tickets.isEmpty()) {
+            throw new NoDataFoundException("No tickets found in the database.");
+        }
+
+        log.info("{} tickets retrieved successfully.", tickets.size());
+        return tickets;
     }
 
     @Override
-    public void purchaseTicket(int userId, int sessionId, String seatNumber) {
-        try {
-            User user = userRepository.getById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
-            FilmSession session = sessionRepository.getById(sessionId)
-                    .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
+    public String purchaseTicket(String userId, String sessionId, String seatNumber) {
+        User user = userRepository.getById(ValidationUtil.parseId(userId))
+                .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
+        FilmSession session = sessionRepository.getById(ValidationUtil.parseId(sessionId))
+                .orElseThrow(() -> new NoDataFoundException("Session not found with ID: " + sessionId));
 
-            ValidationUtil.validateSeatNumber(seatNumber, session.getCapacity());
-            log.info("Seat number {} validated successfully for session {}.", seatNumber, sessionId);
+        ValidationUtil.validateSeatNumber(seatNumber, session.getCapacity());
+        log.debug("Seat number {} validated successfully for session {}.", seatNumber, sessionId);
 
-            Ticket ticket = new Ticket();
-            ticket.setUser(user);
-            ticket.setFilmSession(session);
-            ticket.setSeatNumber(seatNumber);
-            ticket.setStatus(Status.PENDING);
-            ticket.setRequestType(RequestType.PURCHASE);
-            ticket.setPurchaseTime(LocalDateTime.now());
-
-            ticketRepository.save(ticket);
-            log.info("Ticket successfully created for session {} and seat {}.", sessionId, seatNumber);
-        } catch (Exception e) {
-            log.error("Error during ticket purchase: {}", e.getMessage(), e);
-            throw new IllegalArgumentException(e.getMessage());
+        Ticket ticket = new Ticket(0, user, session, seatNumber, null, Status.PENDING, RequestType.PURCHASE);
+        if (ticketRepository.checkIfTicketExists(ticket)) {
+            throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
         }
+
+        ticketRepository.save(ticket);
+        if (ticketRepository.checkIfTicketExists(ticket)) {
+            throw new NoDataFoundException("Ticket not found in database after purchasing. Try again.");
+        }
+        log.info("Ticket successfully created for session {} and seat {}.", sessionId, seatNumber);
+        return "Success! Ticket purchased, awaiting confirmation.";
     }
 
     @Override
-    public FilmSession getSessionDetailsWithTickets(int sessionId) {
-        try {
-            FilmSession session = sessionRepository.getById(sessionId)
-                    .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + sessionId));
+    public FilmSession getSessionDetailsWithTickets(String sessionIdStr) {
+        int sessionId = ValidationUtil.parseId(sessionIdStr);
+        FilmSession session = sessionRepository.getById(sessionId)
+                .orElseThrow(() -> new NoDataFoundException("Session not found with ID: " + sessionId));
 
-            List<Ticket> tickets = ticketRepository.getTicketsBySession(sessionId);
-            List<Integer> takenSeats = tickets.stream()
-                    .map(ticket -> Integer.parseInt(ticket.getSeatNumber()))
-                    .toList();
+        List<Ticket> tickets = ticketRepository.getTicketsBySession(sessionId);
+        List<Integer> takenSeats = tickets.stream()
+                .map(ticket -> Integer.parseInt(ticket.getSeatNumber()))
+                .toList();
 
-            session.setTakenSeats(takenSeats);
-            return session;
-        } catch (Exception e) {
-            log.error("Error loading session details: {}", e.getMessage(), e);
-            throw new IllegalStateException("Unable to load session details.");
-        }
+        session.setTakenSeats(takenSeats);
+        return session;
     }
 
     @Override
     public String processTicketAction(String action, String ticketIdParam) {
-        try {
-            ValidationUtil.validateParameters(action, ticketIdParam);
-            int ticketId = Integer.parseInt(ticketIdParam);
-            Ticket ticket = getById(ticketId).orElseThrow(() ->
-                    new IllegalArgumentException("Ticket with this ID doesn't exist!"));
+        ValidationUtil.validateParameters(action, ticketIdParam);
+        Ticket ticket = getById(ticketIdParam).orElseThrow(() ->
+                new NoDataFoundException("Ticket with this ID doesn't exist!"));
 
-            return switch (action) {
-                case "confirm" -> confirmTicket(ticket);
-                case "return" -> returnTicket(ticket);
-                case "cancel" -> cancelTicket(ticket);
-                default -> {
-                    log.warn("Unknown action: {}", action);
-                    yield "Error! Unknown action.";
-                }
-            };
-        } catch (IllegalArgumentException e) {
-            log.error("Validation error in processTicketAction: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error in processTicketAction: {}", e.getMessage(), e);
-            throw new IllegalStateException("An unknown error occurred.");
-        }
+        return switch (action) {
+            case "confirm" -> confirmTicket(ticket);
+            case "return" -> returnTicket(ticket);
+            case "cancel" -> cancelTicket(ticket);
+            default -> {
+                log.warn("Unknown action: {}", action);
+                yield "Error! Unknown action.";
+            }
+        };
     }
 
     private String confirmTicket(Ticket ticket) {
         if (ticket.getStatus() == Status.PENDING && ticket.getRequestType() == RequestType.PURCHASE) {
             ticket.setStatus(Status.CONFIRMED);
-            ticketRepository.update(ticket);
+            ticketRepository.update(ticket, ticket.getPurchaseTime());
             return "Success! Ticket Confirmed!";
         }
         return "Error! Invalid action for this ticket.";
@@ -173,7 +180,7 @@ public class TicketServiceImpl implements TicketService {
     private String returnTicket(Ticket ticket) {
         if (ticket.getRequestType() == RequestType.RETURN) {
             ticket.setStatus(Status.RETURNED);
-            ticketRepository.update(ticket);
+            ticketRepository.update(ticket, ticket.getPurchaseTime());
             return "Success! Ticket Returned!";
         }
         return "Error! Invalid action for this ticket.";
@@ -182,10 +189,9 @@ public class TicketServiceImpl implements TicketService {
     private String cancelTicket(Ticket ticket) {
         if (ticket.getStatus() == Status.PENDING) {
             ticket.setStatus(Status.CANCELLED);
-            ticketRepository.update(ticket);
+            ticketRepository.update(ticket, ticket.getPurchaseTime());
             return "Success! Ticket Cancelled!";
         }
         return "Error! Invalid action for this ticket.";
     }
-
 }

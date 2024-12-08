@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface MovieService {
     List<Movie> searchMovies(String title);
+    Movie getMovie(String title);
 }

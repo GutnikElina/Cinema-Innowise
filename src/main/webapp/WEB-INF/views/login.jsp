@@ -15,6 +15,7 @@
     <c:if test="${not empty message}">
       <div class="alert alert-danger">${message}</div>
     </c:if>
+
     <form method="post" action="${pageContext.request.contextPath}/login">
       <div class="mb-3">
         <label for="login" class="form-label">Username:</label>

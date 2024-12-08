@@ -41,8 +41,6 @@ public class BaseRepository {
             action.accept(session);
             transaction.commit();
             log.debug("Transaction successfully completed.");
-        } catch (IllegalArgumentException e) {
-            throw e;
         } catch (HibernateException e) {
             log.error("Hibernate error during transaction execution: {}", e.getMessage());
             handleTransactionRollback(transaction);
@@ -65,7 +63,7 @@ public class BaseRepository {
         try (Session session = sessionFactory.openSession()) {
             log.debug("Session opened for operation...");
             R result = action.apply(session);
-            log.debug("Operation successfully completed with result: {}", result != null ? result : "No result returned");
+            log.debug("Transaction successfully completed!");
             return result;
         } catch (HibernateException e) {
             log.error("Hibernate error during operation: {}", e.getMessage());

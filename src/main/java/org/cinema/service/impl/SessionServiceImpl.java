@@ -2,17 +2,20 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.EntityAlreadyExistException;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
-import org.cinema.repository.SessionRepository;
+import org.cinema.model.User;
+import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public class SessionServiceImpl implements SessionService {
@@ -20,90 +23,94 @@ public class SessionServiceImpl implements SessionService {
     @Getter
     private static final SessionServiceImpl instance = new SessionServiceImpl();
 
-    private static final SessionRepository sessionRepository = SessionRepository.getInstance();
-
-    @Override
-    public List<FilmSession> findAll() {
-        try {
-            return sessionRepository.findAll();
-        } catch (Exception e) {
-            log.error("Error fetching film sessions: {}", e.getMessage(), e);
-            throw new IllegalStateException("Unable to load film sessions.");
-        }
-    }
+    private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
+    private final MovieServiceImpl movieService = MovieServiceImpl.getInstance();
 
     @Override
     public String save(String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                        String capacityStr, String priceStr) {
-        try {
-            ValidationUtil.validateDate(dateStr);
-            ValidationUtil.validatePrice(priceStr);
-            ValidationUtil.validateCapacity(capacityStr);
+        ValidationUtil.validateDate(dateStr);
+        ValidationUtil.validatePrice(priceStr);
+        ValidationUtil.validateCapacity(capacityStr);
 
-            LocalDate date = LocalDate.parse(dateStr);
-            LocalTime startTime = LocalTime.parse(startTimeStr);
-            LocalTime endTime = LocalTime.parse(endTimeStr);
-            int capacity = Integer.parseInt(capacityStr);
-            BigDecimal price = new BigDecimal(priceStr);
+        LocalDate date = LocalDate.parse(dateStr);
+        LocalTime startTime = LocalTime.parse(startTimeStr);
+        LocalTime endTime = LocalTime.parse(endTimeStr);
+        int capacity = Integer.parseInt(capacityStr);
+        BigDecimal price = new BigDecimal(priceStr);
 
-            Movie movie = OmdbApiUtil.getMovie(movieTitle);
-            if (movie == null) {
-                throw new IllegalArgumentException("Film with this title not found.");
-            }
+        Movie movie = movieService.getMovie(movieTitle);
 
-            FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date, startTime, endTime, capacity);
-            sessionRepository.save(filmSession);
+        FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date,
+                startTime, endTime, capacity);
 
-            return "Success! Session was successfully added to the database!";
-        } catch (IllegalArgumentException e) {
-            log.error("Validation error during adding session: {}", e.getMessage(), e);
-            return "Error! " + e.getMessage();
+        if (sessionRepository.checkIfSessionExists(filmSession)) {
+            throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
         }
+
+        sessionRepository.save(filmSession);
+
+        if (sessionRepository.checkIfSessionExists(filmSession)) {
+
+            throw new NoDataFoundException("Film session not found in database after adding. Try again.");
+        }
+        return "Success! Session was successfully added to the database!";
     }
 
     @Override
-    public String update(int id, String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
-                         String capacityStr, String priceStr) {
-        try {
-            ValidationUtil.validateDate(dateStr);
-            ValidationUtil.validatePrice(priceStr);
-            ValidationUtil.validateCapacity(capacityStr);
+    public String update(String id, String movieTitle, String dateStr, String startTimeStr,
+                         String endTimeStr, String capacityStr, String priceStr) {
+        int filmSessionId = ValidationUtil.parseId(id);
+        FilmSession existingFilmSession = sessionRepository.getById(filmSessionId).orElseThrow(() ->
+                new NoDataFoundException("Session with this ID doesn't exist!"));
+        ;
 
-            LocalDate date = LocalDate.parse(dateStr);
-            LocalTime startTime = LocalTime.parse(startTimeStr);
-            LocalTime endTime = LocalTime.parse(endTimeStr);
-            int capacity = Integer.parseInt(capacityStr);
-            BigDecimal price = new BigDecimal(priceStr);
+        ValidationUtil.validateDate(dateStr);
+        ValidationUtil.validatePrice(priceStr);
+        ValidationUtil.validateCapacity(capacityStr);
 
-            Movie movie = OmdbApiUtil.getMovie(movieTitle);
-            if (movie == null) {
-                throw new IllegalArgumentException("Film with this title not found.");
-            }
+        LocalDate date = LocalDate.parse(dateStr);
+        LocalTime startTime = LocalTime.parse(startTimeStr);
+        LocalTime endTime = LocalTime.parse(endTimeStr);
+        int capacity = Integer.parseInt(capacityStr);
+        BigDecimal price = new BigDecimal(priceStr);
 
-            FilmSession filmSession = new FilmSession(id, movie.getTitle(), price, date, startTime, endTime, capacity);
-            sessionRepository.update(filmSession);
+        Movie movie = movieService.getMovie(movieTitle);
 
-            return "Success! Session was successfully updated in the database!";
-        } catch (Exception e) {
-            log.error("Error updating session: {}", e.getMessage(), e);
-            return "Error! " + e.getMessage();
+        FilmSession filmSession = new FilmSession(filmSessionId, movie.getTitle(), price, date, startTime, endTime, capacity);
+
+        if (sessionRepository.checkIfSessionExists(filmSession)) {
+            throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
         }
+
+        sessionRepository.update(filmSession);
+        return "Success! Session was successfully updated in the database!";
     }
 
     @Override
-    public String delete(int id) {
-        try {
-            sessionRepository.delete(id);
-            return "Success! Session was successfully deleted from the database!";
-        } catch (Exception e) {
-            log.error("Error deleting session: {}", e.getMessage(), e);
-            return "Error! Unable to delete the session.";
-        }
+    public String delete(String sessionIdStr) {
+        int sessionId = ValidationUtil.parseId(sessionIdStr);
+        ValidationUtil.validateIsPositive(sessionId);
+        sessionRepository.delete(sessionId);
+        return "Success! Film session was successfully deleted!";
     }
 
     @Override
-    public Optional<FilmSession> findById(int id) {
-        return sessionRepository.getById(id);
+    public Optional<FilmSession> getById(String sessionIdStr) {
+        int sessionId = ValidationUtil.parseId(sessionIdStr);
+        ValidationUtil.validateIsPositive(sessionId);
+        return sessionRepository.getById(sessionId);
     }
 
+    @Override
+    public Set<FilmSession> findAll() {
+        Set<FilmSession> filmSessions = sessionRepository.findAll();
+
+        if (filmSessions.isEmpty()) {
+            throw new NoDataFoundException("No film sessions found in the database.");
+        }
+
+        log.info("{} film sessions retrieved successfully.", filmSessions.size());
+        return filmSessions;
+    }
 }

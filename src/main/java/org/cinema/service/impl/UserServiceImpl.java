@@ -3,14 +3,17 @@ package org.cinema.service.impl;
 import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.EntityAlreadyExistException;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.Role;
 import org.cinema.model.User;
-import org.cinema.repository.UserRepository;
+import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.UserService;
 import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
-import java.util.List;
+
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -18,75 +21,88 @@ public class UserServiceImpl implements UserService {
     @Getter
     private static final UserServiceImpl instance = new UserServiceImpl();
 
-    private static final UserRepository userRepository = UserRepository.getInstance();
-
-    @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
+    private final UserRepositoryImpl userRepository = UserRepositoryImpl.getInstance();
 
     @Override
     public String save(String username, String password, String role) {
-        try {
-            ValidationUtil.validateUsername(username);
-            ValidationUtil.validatePassword(password);
-            ValidationUtil.validateRole(role);
+        ValidationUtil.validateUsername(username);
+        ValidationUtil.validatePassword(password);
+        ValidationUtil.validateRole(role);
 
-            Role userRole = Role.valueOf(role.toUpperCase());
-            User user = new User(username, PasswordUtil.hashPassword(password), userRole);
-
-            userRepository.save(user);
-            return "Success! User was successfully added!";
-        } catch (IllegalArgumentException e) {
-            log.error("Error adding user: {}", e.getMessage(), e);
-            return "Error! " + e.getMessage();
+        if (userRepository.getByUsername(username).isPresent()) {
+            throw new EntityAlreadyExistException("Username already exists. Please choose another one.");
         }
+
+        Role userRole = Role.valueOf(role.toUpperCase());
+        User user = new User(username, PasswordUtil.hashPassword(password), userRole);
+        userRepository.save(user);
+
+        if (userRepository.getByUsername(username).isPresent()) {
+            throw new NoDataFoundException("User not found in database after adding. Try again.");
+        }
+
+        log.info("User '{}' successfully added with role '{}'.", username, userRole);
+        return "User '" + username + "' successfully added!";
     }
 
     @Override
-    public String update(int userId, String username, String password, String role) {
-        try {
-            ValidationUtil.validateUsername(username);
-            ValidationUtil.validatePassword(password);
-            ValidationUtil.validateRole(role);
+    public String update(String userId, String username, String password, String role) {
+        ValidationUtil.validateUsername(username);
+        ValidationUtil.validatePassword(password);
+        ValidationUtil.validateRole(role);
 
-            Role userRole = Role.valueOf(role.toUpperCase());
-            User existingUser = userRepository.getById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User with this ID doesn't exist!"));
+        User existingUser = userRepository.getById(ValidationUtil.parseId(userId))
+                .orElseThrow(() -> new NoDataFoundException("User with ID " + userId + " doesn't exist."));
 
-            existingUser.setUsername(username);
-            existingUser.setPassword(PasswordUtil.hashPassword(password));
-            existingUser.setRole(userRole);
-
-            userRepository.update(existingUser);
-            return "Success! User was successfully updated!";
-        } catch (IllegalArgumentException e) {
-            log.error("Error updating user: {}", e.getMessage(), e);
-            return "Error! " + e.getMessage();
+        if (!existingUser.getUsername().equals(username) && userRepository.getByUsername(username).isPresent()) {
+            throw new EntityAlreadyExistException("Username '" + username + "' is already taken.");
         }
+
+        existingUser.setUsername(username);
+        existingUser.setPassword(PasswordUtil.hashPassword(password));
+        existingUser.setRole(Role.valueOf(role.toUpperCase()));
+
+        userRepository.update(existingUser);
+
+        if (userRepository.getByUsername(username).isPresent()) {
+            throw new NoDataFoundException("User not found in database after updating. Try again.");
+        }
+
+        log.info("User with ID {} successfully updated.", userId);
+        return "User with ID " + userId + " successfully updated!";
     }
 
     @Override
-    public String delete(int userId) {
-        try {
-            userRepository.delete(userId);
-            return "Success! User was successfully deleted!";
-        } catch (Exception e) {
-            log.error("Error deleting user: {}", e.getMessage(), e);
-            return "Error! Could not delete user.";
-        }
+    public String delete(String userIdStr) {
+        int userId = ValidationUtil.parseId(userIdStr);
+        ValidationUtil.validateIsPositive(userId);
+        userRepository.delete(userId);
+        return "Success! User was successfully deleted!";
     }
 
     @Override
-    public Optional<User> getById(int userId) {
+    public Optional<User> getById(String userIdStr) {
+        int userId = ValidationUtil.parseId(userIdStr);
+        ValidationUtil.validateIsPositive(userId);
         return userRepository.getById(userId);
     }
 
     @Override
-    public HttpSession auth(String username, String password, HttpSession session) {
-        if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Username and password cannot be empty.");
+    public Set<User> findAll() {
+        Set<User> users = userRepository.findAll();
+
+        if (users.isEmpty()) {
+            throw new NoDataFoundException("No users found in the database.");
         }
+
+        log.info("{} users retrieved successfully.", users.size());
+        return users;
+    }
+
+    @Override
+    public HttpSession login(String username, String password, HttpSession session) {
+        ValidationUtil.validateUsername(username);
+        ValidationUtil.validatePassword(password);
 
         User user = userRepository.getByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password."));
@@ -102,21 +118,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void register(String username, String password) {
-        try {
-            ValidationUtil.validateUsername(username);
-            ValidationUtil.validatePassword(password);
+        ValidationUtil.validateUsername(username);
+        ValidationUtil.validatePassword(password);
 
-            if (userRepository.getByUsername(username).isPresent()) {
-                throw new IllegalArgumentException("Username already exists. Please choose another one.");
-            }
-
-            User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
-            userRepository.save(user);
-
-            log.info("User [{}] registered successfully.", username);
-        } catch (Exception e) {
-            log.error("Error during user registration: {}", e.getMessage());
-            throw new IllegalArgumentException("Registration failed: " + e.getMessage());
+        if (userRepository.getByUsername(username).isPresent()) {
+            throw new EntityAlreadyExistException("Username already exists. Please choose another one.");
         }
+
+        User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
+        userRepository.save(user);
+
+        if (userRepository.getByUsername(username).isPresent()) {
+            throw new NoDataFoundException("User not found in database after registration. Try again.");
+        }
+
+        log.info("User '{}' registered successfully.", username);
     }
 }
