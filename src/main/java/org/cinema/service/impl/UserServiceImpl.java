@@ -11,7 +11,6 @@ import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.UserService;
 import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
-
 import java.util.Optional;
 import java.util.Set;
 

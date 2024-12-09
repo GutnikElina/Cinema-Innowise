@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.error.NoDataFoundException;
+import org.cinema.error.OmdbApiException;
 import org.cinema.model.Movie;
 import org.cinema.service.MovieService;
 import org.cinema.service.impl.MovieServiceImpl;
@@ -44,8 +45,11 @@ public class AdminMainPageServlet extends HttpServlet {
         } catch (NoDataFoundException e) {
             message = e.getMessage();
             log.error("Error during fetching movies: {}", message, e);
+        } catch (OmdbApiException e) {
+            message = "Failed to communicate with OMDB API. Please try again later.";
+            log.error("API error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
         } catch (Exception e) {
-            message = e.getMessage();
+            message = "Error! "+ e.getMessage();
             log.error("Error during movie search for title {}: {}", movieTitle, message, e);
         }
 

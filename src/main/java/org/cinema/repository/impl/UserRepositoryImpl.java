@@ -8,7 +8,6 @@ import org.cinema.model.User;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.UserRepository;
 import org.hibernate.query.Query;
-
 import java.util.*;
 
 @Slf4j

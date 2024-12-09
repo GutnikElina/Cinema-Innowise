@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
 
 @Slf4j

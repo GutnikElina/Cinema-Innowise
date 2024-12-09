@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.error.EntityAlreadyExistException;
 import org.cinema.error.NoDataFoundException;
+import org.cinema.error.OmdbApiException;
 import org.cinema.model.FilmSession;
-import org.cinema.model.Ticket;
 import org.cinema.service.SessionService;
 import org.cinema.service.impl.SessionServiceImpl;
 import java.io.IOException;
@@ -85,6 +85,9 @@ public class AdminSessionServlet extends HttpServlet {
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
             message = e.getMessage();
             log.error("Error during film sessions action {}: {}", action, message, e);
+        } catch (OmdbApiException e) {
+            message = "Failed to communicate with OMDB API. Please try again later.";
+            log.error("API error during movie search: {}", e.getMessage(), e);
         } catch (Exception e) {
             message = "Unexpected error occurred during film sessions operation '" + action + "'";
             log.error("{}: {}", message, e.getMessage(), e);

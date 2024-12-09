@@ -11,10 +11,8 @@ import org.cinema.error.NoDataFoundException;
 import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j

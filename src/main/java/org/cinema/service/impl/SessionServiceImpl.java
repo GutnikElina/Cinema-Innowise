@@ -6,10 +6,8 @@ import org.cinema.error.EntityAlreadyExistException;
 import org.cinema.error.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
-import org.cinema.model.User;
 import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.service.SessionService;
-import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,7 +40,7 @@ public class SessionServiceImpl implements SessionService {
         Movie movie = movieService.getMovie(movieTitle);
 
         FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date,
-                startTime, endTime, capacity);
+                startTime, endTime, capacity, null);
 
         if (sessionRepository.checkIfSessionExists(filmSession)) {
             throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
@@ -77,7 +75,8 @@ public class SessionServiceImpl implements SessionService {
 
         Movie movie = movieService.getMovie(movieTitle);
 
-        FilmSession filmSession = new FilmSession(filmSessionId, movie.getTitle(), price, date, startTime, endTime, capacity);
+        FilmSession filmSession = new FilmSession(filmSessionId, movie.getTitle(), price,
+                date, startTime, endTime, capacity, null);
 
         if (sessionRepository.checkIfSessionExists(filmSession)) {
             throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");

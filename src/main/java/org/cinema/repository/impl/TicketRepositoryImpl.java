@@ -5,12 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
 import org.cinema.error.NoDataFoundException;
 import org.cinema.model.Ticket;
-import org.cinema.model.User;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.TicketRepository;
-import org.cinema.repository.UserRepository;
 import org.hibernate.query.Query;
-
 import java.time.LocalDateTime;
 import java.util.*;
 

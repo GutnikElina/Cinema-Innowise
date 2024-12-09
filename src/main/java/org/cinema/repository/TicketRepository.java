@@ -1,7 +1,6 @@
 package org.cinema.repository;
 
 import org.cinema.model.Ticket;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

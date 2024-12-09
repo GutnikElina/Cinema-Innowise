@@ -13,9 +13,7 @@ import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
-
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j

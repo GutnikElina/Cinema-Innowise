@@ -1,6 +1,6 @@
 package org.cinema.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,33 +10,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Movie {
 
-    @SerializedName("Title")
+    @JsonProperty("Title")
     private String title;
 
-    @SerializedName("Year")
+    @JsonProperty("Year")
     private String year;
 
-    @SerializedName("Poster")
+    @JsonProperty("Poster")
     private String poster;
 
-    @SerializedName("Plot")
+    @JsonProperty("Plot")
     private String plot;
 
-    @SerializedName("Response")
+    @JsonProperty("Response")
     private String response;
 
-    @SerializedName("Genre")
+    @JsonProperty("Genre")
     private String genre;
 
-    @SerializedName("Director")
+    @JsonProperty("Director")
     private String director;
 
-    @SerializedName("Actors")
+    @JsonProperty("Actors")
     private String actors;
 
-    @SerializedName("imdbRating")
+    @JsonProperty("imdbRating")
     private String imdbRating;
 
-    @SerializedName("Runtime")
+    @JsonProperty("Runtime")
     private String runtime;
 }

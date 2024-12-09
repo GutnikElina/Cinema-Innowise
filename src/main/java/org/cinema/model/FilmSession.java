@@ -21,7 +21,7 @@ public class FilmSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "movie_name", nullable = false)
+    @Column(name = "movie_title", nullable = false)
     private String movieTitle;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -41,16 +41,5 @@ public class FilmSession {
 
     @Transient 
     private List<Integer> takenSeats = new ArrayList<>();
-
-    public FilmSession(int id, String movieTitle, BigDecimal price, LocalDate date, LocalTime startTime, LocalTime endTime, int capacity) {
-        this.id = id;
-        this.movieTitle = movieTitle;
-        this.price = price;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.capacity = capacity;
-        this.takenSeats = new ArrayList<>();
-    }
 }
 

@@ -1,7 +1,6 @@
 package org.cinema.repository;
 
 import org.cinema.model.FilmSession;
-
 import java.util.Optional;
 import java.util.Set;
 

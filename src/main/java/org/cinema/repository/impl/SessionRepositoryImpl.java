@@ -5,12 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
 import org.cinema.error.NoDataFoundException;
 import org.cinema.model.FilmSession;
-import org.cinema.model.User;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.SessionRepository;
-import org.cinema.repository.UserRepository;
 import org.hibernate.query.Query;
-
 import java.util.*;
 
 @Slf4j
@@ -67,25 +64,20 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
 
     @Override
     public boolean checkIfSessionExists(FilmSession filmSession) {
-        try {
-            return executeWithResult(session -> {
-                Query<FilmSession> query = session.createQuery(
-                        "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
-                                "AND fs.date = :date " +
-                                "AND fs.startTime = :startTime", FilmSession.class);
-                query.setParameter("movieTitle", filmSession.getMovieTitle());
-                query.setParameter("date", filmSession.getDate());
-                query.setParameter("startTime", filmSession.getStartTime());
+        return executeWithResult(session -> {
+            Query<FilmSession> query = session.createQuery(
+                    "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
+                            "AND fs.date = :date " +
+                            "AND fs.startTime = :startTime", FilmSession.class);
+            query.setParameter("movieTitle", filmSession.getMovieTitle());
+            query.setParameter("date", filmSession.getDate());
+            query.setParameter("startTime", filmSession.getStartTime());
 
-                boolean exists = !query.list().isEmpty();
-                log.debug("Check for existing session with title '{}', date '{}', start time '{}': {}.",
-                        filmSession.getMovieTitle(), filmSession.getDate(), filmSession.getStartTime(),
-                        exists ? "found" : "not found");
-                return exists;
-            });
-        } catch (Exception e) {
-            log.error("Unexpected error while checking for existing session: {}", e.getMessage());
-            throw new RuntimeException("Unexpected error while checking if film session exists.", e);
-        }
+            boolean exists = !query.list().isEmpty();
+            log.debug("Check for existing session with title '{}', date '{}', start time '{}': {}.",
+                    filmSession.getMovieTitle(), filmSession.getDate(), filmSession.getStartTime(),
+                    exists ? "found" : "not found");
+            return exists;
+        });
     }
 }
