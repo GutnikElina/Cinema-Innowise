@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("User '{}' successfully added with role '{}'.", username, userRole);
-        return "User '" + username + "' successfully added!";
+        return String.format("User with username %s successfully added!", username);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("User with ID {} successfully updated.", userId);
-        return "User with ID " + userId + " successfully updated!";
+        return String.format("User with ID %s successfully updated!", userId);
     }
 
     @Override
@@ -132,5 +132,25 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("User '{}' registered successfully.", username);
+    }
+
+    @Override
+    public void updateProfile(int userId, String username, String password) {
+        ValidationUtil.validateUsername(username);
+        ValidationUtil.validateIsPositive(userId);
+        ValidationUtil.validatePassword(password);
+
+        User user = userRepository.getById(userId)
+                .orElseThrow(() -> new NoDataFoundException("User with ID " + userId + " not found."));
+
+        if (!user.getUsername().equals(username) && userRepository.getByUsername(username).isPresent()) {
+            throw new EntityAlreadyExistException("Username '" + username + "' is already taken.");
+        }
+
+        user.setUsername(username);
+        user.setPassword(PasswordUtil.hashPassword(password));
+
+        userRepository.update(user);
+        log.info("User with ID {} updated their profile.", userId);
     }
 }

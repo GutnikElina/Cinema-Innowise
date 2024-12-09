@@ -45,9 +45,11 @@ public class LoginServlet extends HttpServlet {
             if ("ADMIN".equals(role)) {
                 log.info("Admin '{}' logged in successfully.", username);
                 response.sendRedirect(request.getContextPath() + "/admin");
+                return;
             } else {
                 log.info("User '{}' logged in successfully.", username);
                 response.sendRedirect(request.getContextPath() + "/user");
+                return;
             }
         } catch (IllegalArgumentException e) {
             log.warn("Login failed for user '{}': {}", username, e.getMessage(), e);

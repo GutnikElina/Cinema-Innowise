@@ -44,7 +44,7 @@ public class AdminTicketServlet extends HttpServlet {
             log.error("Validation error! {}", e.getMessage(), e);
         } catch (NoDataFoundException e) {
             message = "Error! " + e.getMessage();
-            log.error("Error while doing users operation: {}", e.getMessage(), e);
+            log.error("Error while doing tickets fetching: {}", e.getMessage(), e);
         } catch (Exception e) {
             message = "Unexpected error occurred during fetching tickets";
             log.error("{}: {}", message, e.getMessage(), e);

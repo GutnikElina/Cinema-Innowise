@@ -18,7 +18,6 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<Movie> searchMovies(String title) {
-        ValidationUtil.validateMovieTitle(title);
         List<Movie> movies = OmdbApiUtil.searchMovies(title.trim());
 
         if (movies.isEmpty()) {
@@ -30,7 +29,6 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Movie getMovie(String title) {
-        ValidationUtil.validateMovieTitle(title);
         return OmdbApiUtil.getMovie(title.trim());
     }
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.error.NoDataFoundException;
 import org.cinema.model.*;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
@@ -36,8 +37,11 @@ public class AdminConfirmServlet extends HttpServlet {
         try {
             log.debug("Start to fetch tickets...");
             tickets = ticketService.findAll();
+        } catch (NoDataFoundException e) {
+            message = "Error! " + e.getMessage();
+            log.error("Error while doing tickets fetching: {}", e.getMessage(), e);
         } catch (Exception e) {
-            message = "Unexpected error occurred during ticket search";
+            message = "Unexpected error occurred during fetching tickets";
             log.error("{}: {}", message, e.getMessage(), e);
         }
 

@@ -49,8 +49,8 @@ public class AdminMainPageServlet extends HttpServlet {
             message = "Failed to communicate with OMDB API. Please try again later.";
             log.error("API error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
         } catch (Exception e) {
-            message = "Error! "+ e.getMessage();
-            log.error("Error during movie search for title {}: {}", movieTitle, message, e);
+            message = "Unexpected error! "+ e.getMessage();
+            log.error("Unexpected error during movie search for title {}: {}", movieTitle, e.getMessage(), e);
         }
 
         request.setAttribute("movies", movies);
