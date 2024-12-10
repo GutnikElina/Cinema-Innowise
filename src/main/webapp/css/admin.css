@@ -1,69 +1,8 @@
-/* admin.css */
-
-body {
-    background-color: #f4f6f9;
-    font-family: 'Arial', sans-serif;
-    color: #333;
-}
-
-h1, h2 {
-    color: #212529;
-    font-weight: 600;
-    font-size: 24px;
-}
-
 .alert {
     margin-top: 20px;
-    padding: 8px;
-    font-size: 12px;
-    border-radius: 3px;
-}
-
-.table th, .table td {
-    vertical-align: middle;
-    text-align: center;
     font-size: 14px;
-}
-
-.form-container {
-    background-color: white;
-    padding: 20px;
-    margin-top: 30px;
-    border-radius: 5px;
-    box-shadow: none;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-container input,
-.form-container select,
-.form-container button {
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.form-container input,
-.form-container select {
-    border: 1px solid #ccc;
-    padding: 6px;
-}
-
-.form-container button {
-    background-color: #989898;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.form-container button:hover {
-    background-color: #878787;
-}
-
-.table-bordered {
-    border: none;
+    border-radius: 8px;
+    padding: 12px;
 }
 
 .table {
@@ -75,54 +14,35 @@ h1, h2 {
 .table th {
     background-color: #89929c;
     color: #ffffff;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .table td {
     border-top: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .table tbody tr:hover {
     background-color: #f1f1f1;
 }
 
-.form-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 30px;
-}
-
-.form-row .form-container {
-    max-width: 48%;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .form-row .form-container {
-        max-width: 100%;
-        margin-bottom: 20px;
-    }
-}
-
-.form-container .text-center {
-    text-align: center;
-}
-
 .card {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: none;
 }
+
 .card img {
     height: 300px;
     object-fit: cover;
 }
+
 .card-title {
     font-size: 16px;
     font-weight: bold;
 }
+
 .card-text {
     font-size: 14px;
     color: #555;
@@ -134,13 +54,14 @@ h1, h2 {
     gap: 10px;
     align-items: center;
 }
+
 .seat-row {
     display: flex;
     gap: 5px;
     justify-content: center;
 }
+
 .seat {
-    display: inline-block;
     width: 40px;
     height: 40px;
     text-align: center;
@@ -151,10 +72,12 @@ h1, h2 {
     color: white;
     cursor: pointer;
 }
+
 .seat.taken {
     background-color: #cc625b;
     cursor: not-allowed;
 }
+
 input[type="radio"]:checked + .seat {
     background-color: #5d8fb8;
 }
