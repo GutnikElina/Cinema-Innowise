@@ -36,11 +36,11 @@ public class MyTicketsServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            handleUnauthorizedAccess(request, response);
-            return;
-        }
+//
+//        if (userId == null) {
+//            handleUnauthorizedAccess(request, response);
+//            return;
+//        }
 
         try {
             Set<Ticket> tickets = ticketService.findByUserId(userId.toString());

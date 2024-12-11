@@ -48,7 +48,7 @@ public class SessionServiceImpl implements SessionService {
 
         sessionRepository.save(filmSession);
 
-        if (sessionRepository.checkIfSessionExists(filmSession)) {
+        if (!sessionRepository.checkIfSessionExists(filmSession)) {
 
             throw new NoDataFoundException("Film session not found in database after adding. Try again.");
         }
@@ -83,6 +83,11 @@ public class SessionServiceImpl implements SessionService {
         }
 
         sessionRepository.update(filmSession);
+
+        if (!sessionRepository.checkIfSessionExists(filmSession)) {
+
+            throw new NoDataFoundException("Film session not found in database after updating. Try again.");
+        }
         return "Success! Session was successfully updated in the database!";
     }
 

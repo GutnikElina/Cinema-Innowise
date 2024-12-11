@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 @Slf4j
-@WebFilter("/admin/*")
-public class AdminAccessFilter implements Filter {
+@WebFilter("/user/*")
+public class UserAccessFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -20,19 +20,19 @@ public class AdminAccessFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession(false);
 
-        if (isAdmin(session)) {
+        if (isUser(session)) {
             chain.doFilter(request, response);
         } else {
             handleUnauthorizedAdmin(httpRequest, httpResponse);
         }
     }
 
-    private boolean isAdmin(HttpSession session) {
-        return session != null && "ADMIN".equals(session.getAttribute("role"));
+    private boolean isUser(HttpSession session) {
+        return session != null && "USER".equals(session.getAttribute("role"));
     }
 
     private void handleUnauthorizedAdmin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.warn("Admin is not logged in!");
+        log.warn("User is not logged in!");
         request.setAttribute("message",  "Error! You must log in.");
         request.getRequestDispatcher("/login").forward(request, response);
     }

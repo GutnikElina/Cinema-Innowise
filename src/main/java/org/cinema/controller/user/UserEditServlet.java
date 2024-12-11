@@ -33,11 +33,11 @@ public class UserEditServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            handleUnauthorizedAccess(request, response);
-            return;
-        }
+//
+//        if (userId == null) {
+//            handleUnauthorizedAccess(request, response);
+//            return;
+//        }
 
         User user = userService.getById(String.valueOf(userId))
                 .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
@@ -53,11 +53,11 @@ public class UserEditServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            handleUnauthorizedAccess(request, response);
-            return;
-        }
+//
+//        if (userId == null) {
+//            handleUnauthorizedAccess(request, response);
+//            return;
+//        }
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");

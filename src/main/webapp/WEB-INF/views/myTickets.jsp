@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html lang="en">
 <head>
@@ -6,28 +6,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Tickets</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)) center/cover;
+            color: #ffffff;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .table-actions button {
+            margin-right: 5px;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 10px 0;
+        }
+    </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">CinemaApp</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/user/tickets/purchase">Buy Tickets</a></li>
+                <li class="nav-item"><a class="nav-link active" href="${pageContext.request.contextPath}/user/tickets">My Tickets</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/user/edit">Edit Account</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="container">
+        <h1 class="display-4">Your Tickets</h1>
+        <p class="lead">Manage your tickets and enjoy the show!</p>
+    </div>
+</div>
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">Your Tickets</h1>
-
     <c:if test="${not empty message}">
-        <div class="alert alert-info" role="alert">${message}</div>
+        <div class="alert alert-info text-center">${message}</div>
     </c:if>
 
     <c:if test="${empty tickets}">
-        <p class="text-center">You have no tickets.</p>
+        <p class="text-center">You have no tickets yet. Start by booking your first movie!</p>
     </c:if>
 
     <c:choose>
         <c:when test="${not empty tickets}">
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-hover">
+                <thead class="table-dark">
                 <tr>
                     <th>Ticket ID</th>
                     <th>Film Title</th>
-                    <th>Seat Number</th>
+                    <th>Seat</th>
                     <th>Status</th>
                     <th>Request Type</th>
                     <th>Actions</th>
@@ -41,14 +87,14 @@
                         <td>${ticket.seatNumber}</td>
                         <td>${ticket.status}</td>
                         <td>${ticket.requestType}</td>
-                        <td>
+                        <td class="table-actions">
                             <form method="post" action="${pageContext.request.contextPath}/user/tickets" style="display:inline;">
                                 <input type="hidden" name="action" value="returnMyTicket">
                                 <input type="hidden" name="id" value="${ticket.id}">
                                 <button
                                         type="submit"
                                         class="btn btn-warning btn-sm <c:if test='${!((ticket.status == "PENDING" || ticket.status == "CONFIRMED") && ticket.requestType != "RETURN")}'>btn-secondary</c:if>'"
-                                        <c:if test="${!((ticket.status == 'PENDING' || ticket.status == 'CONFIRMED') && ticket.requestType != 'RETURN')}">disabled</c:if> >
+                                        <c:if test="${!((ticket.status == 'PENDING' || ticket.status == 'CONFIRMED') && ticket.requestType != 'RETURN')}">disabled</c:if>>
                                     Return
                                 </button>
                             </form>
@@ -60,7 +106,6 @@
         </c:when>
     </c:choose>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

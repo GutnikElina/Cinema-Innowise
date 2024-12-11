@@ -63,8 +63,8 @@ public class TicketPurchaseServlet extends HttpServlet {
         log.debug("Handling POST request for ticket purchase.");
         String message = "";
         try {
-            String userId = (String) request.getSession().getAttribute("userId");
-            message = ticketService.purchaseTicket(userId, request.getParameter("sessionId"),
+            Integer userId = (Integer) request.getSession().getAttribute("userId");
+            message = ticketService.purchaseTicket(String.valueOf(userId), request.getParameter("sessionId"),
                     request.getParameter("seatNumber"));
         } catch (IllegalArgumentException e) {
             message = "Validation error! " + e.getMessage();

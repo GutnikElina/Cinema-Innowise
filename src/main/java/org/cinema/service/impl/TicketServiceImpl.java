@@ -47,7 +47,7 @@ public class TicketServiceImpl implements TicketService {
 
         ticketRepository.save(ticket);
 
-        if (ticketRepository.checkIfTicketExists(ticket)) {
+        if (!ticketRepository.checkIfTicketExists(ticket)) {
             throw new NoDataFoundException("Ticket not found in database after adding. Try again.");
         }
         return "Success! Ticket was successfully added to the database!";
@@ -80,7 +80,7 @@ public class TicketServiceImpl implements TicketService {
 
         ticketRepository.update(ticket, existingTicket.getPurchaseTime());
 
-        if (ticketRepository.checkIfTicketExists(ticket)) {
+        if (!ticketRepository.checkIfTicketExists(ticket)) {
             throw new NoDataFoundException("Ticket not found in database after updating. Try again.");
         }
 
@@ -130,7 +130,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         ticketRepository.save(ticket);
-        if (ticketRepository.checkIfTicketExists(ticket)) {
+        if (!ticketRepository.checkIfTicketExists(ticket)) {
             throw new NoDataFoundException("Ticket not found in database after purchasing. Try again.");
         }
         log.info("Ticket successfully created for session {} and seat {}.", sessionId, seatNumber);
