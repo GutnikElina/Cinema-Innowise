@@ -40,14 +40,16 @@ public class TicketPurchaseServlet extends HttpServlet {
             request.setAttribute("filmSessions", filmSessions);
 
             String sessionId = request.getParameter("sessionId");
-            FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
-            request.setAttribute("selectedSession", selectedSession);
+            if (sessionId != null && !sessionId.trim().isEmpty()) {
+                FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
+                request.setAttribute("selectedSession", selectedSession);
+            }
         } catch (IllegalArgumentException e) {
             log.error("Validation error! {}", e.getMessage(), e);
             request.setAttribute("message", "Validation error: " + e.getMessage());
         } catch (NoDataFoundException e) {
             log.error("Error during fetching film sessions: {}", e.getMessage(), e);
-            request.setAttribute("message", "Error loading data: " + e.getMessage());
+            request.setAttribute("message", e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during fetching film sessions: {}", e.getMessage(), e);
             request.setAttribute("message", "Unexpected error loading data: " + e.getMessage());
@@ -75,7 +77,7 @@ public class TicketPurchaseServlet extends HttpServlet {
             log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        request.setAttribute("message", message + ". Please try again.");
+        request.setAttribute("message", message + " Please try again.");
         doGet(request, response);
     }
 }

@@ -14,5 +14,6 @@ public interface TicketRepository {
     void delete(int ticketId);
     List<Ticket> getTicketsBySession(int sessionId);
     boolean checkIfTicketExists(Ticket ticket);
+    List<Ticket> getTicketsByUserId(int userId);
 }
 

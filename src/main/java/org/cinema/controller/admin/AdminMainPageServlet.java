@@ -14,6 +14,7 @@ import org.cinema.service.impl.MovieServiceImpl;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @WebServlet(name = "AdminMainPageServlet", urlPatterns = {"/admin"})
@@ -33,27 +34,33 @@ public class AdminMainPageServlet extends HttpServlet {
         log.debug("Handling GET request for search movies...");
 
         String message = "";
-        String movieTitle = request.getParameter("movieTitle");
-
+        Optional<String> movieTitleOpt = Optional.ofNullable(request.getParameter("movieTitle"))
+                .filter(title -> !title.trim().isEmpty());
         List<Movie> movies = Collections.emptyList();
-        log.debug("Start to fetch movies with title {}...", movieTitle);
-        try {
-            movies = movieService.searchMovies(movieTitle.trim());
-        } catch (IllegalArgumentException e) {
-            message = "Validation error! " + e.getMessage();
-            log.error("Validation error during fetching movies: {}", message, e);
-        } catch (NoDataFoundException e) {
-            message = e.getMessage();
-            log.error("Error during fetching movies: {}", message, e);
-        } catch (OmdbApiException e) {
-            message = "Failed to communicate with OMDB API. Please try again later.";
-            log.error("API error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
-        } catch (Exception e) {
-            message = "Unexpected error! "+ e.getMessage();
-            log.error("Unexpected error during movie search for title {}: {}", movieTitle, e.getMessage(), e);
+
+        if (movieTitleOpt.isPresent()) {
+            String movieTitle = movieTitleOpt.get().trim();
+            log.debug("Start to fetch movies with title {}...", movieTitle);
+            try {
+                movies = movieService.searchMovies(movieTitle.trim());
+            } catch (IllegalArgumentException e) {
+                message = "Validation error! " + e.getMessage();
+                log.error("Validation error during fetching movies: {}", message, e);
+            } catch (NoDataFoundException e) {
+                message = e.getMessage();
+                log.error("Error during fetching movies: {}", message, e);
+            } catch (OmdbApiException e) {
+                message = "Failed to communicate with OMDB API. Please try again later.";
+                log.error("API error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
+            } catch (Exception e) {
+                message = "Unexpected error! " + e.getMessage();
+                log.error("Unexpected error during movie search for title {}: {}", movieTitle, e.getMessage(), e);
+            }
+        } else {
+            log.debug("No movie title provided or movie title is empty.");
         }
 
-        request.setAttribute("movies", movies);
+        request.setAttribute("movies", Optional.ofNullable(movies).orElse(List.of()));
         if (!message.isEmpty()) {
             request.setAttribute("message", message);
         }

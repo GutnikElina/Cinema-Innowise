@@ -9,9 +9,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.error.EntityAlreadyExistException;
 import org.cinema.error.NoDataFoundException;
+import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
 
 @Slf4j
@@ -35,12 +35,14 @@ public class UserEditServlet extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
 
         if (userId == null) {
-            log.warn("Unauthorized access attempt to profile editing page.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            handleUnauthorizedAccess(request, response);
             return;
         }
 
-        request.setAttribute("user", userService.getById(String.valueOf(userId)).orElse(null));
+        User user = userService.getById(String.valueOf(userId))
+                .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
+
+        request.setAttribute("user", user);
         request.getRequestDispatcher("/WEB-INF/views/editProfile.jsp").forward(request, response);
     }
 
@@ -53,16 +55,18 @@ public class UserEditServlet extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
 
         if (userId == null) {
-            log.warn("Unauthorized access attempt to update profile.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            handleUnauthorizedAccess(request, response);
             return;
         }
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        String message = "";
 
-        String message;
         try {
+            if (password != null && password.trim().isEmpty()) {
+                password = null;
+            }
             userService.updateProfile(userId, username, password);
             message = "Success! Profile updated successfully.";
             log.info("User with ID {} updated their profile.", userId);
@@ -78,6 +82,12 @@ public class UserEditServlet extends HttpServlet {
         }
 
         request.setAttribute("message", message);
-        doGet(request, response);
+        request.getRequestDispatcher("/login").forward(request, response);
+    }
+
+    private void handleUnauthorizedAccess(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        log.warn("User is not logged in!");
+        request.setAttribute("message",  "Error! You must log in to edit your profile.");
+        request.getRequestDispatcher("/login").forward(request, response);
     }
 }

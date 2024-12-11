@@ -1,12 +1,10 @@
 package org.cinema.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +26,8 @@ public class OmdbApiUtil {
     private static final String API_KEY = "35345cc8";
     private static final String BASE_URL = "https://www.omdbapi.com/";
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public static Movie getMovie(String title) {
         log.debug("Fetching movie details for title: {}", title);
@@ -121,30 +121,20 @@ public class OmdbApiUtil {
     private static String fetchApiResponse(String urlString) {
         log.debug("Sending API request to URL: {}", urlString);
         try {
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlString))
+                    .header("Accept", "application/json")
+                    .build();
 
-            int responseCode = connection.getResponseCode();
-            log.debug("Received HTTP response code: {}", responseCode);
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (responseCode != 200) {
-                throw new OmdbApiException("OMDB API returned error: HTTP " + responseCode);
+            if (response.statusCode() != 200) {
+                throw new OmdbApiException("OMDB API returned error: HTTP " + response.statusCode());
             }
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                StringBuilder responseBuilder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    responseBuilder.append(line);
-                }
-                return responseBuilder.toString();
-            }
-        } catch (MalformedURLException e) {
-            log.error("Invalid URL format: {}", urlString, e);
-            throw new OmdbApiException("Invalid URL for OMDB API request", e);
-        } catch (IOException e) {
-            log.error("IO error while communicating with OMDB API: {}", urlString, e);
+            return response.body();
+        } catch (IOException | InterruptedException e) {
+            log.error("Error while fetching response from OMDB API: {}", urlString, e);
             throw new OmdbApiException("Error fetching response from OMDB API", e);
         }
     }

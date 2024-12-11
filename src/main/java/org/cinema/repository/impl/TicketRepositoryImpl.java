@@ -92,4 +92,17 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
             return exists;
         });
     }
+
+    @Override
+    public List<Ticket> getTicketsByUserId(int userId) {
+        return executeWithResult(session -> {
+            Query<Ticket> query = session.createQuery(
+                    "FROM Ticket t WHERE t.user.id = :userId", Ticket.class);
+            query.setParameter("userId", userId);
+
+            List<Ticket> tickets = query.list();
+            log.info("Found {} tickets for user with ID {}", tickets.size(), userId);
+            return tickets;
+        });
+    }
 }

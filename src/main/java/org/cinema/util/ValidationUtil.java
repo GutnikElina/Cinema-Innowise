@@ -16,13 +16,6 @@ public class ValidationUtil {
         }
     }
 
-    public static void validateMovieTitle(String title) {
-        if (isNullOrBlank(title)) {
-            log.error("Validation failed: movie title is null or empty");
-            throw new IllegalArgumentException("Movie title must not be null or empty.");
-        }
-    }
-
     public static void validateUsername(String username) {
         if (isNullOrBlank(username)) {
             log.error("Validation failed: username is null or empty");

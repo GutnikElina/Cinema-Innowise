@@ -14,4 +14,5 @@ public interface TicketService {
     FilmSession getSessionDetailsWithTickets(String sessionId);
     String processTicketAction(String action, String ticketIdParam);
     String purchaseTicket(String userId, String sessionId, String seatNumber);
+    Set<Ticket> findByUserId(String userId);
 }

@@ -10,6 +10,8 @@ import org.cinema.repository.impl.TicketRepositoryImpl;
 import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.TicketService;
 import org.cinema.util.ValidationUtil;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -151,6 +153,23 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    public Set<Ticket> findByUserId(String userId) {
+        int parsedUserId = ValidationUtil.parseId(userId);
+
+        List<Ticket> ticketsList = ticketRepository.getTicketsByUserId(parsedUserId);
+
+        if (ticketsList.isEmpty()) {
+            throw new NoDataFoundException("Your tickets are absent");
+        }
+
+        Set<Ticket> tickets = new HashSet<>(ticketsList);
+
+        log.info("{} tickets found for user with ID: {}", tickets.size(), userId);
+        return tickets;
+    }
+
+
+    @Override
     public String processTicketAction(String action, String ticketIdParam) {
         ValidationUtil.validateParameters(action, ticketIdParam);
         Ticket ticket = getById(ticketIdParam).orElseThrow(() ->
@@ -160,11 +179,21 @@ public class TicketServiceImpl implements TicketService {
             case "confirm" -> confirmTicket(ticket);
             case "return" -> returnTicket(ticket);
             case "cancel" -> cancelTicket(ticket);
+            case "returnMyTicket" -> returnMyTicket(ticket);
             default -> {
                 log.warn("Unknown action: {}", action);
                 yield "Error! Unknown action.";
             }
         };
+    }
+
+    private String returnMyTicket(Ticket ticket) {
+        if (ticket.getStatus() == Status.PENDING) {
+            ticket.setRequestType(RequestType.RETURN);
+            ticketRepository.update(ticket, ticket.getPurchaseTime());
+            return "Success! Ticket Returned!";
+        }
+        return "Error! Ticket cannot be returned.";
     }
 
     private String confirmTicket(Ticket ticket) {

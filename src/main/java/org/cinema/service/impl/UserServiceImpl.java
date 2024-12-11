@@ -138,7 +138,6 @@ public class UserServiceImpl implements UserService {
     public void updateProfile(int userId, String username, String password) {
         ValidationUtil.validateUsername(username);
         ValidationUtil.validateIsPositive(userId);
-        ValidationUtil.validatePassword(password);
 
         User user = userRepository.getById(userId)
                 .orElseThrow(() -> new NoDataFoundException("User with ID " + userId + " not found."));
@@ -147,8 +146,12 @@ public class UserServiceImpl implements UserService {
             throw new EntityAlreadyExistException("Username '" + username + "' is already taken.");
         }
 
+        if (password != null) {
+            ValidationUtil.validatePassword(password);
+            user.setPassword(PasswordUtil.hashPassword(password));
+        }
+
         user.setUsername(username);
-        user.setPassword(PasswordUtil.hashPassword(password));
 
         userRepository.update(user);
         log.info("User with ID {} updated their profile.", userId);
