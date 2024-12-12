@@ -3,7 +3,7 @@ package org.cinema.repository.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.User;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.UserRepository;

@@ -106,7 +106,7 @@
             <div class="col-md-6" id="editForm">
                 <h2 class="text-center">Edit Session</h2>
                 <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
-                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" value="${sessionToEdit.id}">
                     <div class="mb-3">
                         <input type="text" class="form-control form-control-sm" name="movieTitle" value="${sessionToEdit.movieTitle}" required>

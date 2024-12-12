@@ -1,4 +1,4 @@
-package org.cinema.error;
+package org.cinema.exception;
 
 public class OmdbApiException extends RuntimeException {
   public OmdbApiException(String message, Throwable cause) {

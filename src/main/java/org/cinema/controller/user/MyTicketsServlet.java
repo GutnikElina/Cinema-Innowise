@@ -7,12 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.Ticket;
-import org.cinema.model.User;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
-import org.cinema.util.ValidationUtil;
 
 import java.io.IOException;
 import java.util.Set;

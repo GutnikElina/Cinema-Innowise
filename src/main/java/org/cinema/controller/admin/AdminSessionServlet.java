@@ -6,12 +6,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
-import org.cinema.error.OmdbApiException;
-import org.cinema.model.FilmSession;
+import org.cinema.dto.FilmSessionDTO;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
+import org.cinema.exception.OmdbApiException;
 import org.cinema.service.SessionService;
 import org.cinema.service.impl.SessionServiceImpl;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -31,9 +32,9 @@ public class AdminSessionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.debug("Handling GET request for get film sessions...");
+        log.debug("Handling GET request for film sessions...");
 
-        Set<FilmSession> filmSessions = Collections.emptySet();
+        Set<FilmSessionDTO> filmSessions = Collections.emptySet();
         String message = "";
         String action = request.getParameter("action");
 
@@ -49,9 +50,6 @@ public class AdminSessionServlet extends HttpServlet {
         } catch (NoDataFoundException e) {
             message = "Error! " + e.getMessage();
             log.error("Error while doing film sessions operation: {}", e.getMessage(), e);
-        } catch (Exception e) {
-            message = "Unexpected error occurred during fetching film sessions";
-            log.error("{}: {}", message, e.getMessage(), e);
         }
 
         request.setAttribute("filmSessions", filmSessions);
@@ -64,21 +62,21 @@ public class AdminSessionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.debug("Handling POST request for film session operations...");
+        log.debug("Handling POST request for film sessions...");
 
         String action = request.getParameter("action");
         String message = "";
+
         try {
-            log.debug("Start to handle action: {}...", action);
-            message = switch (action) {
-                case "add" -> handleAddAction(request);
-                case "delete" -> handleDeleteAction(request);
-                case "update" -> handleUpdateAction(request);
+            switch (action) {
+                case "add" -> message = handleAddAction(request);
+                case "edit" -> message = handleEditSubmitAction(request);
+                case "delete" -> message = handleDeleteAction(request);
                 default -> {
-                    log.warn("Unknown action: {}", action);
-                    yield "Error! Unknown action.";
+                    message = "Error! Unknown action.";
+                    log.error("Unknown action: {}", action);
                 }
-            };
+            }
         } catch (IllegalArgumentException e) {
             message = "Validation error! " + e.getMessage();
             log.error("Validation error during film sessions action {}: {}", action, message, e);
@@ -99,27 +97,37 @@ public class AdminSessionServlet extends HttpServlet {
         doGet(request, response);
     }
 
+    private void handleEditAction(HttpServletRequest request) {
+        String sessionId = request.getParameter("id");
+        FilmSessionDTO session = sessionService.getById(sessionId);
+        request.setAttribute("sessionToEdit", session);
+    }
+
     private String handleAddAction(HttpServletRequest request) {
-        return sessionService.save(request.getParameter("movieTitle"), request.getParameter("date"),
-                request.getParameter("startTime"), request.getParameter("endTime"),
-                request.getParameter("capacity"), request.getParameter("price"));
+        String movieTitle = request.getParameter("movieTitle");
+        String date = request.getParameter("date");
+        String startTime = request.getParameter("startTime");
+        String endTime = request.getParameter("endTime");
+        String capacity = request.getParameter("capacity");
+        String price = request.getParameter("price");
+
+        return sessionService.save(movieTitle, date, startTime, endTime, capacity, price);
+    }
+
+    private String handleEditSubmitAction(HttpServletRequest request) {
+        String sessionId = request.getParameter("id");
+        String movieTitle = request.getParameter("movieTitle");
+        String date = request.getParameter("date");
+        String startTime = request.getParameter("startTime");
+        String endTime = request.getParameter("endTime");
+        String capacity = request.getParameter("capacity");
+        String price = request.getParameter("price");
+
+        return sessionService.update(sessionId, movieTitle, date, startTime, endTime, capacity, price);
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
-        return sessionService.delete(request.getParameter("id"));
+        String sessionId = request.getParameter("id");
+        return sessionService.delete(sessionId);
     }
-
-    private String handleUpdateAction(HttpServletRequest request) {
-        return sessionService.update(request.getParameter("id"), request.getParameter("movieTitle"), request.getParameter("date"),
-                request.getParameter("startTime"), request.getParameter("endTime"),
-                request.getParameter("capacity"), request.getParameter("price"));
-    }
-
-    private void handleEditAction(HttpServletRequest request) {
-        FilmSession sessionToEdit = sessionService.getById(request.getParameter("id")).orElseThrow(() ->
-                new NoDataFoundException("Film session with this ID doesn't exist!"));
-
-        request.setAttribute("sessionToEdit", sessionToEdit);
-    }
-
 }

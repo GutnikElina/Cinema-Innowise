@@ -2,19 +2,22 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.dto.FilmSessionDTO;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
+import org.cinema.mapper.FilmSessionMapper;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
-import org.cinema.model.MovieAPI;
 import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class SessionServiceImpl implements SessionService {
@@ -24,104 +27,65 @@ public class SessionServiceImpl implements SessionService {
 
     private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
     private final MovieServiceImpl movieService = MovieServiceImpl.getInstance();
+    private final FilmSessionMapper filmSessionMapper = FilmSessionMapper.INSTANCE;
 
     @Override
     public String save(String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                        String capacityStr, String priceStr) {
-        ValidationUtil.validateDate(dateStr);
-        ValidationUtil.validatePrice(priceStr);
-        ValidationUtil.validateCapacity(capacityStr);
-
-        LocalDate date = LocalDate.parse(dateStr);
-        LocalTime startTime = LocalTime.parse(startTimeStr);
-        LocalTime endTime = LocalTime.parse(endTimeStr);
-        int capacity = Integer.parseInt(capacityStr);
-        BigDecimal price = new BigDecimal(priceStr);
-
         Movie movie = movieService.getMovie(movieTitle);
-
-        FilmSession filmSession = new FilmSession(0, movie.getTitle(), price, date,
-                startTime, endTime, capacity, null);
+        FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie.getTitle(), dateStr, startTimeStr, 
+                                                      endTimeStr, capacityStr, priceStr);
+        FilmSession filmSession = filmSessionMapper.toEntity(dto);
 
         if (sessionRepository.checkIfSessionExists(filmSession)) {
             throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
         }
 
         sessionRepository.save(filmSession);
+        return "Film session successfully added.";
+    }
 
-        if (!sessionRepository.checkIfSessionExists(filmSession)) {
+    @Override
+    public Set<FilmSessionDTO> findAll() {
+        Set<FilmSession> sessions = sessionRepository.findAll();
+        return sessions.stream()
+                .map(filmSessionMapper::toDTO)
+                .collect(Collectors.toSet());
+    }
 
-            throw new NoDataFoundException("Film session not found in database after adding. Try again.");
-        }
-        return "Success! Session was successfully added to the database!";
+    @Override
+    public FilmSessionDTO getById(String id) {
+        int sessionId = Integer.parseInt(id);
+        Optional<FilmSession> session = sessionRepository.getById(sessionId);
+        return session.map(filmSessionMapper::toDTO)
+                .orElseThrow(() -> new NoDataFoundException("Film session not found."));
     }
 
     @Override
     public String update(String id, String movieTitle, String dateStr, String startTimeStr,
                          String endTimeStr, String capacityStr, String priceStr) {
-        int filmSessionId = ValidationUtil.parseId(id);
-        FilmSession existingFilmSession = sessionRepository.getById(filmSessionId).orElseThrow(() ->
-                new NoDataFoundException("Session with this ID doesn't exist!"));
-        ;
-
-        ValidationUtil.validateDate(dateStr);
-        ValidationUtil.validatePrice(priceStr);
-        ValidationUtil.validateCapacity(capacityStr);
-
-        LocalDate date = LocalDate.parse(dateStr);
-        LocalTime startTime = LocalTime.parse(startTimeStr);
-        LocalTime endTime = LocalTime.parse(endTimeStr);
-        int capacity = Integer.parseInt(capacityStr);
-        BigDecimal price = new BigDecimal(priceStr);
-
         Movie movie = movieService.getMovie(movieTitle);
-
-        FilmSession filmSession = new FilmSession(filmSessionId, movie.getTitle(), price,
-                date, startTime, endTime, capacity, null);
-
+        FilmSessionDTO dto = FilmSessionDTO.fromStringsWithId(id, movie.getTitle(), dateStr, 
+                                                            startTimeStr, endTimeStr, capacityStr, priceStr);
+        FilmSession filmSession = filmSessionMapper.toEntity(dto);
         sessionRepository.update(filmSession);
-
-        if (!sessionRepository.checkIfSessionExists(filmSession)) {
-
-            throw new NoDataFoundException("Film session not found in database after updating. Try again.");
-        }
-        return "Success! Session was successfully updated in the database!";
+        return "Film session successfully updated.";
     }
 
     @Override
-    public String delete(String sessionIdStr) {
-        int sessionId = ValidationUtil.parseId(sessionIdStr);
-        ValidationUtil.validateIsPositive(sessionId);
+    public String delete(String id) {
+        int sessionId = Integer.parseInt(id);
         sessionRepository.delete(sessionId);
-        return "Success! Film session was successfully deleted!";
+        return "Film session successfully deleted.";
     }
 
     @Override
-    public Optional<FilmSession> getById(String sessionIdStr) {
-        int sessionId = ValidationUtil.parseId(sessionIdStr);
-        ValidationUtil.validateIsPositive(sessionId);
-        return sessionRepository.getById(sessionId);
+    public Set<FilmSessionDTO> findByDate(String dateStr) {
+        ValidationUtil.validateDate(dateStr);
+        LocalDate date = LocalDate.parse(dateStr);
+        Set<FilmSession> sessions = sessionRepository.findByDate(date);
+        return sessions.stream()
+                .map(filmSessionMapper::toDTO)
+                .collect(Collectors.toSet());
     }
-
-    @Override
-    public Set<FilmSession> findAll() {
-        Set<FilmSession> filmSessions = sessionRepository.findAll();
-
-        if (filmSessions.isEmpty()) {
-            throw new NoDataFoundException("No film sessions found in the database.");
-        }
-
-        log.info("{} film sessions retrieved successfully.", filmSessions.size());
-        return filmSessions;
-    }
-
-    @Override
-    public Set<FilmSession> findByDate(String date) {
-        log.debug("Searching for film sessions on date: {}", date);
-        Set<FilmSession> filmSessions = sessionRepository.findByDate(LocalDate.parse(date));
-
-        log.info("{} film sessions retrieved for date {}", filmSessions.size(), date);
-        return filmSessions;
-    }
-
 }

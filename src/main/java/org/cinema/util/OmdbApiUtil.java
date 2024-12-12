@@ -11,8 +11,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.NoDataFoundException;
-import org.cinema.error.OmdbApiException;
+import org.cinema.exception.NoDataFoundException;
+import org.cinema.exception.OmdbApiException;
 import org.cinema.model.MovieAPI;
 
 /**
@@ -28,34 +28,6 @@ public class OmdbApiUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final HttpClient httpClient = HttpClient.newHttpClient();
-
-    public static MovieAPI getMovie(String title) {
-        log.debug("Fetching movie details for title: {}", title);
-        try {
-            String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
-            String urlString = BASE_URL + "?t=" + encodedTitle + "&apikey=" + API_KEY;
-            log.debug("Constructed URL for movie lookup: {}", urlString);
-
-            String response = fetchApiResponse(urlString);
-            log.debug("Response received for movie lookup: {}", response);
-
-            MovieAPI movie = objectMapper.readValue(response, MovieAPI.class);
-            if (movie != null && "True".equalsIgnoreCase(movie.getResponse())) {
-                log.info("Movie found: {}", movie.getTitle());
-                return movie;
-            } else {
-                throw new NoDataFoundException("Movie not found with the given title: " + title);
-            }
-        } catch (NoDataFoundException e) {
-            throw e;
-        } catch (IOException e) {
-            log.error("Error while parsing response for title: {}", title);
-            throw new OmdbApiException("Failed to process movie data for title: " + title, e);
-        } catch (Exception e) {
-            log.error("Unexpected error while fetching movie details for title: {}", title);
-            throw new OmdbApiException("Unexpected error occurred while fetching movie details", e);
-        }
-    }
 
     public static List<MovieAPI> searchMovies(String title) {
         log.debug("Starting movie search for title: {}", title);
@@ -110,10 +82,10 @@ public class OmdbApiUtil {
         } catch (NoDataFoundException e) {
             throw e;
         } catch (IOException e) {
-            log.error("Error parsing JSON response for movie ID: {}", movieId, e);
+            log.error("Error parsing JSON response for movie ID: {}", movieId);
             throw new OmdbApiException("Error parsing response from OMDB API", e);
         } catch (Exception e) {
-            log.error("Unexpected error while fetching movie details for ID: {}", movieId, e);
+            log.error("Unexpected error while fetching movie details for ID: {}", movieId);
             throw new OmdbApiException("Unexpected error occurred while fetching movie details", e);
         }
     }
@@ -134,7 +106,7 @@ public class OmdbApiUtil {
 
             return response.body();
         } catch (IOException | InterruptedException e) {
-            log.error("Error while fetching response from OMDB API: {}", urlString, e);
+            log.error("Error while fetching response from OMDB API: {}", urlString);
             throw new OmdbApiException("Error fetching response from OMDB API", e);
         }
     }

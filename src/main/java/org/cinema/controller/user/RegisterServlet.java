@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
+import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class RegisterServlet extends HttpServlet {
             userService.register(username, password);
             log.info("User '{}' registered successfully.", username);
             request.setAttribute("message", "Success! Registration successful! Please log in.");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         } catch (IllegalArgumentException e) {
             message = "Validation error! " + e.getMessage();
@@ -55,6 +56,6 @@ public class RegisterServlet extends HttpServlet {
         }
 
         request.setAttribute("message", message);
-        request.getRequestDispatcher("/WEB-INF/views/registration.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
 }
