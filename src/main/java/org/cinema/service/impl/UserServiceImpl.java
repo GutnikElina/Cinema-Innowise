@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
         User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
         userRepository.save(user);
 
-        if (userRepository.getByUsername(username).isPresent()) {
+        if (userRepository.getByUsername(username).isEmpty()) {
             throw new NoDataFoundException("User not found in database after registration. Try again.");
         }
 
