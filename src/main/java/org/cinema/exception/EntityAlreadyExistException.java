@@ -1,4 +1,4 @@
-package org.cinema.error;
+package org.cinema.exception;
 
 public class EntityAlreadyExistException extends RuntimeException {
     public EntityAlreadyExistException(String message) {

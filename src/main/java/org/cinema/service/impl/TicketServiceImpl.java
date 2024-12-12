@@ -2,8 +2,8 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.*;
 import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.repository.impl.TicketRepositoryImpl;
