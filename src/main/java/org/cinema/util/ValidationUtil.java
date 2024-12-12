@@ -3,6 +3,7 @@ package org.cinema.util;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.Role;
 
+import javax.xml.bind.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -146,6 +147,12 @@ public class ValidationUtil {
         } catch (NumberFormatException e) {
             log.error("Validation failed: ID '{}' has invalid format", id);
             throw new IllegalArgumentException("ID must be a valid positive integer.");
+        }
+    }
+
+    public static void validateTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Movie title cannot be null or empty.");
         }
     }
 

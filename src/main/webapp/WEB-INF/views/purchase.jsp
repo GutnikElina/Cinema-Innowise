@@ -32,14 +32,16 @@
         <label for="sessionId" class="form-label">Select Film Session:</label>
         <select name="sessionId" id="sessionId" class="form-select" required>
           <c:forEach var="session" items="${filmSessions}">
-            <option value="${session.id}">
+            <option value="${session.id}" ${selectedSession != null && selectedSession.id == session.id ? 'selected' : ''}>
                 ${session.movieTitle}  |  ${session.date} (${session.startTime} - ${session.endTime})  |  ${session.price}
             </option>
           </c:forEach>
         </select>
       </div>
+      <input type="hidden" name="sessionId" value="${selectedSession != null ? selectedSession.id : ''}">
       <button type="submit" class="btn btn-primary mx-auto d-block">Choose Seat</button>
     </form>
+
 
     <c:if test="${not empty selectedSession}">
       <h3 class="text-center">Select your seat for '${selectedSession.movieTitle}'</h3>

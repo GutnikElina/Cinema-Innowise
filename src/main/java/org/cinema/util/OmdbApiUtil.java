@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.error.NoDataFoundException;
 import org.cinema.error.OmdbApiException;
-import org.cinema.model.Movie;
+import org.cinema.model.MovieAPI;
 
 /**
  * Utility class for interacting with the OMDB API.
  * Provides methods to fetch and search movie details.
- * Uses OMDB API for retrieving data in JSON format and parses it into {@link Movie} objects.
+ * Uses OMDB API for retrieving data in JSON format and parses it into {@link MovieAPI} objects.
  */
 @Slf4j
 public class OmdbApiUtil {
@@ -29,7 +29,7 @@ public class OmdbApiUtil {
 
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
-    public static Movie getMovie(String title) {
+    public static MovieAPI getMovie(String title) {
         log.debug("Fetching movie details for title: {}", title);
         try {
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
@@ -39,7 +39,7 @@ public class OmdbApiUtil {
             String response = fetchApiResponse(urlString);
             log.debug("Response received for movie lookup: {}", response);
 
-            Movie movie = objectMapper.readValue(response, Movie.class);
+            MovieAPI movie = objectMapper.readValue(response, MovieAPI.class);
             if (movie != null && "True".equalsIgnoreCase(movie.getResponse())) {
                 log.info("Movie found: {}", movie.getTitle());
                 return movie;
@@ -57,7 +57,7 @@ public class OmdbApiUtil {
         }
     }
 
-    public static List<Movie> searchMovies(String title) {
+    public static List<MovieAPI> searchMovies(String title) {
         log.debug("Starting movie search for title: {}", title);
         try {
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
@@ -70,10 +70,10 @@ public class OmdbApiUtil {
             JsonNode jsonResponse = objectMapper.readTree(response);
             if ("True".equalsIgnoreCase(jsonResponse.get("Response").asText())) {
                 JsonNode searchResults = jsonResponse.get("Search");
-                List<Movie> movieList = new ArrayList<>();
+                List<MovieAPI> movieList = new ArrayList<>();
 
                 for (JsonNode node : searchResults) {
-                    Movie movie = getMovieDetails(node.get("imdbID").asText());
+                    MovieAPI movie = getMovieDetails(node.get("imdbID").asText());
                     movieList.add(movie);
                 }
 
@@ -93,13 +93,13 @@ public class OmdbApiUtil {
         }
     }
 
-    private static Movie getMovieDetails(String movieId) {
+    private static MovieAPI getMovieDetails(String movieId) {
         try {
             log.debug("Fetching movie details for ID: {}", movieId);
             String urlString = BASE_URL + "?i=" + movieId + "&apikey=" + API_KEY;
             String response = fetchApiResponse(urlString);
 
-            Movie movie = objectMapper.readValue(response, Movie.class);
+            MovieAPI movie = objectMapper.readValue(response, MovieAPI.class);
             if (movie != null && "True".equalsIgnoreCase(movie.getResponse())) {
                 log.info("Movie details retrieved for ID: {}", movieId);
                 return movie;

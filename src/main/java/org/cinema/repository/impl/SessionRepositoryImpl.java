@@ -37,7 +37,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
             log.debug("Retrieving all film sessions...");
             List<FilmSession> filmSessions = session.createQuery("FROM FilmSession", FilmSession.class).list();
 
-            log.info("{} users successfully retrieved.", filmSessions.size());
+            log.info("{} film sessions successfully retrieved.", filmSessions.size());
             return new HashSet<>(filmSessions);
         });
     }

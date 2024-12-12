@@ -43,6 +43,7 @@ public class TicketPurchaseServlet extends HttpServlet {
             if (sessionId != null && !sessionId.trim().isEmpty()) {
                 FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
                 request.setAttribute("selectedSession", selectedSession);
+                request.setAttribute("sessionId", sessionId);
             }
         } catch (IllegalArgumentException e) {
             log.error("Validation error! {}", e.getMessage(), e);

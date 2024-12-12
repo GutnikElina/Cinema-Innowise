@@ -6,6 +6,7 @@ import org.cinema.error.EntityAlreadyExistException;
 import org.cinema.error.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
+import org.cinema.model.MovieAPI;
 import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
