@@ -27,6 +27,12 @@ public class RegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("Handling GET request for registration...");
+        
+        String message = request.getParameter("message");
+        if (message != null && !message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
+        
         request.getRequestDispatcher("/WEB-INF/views/registration.jsp").forward(request, response);
     }
 
@@ -38,24 +44,27 @@ public class RegisterServlet extends HttpServlet {
         String password = request.getParameter("newPassword");
 
         String message = "";
+        String redirectPath = "/login";
+        
         try {
             userService.register(username, password);
             log.info("User '{}' registered successfully.", username);
-            request.setAttribute("message", "Success! Registration successful! Please log in.");
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
+            message = "Success! Registration successful! Please log in.";
         } catch (IllegalArgumentException e) {
             message = "Validation error! " + e.getMessage();
+            redirectPath = "/registration";
             log.error("Validation error during registration: {}", message, e);
         } catch (EntityAlreadyExistException e) {
             message = "Error! "+ e.getMessage();
+            redirectPath = "/registration";
             log.error("Error during registration: {}", e.getMessage(), e);
         } catch (Exception e) {
             message = "Error! "+ e.getMessage();
+            redirectPath = "/registration";
             log.error("Unexpected error during registration: {}", e.getMessage(), e);
         }
 
-        request.setAttribute("message", message);
-        request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+        String encodedMessage = response.encodeRedirectURL(message);
+        response.sendRedirect(request.getContextPath() + redirectPath + "?message=" + encodedMessage);
     }
 }

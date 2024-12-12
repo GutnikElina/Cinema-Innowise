@@ -26,7 +26,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     @Override
     public void save(FilmSession filmSession) {
         executeTransaction(session -> session.save(filmSession));
-        log.info("Film session [{}] successfully added.", filmSession);
+        log.info("Film session successfully added.");
     }
 
     @Override
@@ -38,7 +38,10 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     public Set<FilmSession> findAll() {
         return executeWithResult(session -> {
             log.debug("Retrieving all film sessions...");
-            List<FilmSession> filmSessions = session.createQuery("FROM FilmSession", FilmSession.class).list();
+            List<FilmSession> filmSessions = session.createQuery(
+                "FROM FilmSession fs ORDER BY fs.date ASC, fs.startTime ASC", 
+                FilmSession.class
+            ).list();
 
             log.info("{} film sessions successfully retrieved.", filmSessions.size());
             return new HashSet<>(filmSessions);
@@ -49,7 +52,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     public void update(FilmSession filmSession) {
         executeTransaction(session -> {
             session.merge(filmSession);
-            log.info("Film session with ID [{}] successfully updated.", filmSession.getId());
+            log.info("Film session with ID '{}' successfully updated.", filmSession.getId());
         });
     }
 
@@ -59,7 +62,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
             FilmSession filmSession = session.get(FilmSession.class, id);
             if (filmSession != null) {
                 session.delete(filmSession);
-                log.info("Film session with ID [{}] successfully deleted.", id);
+                log.info("Film session with ID '{}' successfully deleted.", id);
             } else {
                 throw new NoDataFoundException("Film session with ID " + id + " not found.");
             }

@@ -12,7 +12,7 @@ import java.util.function.Function;
  * Base DAO class that provides common methods for handling database transactions.
  * This class contains methods to execute Hibernate transactions that either do or don't return results.
  * It abstracts the session management and transaction handling to simplify database operations for subclasses.
- * This class is intended to be extended by other DAO classes that interact with specific entities.
+ * This class is intended to be extended by other Repositories that interact with specific entities.
  */
 @Slf4j
 public class BaseRepository {

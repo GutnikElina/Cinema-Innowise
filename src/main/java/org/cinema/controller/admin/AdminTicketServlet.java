@@ -48,7 +48,7 @@ public class AdminTicketServlet extends HttpServlet {
         Set<User> users = Collections.emptySet();
         Set<FilmSessionDTO> filmSessions = Collections.emptySet();
 
-        String message = "";
+        String message = request.getParameter("message");
         try {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
@@ -70,7 +70,7 @@ public class AdminTicketServlet extends HttpServlet {
         request.setAttribute("tickets", tickets);
         request.setAttribute("users", users);
         request.setAttribute("filmSessions", filmSessions);
-        if (!message.isEmpty()) {
+        if (message != null && !message.isEmpty()) {
             request.setAttribute("message", message);
         }
         request.getRequestDispatcher("/WEB-INF/views/tickets.jsp").forward(request, response);
@@ -100,15 +100,13 @@ public class AdminTicketServlet extends HttpServlet {
             message = e.getMessage();
             log.error("Error during tickets action {}: {}", action, message, e);
         } catch (Exception e) {
-            message = "Unexpected error occurred during tickets operation '" + action + "'";
+            message = "Unexpected error occurred during handling tickets operation '" + action + "'";
             log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-
-        doGet(request, response);
+        // Redirect to GET with message as parameter
+        String encodedMessage = response.encodeRedirectURL(message);
+        response.sendRedirect(request.getContextPath() + "/admin/tickets?message=" + encodedMessage);
     }
 
     private String handleAddAction(HttpServletRequest request) {

@@ -33,8 +33,8 @@ public class SessionServiceImpl implements SessionService {
     public String save(String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                        String capacityStr, String priceStr) {
         Movie movie = movieService.getMovie(movieTitle);
-        FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie.getTitle(), dateStr, startTimeStr, 
-                                                      endTimeStr, capacityStr, priceStr);
+        FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie.getTitle(), dateStr, startTimeStr,
+                endTimeStr, capacityStr, priceStr);
         FilmSession filmSession = filmSessionMapper.toEntity(dto);
 
         if (sessionRepository.checkIfSessionExists(filmSession)) {
@@ -43,6 +43,7 @@ public class SessionServiceImpl implements SessionService {
 
         sessionRepository.save(filmSession);
         return "Film session successfully added.";
+
     }
 
     @Override

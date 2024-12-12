@@ -6,6 +6,7 @@ import org.cinema.model.Role;
 import javax.xml.bind.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Slf4j
 public class ValidationUtil {
@@ -153,6 +154,20 @@ public class ValidationUtil {
     public static void validateTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Movie title cannot be null or empty.");
+        }
+    }
+
+    public static void validateTime(String startTimeStr, String endTimeStr) {
+        if (isNullOrBlank(startTimeStr) || isNullOrBlank(endTimeStr)) {
+            log.error("Validation failed: start time or end time is null or empty");
+            throw new IllegalArgumentException("Start time and end time cannot be null or empty.");
+        }
+        LocalTime startTime = LocalTime.parse(startTimeStr);
+        LocalTime endTime = LocalTime.parse(endTimeStr);
+
+        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+            log.error("Validation failed: start time '{}' is not before end time '{}'", startTimeStr, endTimeStr);
+            throw new IllegalArgumentException("Start time must be before end time.");
         }
     }
 

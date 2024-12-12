@@ -9,7 +9,10 @@ import org.cinema.repository.BaseRepository;
 import org.cinema.repository.TicketRepository;
 import org.hibernate.query.Query;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public class TicketRepositoryImpl extends BaseRepository implements TicketRepository {
@@ -36,7 +39,11 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
     public Set<Ticket> findAll() {
         return executeWithResult(session -> {
             log.debug("Retrieving all tickets...");
-            List<Ticket> tickets = session.createQuery("FROM Ticket", Ticket.class).list();
+            List<Ticket> tickets = session.createQuery(
+                "FROM Ticket t JOIN FETCH t.filmSession fs " +
+                "ORDER BY fs.date ASC, fs.startTime ASC, t.seatNumber ASC", 
+                Ticket.class
+            ).list();
             log.info("{} tickets successfully retrieved.", tickets.size());
             return new HashSet<>(tickets);
         });
@@ -67,7 +74,10 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
     public List<Ticket> getTicketsBySession(int sessionId) {
         return executeWithResult(session -> {
             Query<Ticket> query = session.createQuery(
-                    "FROM Ticket t WHERE t.filmSession.id = :sessionId", Ticket.class);
+                "FROM Ticket t WHERE t.filmSession.id = :sessionId " +
+                "ORDER BY t.seatNumber ASC", 
+                Ticket.class
+            );
             query.setParameter("sessionId", sessionId);
 
             List<Ticket> tickets = query.list();
@@ -97,7 +107,11 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
     public List<Ticket> getTicketsByUserId(int userId) {
         return executeWithResult(session -> {
             Query<Ticket> query = session.createQuery(
-                    "FROM Ticket t WHERE t.user.id = :userId", Ticket.class);
+                "FROM Ticket t JOIN FETCH t.filmSession fs " +
+                "WHERE t.user.id = :userId " +
+                "ORDER BY fs.date ASC, fs.startTime ASC, t.seatNumber ASC", 
+                Ticket.class
+            );
             query.setParameter("userId", userId);
 
             List<Ticket> tickets = query.list();

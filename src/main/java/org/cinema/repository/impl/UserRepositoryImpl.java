@@ -8,7 +8,10 @@ import org.cinema.model.User;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.UserRepository;
 import org.hibernate.query.Query;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public class UserRepositoryImpl extends BaseRepository implements UserRepository {
@@ -54,7 +57,10 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
     public Set<User> findAll() {
         return executeWithResult(session -> {
             log.debug("Retrieving all users...");
-            List<User> users = session.createQuery("FROM User", User.class).list();
+            List<User> users = session.createQuery(
+                "FROM User u ORDER BY u.createdAt ASC", 
+                User.class
+            ).list();
             log.info("{} users successfully retrieved.", users.size());
             return new HashSet<>(users);
         });

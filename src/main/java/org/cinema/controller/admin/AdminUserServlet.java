@@ -33,7 +33,7 @@ public class AdminUserServlet extends HttpServlet {
         log.debug("Handling GET request for get users...");
 
         Set<User> users = Collections.emptySet();
-        String message = "";
+        String message = request.getParameter("message");
 
         try {
             if ("edit".equals(request.getParameter("action"))) {
@@ -52,8 +52,8 @@ public class AdminUserServlet extends HttpServlet {
         }
 
         request.setAttribute("users", users);
-        if (!message.isEmpty()) {
-            request.setAttribute("message", "Error!" + message);
+        if (message != null && !message.isEmpty()) {
+            request.setAttribute("message", message);
         }
         request.getRequestDispatcher("/WEB-INF/views/users.jsp").forward(request, response);
     }
@@ -86,11 +86,9 @@ public class AdminUserServlet extends HttpServlet {
             log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-
-        doGet(request, response);
+        // Redirect to GET with message as parameter
+        String encodedMessage = response.encodeRedirectURL(message);
+        response.sendRedirect(request.getContextPath() + "/admin/users?message=" + encodedMessage);
     }
 
     private String handleAddAction(HttpServletRequest request) {
