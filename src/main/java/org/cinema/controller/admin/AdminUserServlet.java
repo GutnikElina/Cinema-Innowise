@@ -44,8 +44,8 @@ public class AdminUserServlet extends HttpServlet {
             message = e.getMessage();
             log.error("Validation error! {}", message, e);
         } catch (NoDataFoundException e) {
-            message = e.getMessage();
-            log.error("Error while doing users operation: {}", message, e);
+            message = "Error! " + e.getMessage();
+            log.error("Error while doing users operation: {}", e.getMessage(), e);
         } catch (Exception e) {
             message = "Unexpected error occurred during fetching users";
             log.error("{}: {}", message, e.getMessage(), e);

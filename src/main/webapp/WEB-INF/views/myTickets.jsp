@@ -36,7 +36,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="#">CinemaApp</a>
+        <a class="navbar-brand" href="${pageContext.request.contextPath}/user">CinemaApp</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -45,6 +45,11 @@
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/user/tickets/purchase">Buy Tickets</a></li>
                 <li class="nav-item"><a class="nav-link active" href="${pageContext.request.contextPath}/user/tickets">My Tickets</a></li>
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/user/edit">Edit Account</a></li>
+                <li class="nav-item">
+                    <form method="post" action="${pageContext.request.contextPath}/logout" class="d-inline" id="logoutForm">
+                        <button type="button" class="btn btn-outline-light btn-sm" id="logoutButton">Logout</button>
+                    </form>
+                </li>
             </ul>
         </div>
     </div>
@@ -59,7 +64,12 @@
 
 <div class="container my-5">
     <c:if test="${not empty message}">
-        <div class="alert alert-info text-center">${message}</div>
+        <div class="alert
+        <c:if test="${message.toLowerCase().contains('error')}">alert-danger</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">alert-success</c:if>"
+             role="alert">
+                ${message}
+        </div>
     </c:if>
 
     <c:if test="${empty tickets}">
@@ -107,5 +117,13 @@
     </c:choose>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('logoutButton').addEventListener('click', function () {
+        const confirmLogout = confirm('Are you sure you want to log out?');
+        if (confirmLogout) {
+            document.getElementById('logoutForm').submit();
+        }
+    });
+</script>
 </body>
 </html>

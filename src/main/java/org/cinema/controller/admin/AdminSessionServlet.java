@@ -83,8 +83,8 @@ public class AdminSessionServlet extends HttpServlet {
             message = "Validation error! " + e.getMessage();
             log.error("Validation error during film sessions action {}: {}", action, message, e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = e.getMessage();
-            log.error("Error during film sessions action {}: {}", action, message, e);
+            message = "Error! " + e.getMessage();
+            log.error("Error during film sessions action {}: {}", action, e.getMessage(), e);
         } catch (OmdbApiException e) {
             message = "Failed to communicate with OMDB API. Please try again later.";
             log.error("API error during movie search: {}", e.getMessage(), e);

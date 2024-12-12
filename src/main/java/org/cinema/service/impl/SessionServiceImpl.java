@@ -78,10 +78,6 @@ public class SessionServiceImpl implements SessionService {
         FilmSession filmSession = new FilmSession(filmSessionId, movie.getTitle(), price,
                 date, startTime, endTime, capacity, null);
 
-        if (sessionRepository.checkIfSessionExists(filmSession)) {
-            throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
-        }
-
         sessionRepository.update(filmSession);
 
         if (!sessionRepository.checkIfSessionExists(filmSession)) {

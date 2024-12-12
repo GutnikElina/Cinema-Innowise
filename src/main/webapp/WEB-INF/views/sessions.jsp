@@ -8,14 +8,14 @@
     <title>Session Management</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 
 <div class="container my-5">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="text-center">Ticket Management</h1>
+        <h1 class="text-center">Session Management</h1>
         <a href="${pageContext.request.contextPath}/admin" class="btn btn-danger">Back</a>
     </div>
 
@@ -58,7 +58,7 @@
                             <form method="post" action="${pageContext.request.contextPath}/admin/sessions" class="d-inline">
                                 <input type="hidden" name="id" value="${filmSession.id}">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">Delete</button>
                             </form>
                             <form method="get" action="${pageContext.request.contextPath}/admin/sessions" class="d-inline">
                                 <input type="hidden" name="id" value="${filmSession.id}">
@@ -73,7 +73,7 @@
         </c:otherwise>
     </c:choose>
 
-    <div class="form-row mb-4">
+    <div class="row justify-content-between">
         <div class="col-md-6">
             <h2 class="text-center">Add Session</h2>
             <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
@@ -140,7 +140,18 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
-      document.getElementById('editForm').style.display = 'none';
+       document.getElementById('editForm').style.display = 'none';
+    });
+</script>
+<script>
+    document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const form = this.closest('.delete-form');
+        const confirmDelete = confirm('Are you sure you want to delete film session?');
+        if (confirmDelete) {
+           form.submit();
+        }
+      });
     });
 </script>
 

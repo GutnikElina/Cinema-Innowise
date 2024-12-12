@@ -1,0 +1,77 @@
+.form-container {
+    background: #2c2f33;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/*purchase.jsp*/
+.seat-map {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+.seat-row {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+.seat-btn {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #62b365;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+    font-size: large;
+}
+.seat-btn.taken {
+    background-color: #cc625b;
+    cursor: not-allowed;
+}
+.seat-btn.selected {
+    background-color: #5d8fb8;
+}
+
+/*for main pages*/
+.navbar {
+    background-color: #343a40;
+}
+
+.navbar-brand, .nav-link {
+    color: #ffffff !important;
+}
+.hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)) center/cover;
+    color: #ffffff;
+    text-align: center;
+    padding: 50px 20px;
+}
+.card img {
+    height: 300px;
+    object-fit: cover;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 14px;
+    color: #555;
+}

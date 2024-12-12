@@ -8,9 +8,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.error.EntityAlreadyExistException;
 import org.cinema.error.NoDataFoundException;
+import org.cinema.model.FilmSession;
 import org.cinema.model.Ticket;
+import org.cinema.model.User;
+import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
+import org.cinema.service.UserService;
+import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
+import org.cinema.service.impl.UserServiceImpl;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -20,10 +27,14 @@ import java.util.Set;
 public class AdminTicketServlet extends HttpServlet {
 
     private TicketService ticketService;
+    private SessionService sessionService;
+    private UserService userService;
 
     @Override
     public void init() {
         ticketService = TicketServiceImpl.getInstance();
+        userService = UserServiceImpl.getInstance();
+        sessionService = SessionServiceImpl.getInstance();
         log.info("AdminTicketServlet initialized.");
     }
 
@@ -33,12 +44,17 @@ public class AdminTicketServlet extends HttpServlet {
         log.debug("Handling GET request for get tickets...");
 
         Set<Ticket> tickets = Collections.emptySet();
+        Set<User> users = Collections.emptySet();
+        Set<FilmSession> filmSessions = Collections.emptySet();
+
         String message = "";
         try {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
             tickets = ticketService.findAll();
+            users = userService.findAll();
+            filmSessions = sessionService.findAll();
         } catch (IllegalArgumentException e) {
             message = "Error! " + e.getMessage();
             log.error("Validation error! {}", e.getMessage(), e);
@@ -51,6 +67,8 @@ public class AdminTicketServlet extends HttpServlet {
         }
 
         request.setAttribute("tickets", tickets);
+        request.setAttribute("users", users);
+        request.setAttribute("filmSessions", filmSessions);
         if (!message.isEmpty()) {
             request.setAttribute("message", message);
         }

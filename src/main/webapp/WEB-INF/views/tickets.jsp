@@ -8,7 +8,7 @@
     <title>Ticket Management</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 
@@ -63,7 +63,7 @@
                             <form method="post" action="${pageContext.request.contextPath}/admin/tickets" class="d-inline">
                                 <input type="hidden" name="id" value="${ticket.id}">
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">Delete</button>
                             </form>
                             <form method="get" action="${pageContext.request.contextPath}/admin/tickets" class="d-inline">
                                 <input type="hidden" name="id" value="${ticket.id}">
@@ -78,7 +78,7 @@
         </c:otherwise>
     </c:choose>
 
-    <div class="form-row mb-4">
+    <div class="row justify-content-between">
         <div class="col-md-6">
             <h2 class="text-center">Add Ticket</h2>
             <form method="post" action="${pageContext.request.contextPath}/admin/tickets">
@@ -183,6 +183,17 @@
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
       document.getElementById('editForm').style.display = 'none';
     });
+</script>
+<script>
+    document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const form = this.closest('.delete-form');
+      const confirmDelete = confirm('Are you sure you want to delete ticket?');
+      if (confirmDelete) {
+        form.submit();
+      }
+    });
+  });
 </script>
 
 </body>

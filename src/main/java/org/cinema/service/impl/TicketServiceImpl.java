@@ -71,13 +71,6 @@ public class TicketServiceImpl implements TicketService {
         Ticket existingTicket = ticketRepository.getById(ticketId).orElseThrow(() ->
                 new NoDataFoundException("Ticket with this ID doesn't exist!"));
 
-        if (!(existingTicket.getFilmSession().equals(ticket.getFilmSession()) &&
-                existingTicket.getSeatNumber().equals(ticket.getSeatNumber()) )) {
-            if (ticketRepository.checkIfTicketExists(ticket)) {
-                throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
-            }
-        }
-
         ticketRepository.update(ticket, existingTicket.getPurchaseTime());
 
         if (!ticketRepository.checkIfTicketExists(ticket)) {
