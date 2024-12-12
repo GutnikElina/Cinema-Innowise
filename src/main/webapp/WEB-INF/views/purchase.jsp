@@ -29,19 +29,27 @@
 
     <form action="${pageContext.request.contextPath}/user/tickets/purchase" method="get" class="mb-4 text-center">
       <div class="mb-3">
-        <label for="sessionId" class="form-label">Select Film Session:</label>
-        <select name="sessionId" id="sessionId" class="form-select" required>
-          <c:forEach var="session" items="${filmSessions}">
-            <option value="${session.id}" ${selectedSession != null && selectedSession.id == session.id ? 'selected' : ''}>
-                ${session.movieTitle}  |  ${session.date} (${session.startTime} - ${session.endTime})  |  ${session.price}
-            </option>
-          </c:forEach>
-        </select>
+        <label for="date" class="form-label">Select Date:</label>
+        <input type="date" name="date" id="date" class="form-control" value="${selectedDate}">
       </div>
-      <input type="hidden" name="sessionId" value="${selectedSession != null ? selectedSession.id : ''}">
-      <button type="submit" class="btn btn-primary mx-auto d-block">Choose Seat</button>
+      <button type="submit" class="btn btn-primary mx-auto d-block">View Sessions</button>
     </form>
 
+    <c:if test="${not empty filmSessions}">
+      <form action="${pageContext.request.contextPath}/user/tickets/purchase" method="get" class="mb-4 text-center">
+        <div class="mb-3">
+          <label for="sessionId" class="form-label">Select Film Session:</label>
+          <select name="sessionId" id="sessionId" class="form-select" required>
+            <c:forEach var="session" items="${filmSessions}">
+              <option value="${session.id}" ${selectedSession != null && selectedSession.id == session.id ? 'selected' : ''}>
+                  ${session.movieTitle} | ${session.startTime} - ${session.endTime} | ${session.price} BYN
+              </option>
+            </c:forEach>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary mx-auto d-block">Choose Seat</button>
+      </form>
+    </c:if>
 
     <c:if test="${not empty selectedSession}">
       <h3 class="text-center">Select your seat for '${selectedSession.movieTitle}'</h3>
@@ -56,8 +64,7 @@
             <div class="seat-row">
               <c:forEach var="seat" begin="${row * 10 + 1}" end="${row * 10 + 10}">
                 <button type="button" class="seat-btn ${selectedSession.takenSeats.contains(seat) ? 'taken' : ''}"
-                        data-seat-number="${seat}"
-                  ${selectedSession.takenSeats.contains(seat) ? 'disabled' : ''}>
+                        data-seat-number="${seat}" ${selectedSession.takenSeats.contains(seat) ? 'disabled' : ''}>
                     ${seat}
                 </button>
               </c:forEach>

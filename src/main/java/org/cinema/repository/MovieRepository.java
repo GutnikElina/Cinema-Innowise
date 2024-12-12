@@ -9,7 +9,7 @@ import java.util.Set;
 public interface MovieRepository {
     void save(Movie movie);
     Optional<Movie> getById(int movieId);
-    Set<Movie> findAll();
+    List<Movie> findAll();
     void update(Movie movie);
     void delete(int movieId);
     List<Movie> findByTitle(String movieTitle);

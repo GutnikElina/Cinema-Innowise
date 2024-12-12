@@ -38,13 +38,13 @@ public class MovieRepositoryImpl extends BaseRepository implements MovieReposito
     }
 
     @Override
-    public Set<Movie> findAll() {
+    public List<Movie> findAll() {
         return executeWithResult(session -> {
             log.debug("Retrieving all movies...");
             List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
 
             log.info("{} movies successfully retrieved.", movies.size());
-            return new HashSet<>(movies);
+            return movies;
         });
     }
 

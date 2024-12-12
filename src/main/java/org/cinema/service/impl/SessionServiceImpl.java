@@ -114,4 +114,14 @@ public class SessionServiceImpl implements SessionService {
         log.info("{} film sessions retrieved successfully.", filmSessions.size());
         return filmSessions;
     }
+
+    @Override
+    public Set<FilmSession> findByDate(String date) {
+        log.debug("Searching for film sessions on date: {}", date);
+        Set<FilmSession> filmSessions = sessionRepository.findByDate(LocalDate.parse(date));
+
+        log.info("{} film sessions retrieved for date {}", filmSessions.size(), date);
+        return filmSessions;
+    }
+
 }

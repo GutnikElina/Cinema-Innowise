@@ -12,4 +12,5 @@ public interface SessionService {
     String update(String id, String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                   String capacityStr, String priceStr);
     String delete(String id);
+    Set<FilmSession> findByDate(String date);
 }

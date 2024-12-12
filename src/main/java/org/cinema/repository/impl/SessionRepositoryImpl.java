@@ -8,6 +8,8 @@ import org.cinema.model.FilmSession;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.SessionRepository;
 import org.hibernate.query.Query;
+
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -78,6 +80,18 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
                     filmSession.getMovieTitle(), filmSession.getDate(), filmSession.getStartTime(),
                     exists ? "found" : "not found");
             return exists;
+        });
+    }
+
+    @Override
+    public Set<FilmSession> findByDate(LocalDate date) {
+        return executeWithResult(session -> {
+            Query<FilmSession> query = session.createQuery(
+                    "FROM FilmSession fs WHERE fs.date = :date", FilmSession.class);
+            query.setParameter("date", date);
+
+            List<FilmSession> filmSessions = query.list();
+            return new HashSet<>(filmSessions);
         });
     }
 }

@@ -14,6 +14,7 @@ import org.cinema.service.TicketService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Set;
 
 @Slf4j
@@ -35,8 +36,22 @@ public class TicketPurchaseServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling GET request for ticket purchase...");
 
+        String selectedDate = request.getParameter("date");
+        Set<FilmSession> filmSessions = Collections.emptySet();
+
         try {
-            Set<FilmSession> filmSessions = sessionService.findAll();
+            if (selectedDate == null || selectedDate.isEmpty()) {
+                filmSessions = sessionService.findAll();
+            } else {
+                filmSessions = sessionService.findByDate(selectedDate);
+                System.out.println(filmSessions);
+                if (filmSessions.isEmpty()) {
+                    filmSessions = sessionService.findAll();
+                    request.setAttribute("message", "Error! No film sessions found for the selected date. Displaying all sessions.");
+                }
+                request.setAttribute("selectedDate", selectedDate);
+            }
+
             request.setAttribute("filmSessions", filmSessions);
 
             String sessionId = request.getParameter("sessionId");
@@ -45,16 +60,18 @@ public class TicketPurchaseServlet extends HttpServlet {
                 request.setAttribute("selectedSession", selectedSession);
                 request.setAttribute("sessionId", sessionId);
             }
+
         } catch (IllegalArgumentException e) {
             log.error("Validation error! {}", e.getMessage(), e);
             request.setAttribute("message", "Validation error: " + e.getMessage());
         } catch (NoDataFoundException e) {
             log.error("Error during fetching film sessions: {}", e.getMessage(), e);
-            request.setAttribute("message", e.getMessage());
+            request.setAttribute("message", "Error! " + e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during fetching film sessions: {}", e.getMessage(), e);
             request.setAttribute("message", "Unexpected error loading data: " + e.getMessage());
         }
+
         request.getRequestDispatcher("/WEB-INF/views/purchase.jsp").forward(request, response);
     }
 
@@ -71,8 +88,8 @@ public class TicketPurchaseServlet extends HttpServlet {
             message = "Validation error! " + e.getMessage();
             log.error("Validation error during purchasing ticket: {}", message, e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = e.getMessage();
-            log.error("Error during purchasing ticket: {}", message, e);
+            message = "Error!" + e.getMessage();
+            log.error("Error during purchasing ticket: {}", e.getMessage(), e);
         } catch (Exception e) {
             message = "Unexpected error while purchasing ticket";
             log.error("{}: {}", message, e.getMessage(), e);
