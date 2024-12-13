@@ -155,9 +155,4 @@ public class UserServiceImpl implements UserService {
         userRepository.update(user);
         log.info("User with ID {} updated their profile.", userId);
     }
-
-    @Override
-    public Optional<User> findByUsername(String username) {
-        return userRepository.getByUsername(username);
-    }
 }

@@ -41,6 +41,14 @@ docker-compose ps
   - Password: cinema_password
   - Database: cinema_db
 
+5. Вход:
+- Пользователь:
+  - login: user123
+  - password: user123
+- Администратор:
+  - login: admin
+  - password: admin
+
 ### Остановка приложения
 ```bash
 docker-compose down
