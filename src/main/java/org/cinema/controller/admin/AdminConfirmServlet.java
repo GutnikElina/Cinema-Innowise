@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.*;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
@@ -65,8 +65,8 @@ public class AdminConfirmServlet extends HttpServlet {
             log.debug("Start to process action {}...", action);
             message = ticketService.processTicketAction(action, ticketIdParam);
         } catch (IllegalArgumentException e) {
-            log.error("Validation error: {}", e.getMessage(), e);
             message = "Error! " + e.getMessage();
+            log.error("Validation error: {}", e.getMessage(), e);
         } catch (Exception e) {
             String error = "Unexpected error occurred during ticket operation";
             log.error("{}: {}", error, e.getMessage(), e);

@@ -86,18 +86,18 @@
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="userId" required>
                         <option value="" disabled selected>-- Select user --</option>
-                            <c:forEach var="user" items="${users}">
-                                <option value="${user.id}">${user.username}</option>
-                            </c:forEach>
+                        <c:forEach var="user" items="${users}">
+                            <option value="${user.id}">${user.username}</option>
+                        </c:forEach>
                     </select>
                 </div>
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="sessionId" required>
-                     <option value="" disabled selected>-- Select film session --</option>
+                        <option value="" disabled selected>-- Select film session --</option>
                         <c:forEach var="filmSession" items="${filmSessions}">
                             <option value="${filmSession.id}">
-                                ${filmSession.movieTitle} -
-                                    <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
+                                    ${filmSession.movieTitle} -
+                                <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                             </option>
                         </c:forEach>
                     </select>

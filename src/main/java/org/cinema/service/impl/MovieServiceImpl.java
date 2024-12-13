@@ -2,7 +2,7 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.Movie;
 import org.cinema.model.MovieAPI;
 import org.cinema.repository.impl.MovieRepositoryImpl;

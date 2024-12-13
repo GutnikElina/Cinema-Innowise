@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.NoDataFoundException;
-import org.cinema.error.OmdbApiException;
+import org.cinema.exception.NoDataFoundException;
+import org.cinema.exception.OmdbApiException;
 import org.cinema.model.Movie;
 import org.cinema.service.MovieService;
 import org.cinema.service.impl.MovieServiceImpl;
@@ -31,8 +31,8 @@ public class AdminMainPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        log.debug("Handling GET request for search movies...");
 
+        log.debug("Handling GET request for search movies...");
         String message = "";
         Optional<String> movieTitleOpt = Optional.ofNullable(request.getParameter("movieTitle"))
                 .filter(title -> !title.trim().isEmpty());

@@ -3,7 +3,7 @@ package org.cinema.repository.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.SessionRepository;
@@ -11,6 +11,7 @@ import org.hibernate.query.Query;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.Optional;
 
 @Slf4j
 public class SessionRepositoryImpl extends BaseRepository implements SessionRepository {
@@ -25,7 +26,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     @Override
     public void save(FilmSession filmSession) {
         executeTransaction(session -> session.save(filmSession));
-        log.info("Film session [{}] successfully added.", filmSession);
+        log.info("Film session successfully added.");
     }
 
     @Override
@@ -37,7 +38,10 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     public Set<FilmSession> findAll() {
         return executeWithResult(session -> {
             log.debug("Retrieving all film sessions...");
-            List<FilmSession> filmSessions = session.createQuery("FROM FilmSession", FilmSession.class).list();
+            List<FilmSession> filmSessions = session.createQuery(
+                "FROM FilmSession fs ORDER BY fs.date ASC, fs.startTime ASC", 
+                FilmSession.class
+            ).list();
 
             log.info("{} film sessions successfully retrieved.", filmSessions.size());
             return new HashSet<>(filmSessions);
@@ -48,7 +52,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     public void update(FilmSession filmSession) {
         executeTransaction(session -> {
             session.merge(filmSession);
-            log.info("Film session with ID [{}] successfully updated.", filmSession.getId());
+            log.info("Film session with ID '{}' successfully updated.", filmSession.getId());
         });
     }
 
@@ -56,41 +60,40 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     public void delete(int id) {
         executeTransaction(session -> {
             FilmSession filmSession = session.get(FilmSession.class, id);
-            if (filmSession == null) {
-                throw new NoDataFoundException("Film session with ID " + id + " doesn't exist.");
+            if (filmSession != null) {
+                session.delete(filmSession);
+                log.info("Film session with ID '{}' successfully deleted.", id);
+            } else {
+                throw new NoDataFoundException("Film session with ID " + id + " not found.");
             }
-            session.delete(filmSession);
-            log.info("Film session with ID {} successfully deleted.", id);
         });
     }
 
     @Override
     public boolean checkIfSessionExists(FilmSession filmSession) {
         return executeWithResult(session -> {
-            Query<FilmSession> query = session.createQuery(
-                    "FROM FilmSession fs WHERE fs.movieTitle = :movieTitle " +
-                            "AND fs.date = :date " +
-                            "AND fs.startTime = :startTime", FilmSession.class);
-            query.setParameter("movieTitle", filmSession.getMovieTitle());
-            query.setParameter("date", filmSession.getDate());
-            query.setParameter("startTime", filmSession.getStartTime());
+            String hql = "FROM FilmSession fs WHERE fs.movieTitle = :title AND fs.date = :date " +
+                    "AND ((fs.startTime BETWEEN :start AND :end) OR (fs.endTime BETWEEN :start AND :end))";
 
-            boolean exists = !query.list().isEmpty();
-            log.debug("Check for existing session with title '{}', date '{}', start time '{}': {}.",
-                    filmSession.getMovieTitle(), filmSession.getDate(), filmSession.getStartTime(),
-                    exists ? "found" : "not found");
-            return exists;
+            Query<FilmSession> query = session.createQuery(hql, FilmSession.class);
+            query.setParameter("title", filmSession.getMovieTitle());
+            query.setParameter("date", filmSession.getDate());
+            query.setParameter("start", filmSession.getStartTime());
+            query.setParameter("end", filmSession.getEndTime());
+
+            return !query.list().isEmpty();
         });
     }
 
     @Override
     public Set<FilmSession> findByDate(LocalDate date) {
         return executeWithResult(session -> {
-            Query<FilmSession> query = session.createQuery(
-                    "FROM FilmSession fs WHERE fs.date = :date", FilmSession.class);
+            String hql = "FROM FilmSession fs WHERE fs.date = :date";
+            Query<FilmSession> query = session.createQuery(hql, FilmSession.class);
             query.setParameter("date", date);
 
             List<FilmSession> filmSessions = query.list();
+            log.info("{} film sessions found for date: {}", filmSessions.size(), date);
             return new HashSet<>(filmSessions);
         });
     }

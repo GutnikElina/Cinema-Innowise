@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
@@ -33,11 +33,6 @@ public class UserEditServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-//
-//        if (userId == null) {
-//            handleUnauthorizedAccess(request, response);
-//            return;
-//        }
 
         User user = userService.getById(String.valueOf(userId))
                 .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
@@ -53,11 +48,6 @@ public class UserEditServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-//
-//        if (userId == null) {
-//            handleUnauthorizedAccess(request, response);
-//            return;
-//        }
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -82,12 +72,6 @@ public class UserEditServlet extends HttpServlet {
         }
 
         request.setAttribute("message", message);
-        request.getRequestDispatcher("/login").forward(request, response);
-    }
-
-    private void handleUnauthorizedAccess(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.warn("User is not logged in!");
-        request.setAttribute("message",  "Error! You must log in to edit your profile.");
-        request.getRequestDispatcher("/login").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/editProfile.jsp").forward(request, response);
     }
 }

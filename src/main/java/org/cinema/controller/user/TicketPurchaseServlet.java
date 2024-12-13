@@ -6,8 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.dto.FilmSessionDTO;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
@@ -37,14 +38,13 @@ public class TicketPurchaseServlet extends HttpServlet {
         log.debug("Handling GET request for ticket purchase...");
 
         String selectedDate = request.getParameter("date");
-        Set<FilmSession> filmSessions = Collections.emptySet();
+        Set<FilmSessionDTO> filmSessions = Collections.emptySet();
 
         try {
             if (selectedDate == null || selectedDate.isEmpty()) {
                 filmSessions = sessionService.findAll();
             } else {
                 filmSessions = sessionService.findByDate(selectedDate);
-                System.out.println(filmSessions);
                 if (filmSessions.isEmpty()) {
                     filmSessions = sessionService.findAll();
                     request.setAttribute("message", "Error! No film sessions found for the selected date. Displaying all sessions.");

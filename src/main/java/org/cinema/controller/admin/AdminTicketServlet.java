@@ -6,8 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.dto.FilmSessionDTO;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Ticket;
 import org.cinema.model.User;
@@ -17,7 +18,6 @@ import org.cinema.service.UserService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -45,16 +45,16 @@ public class AdminTicketServlet extends HttpServlet {
 
         Set<Ticket> tickets = Collections.emptySet();
         Set<User> users = Collections.emptySet();
-        Set<FilmSession> filmSessions = Collections.emptySet();
+        Set<FilmSessionDTO> filmSessions = Collections.emptySet();
 
         String message = "";
         try {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
-            tickets = ticketService.findAll();
             users = userService.findAll();
             filmSessions = sessionService.findAll();
+            tickets = ticketService.findAll();
         } catch (IllegalArgumentException e) {
             message = "Error! " + e.getMessage();
             log.error("Validation error! {}", e.getMessage(), e);

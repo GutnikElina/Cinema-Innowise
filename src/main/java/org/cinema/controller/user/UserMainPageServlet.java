@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.NoDataFoundException;
-import org.cinema.error.OmdbApiException;
+import org.cinema.exception.NoDataFoundException;
+import org.cinema.exception.OmdbApiException;
 import org.cinema.model.Movie;
 import org.cinema.service.MovieService;
 import org.cinema.service.impl.MovieServiceImpl;
@@ -47,7 +47,7 @@ public class UserMainPageServlet extends HttpServlet {
                 message = "Validation error! " + e.getMessage();
                 log.error("Validation error during fetching movies: {}", message, e);
             } catch (NoDataFoundException e) {
-                message = e.getMessage();
+                message =  "Error! " + e.getMessage();
                 log.error("Error during fetching movies: {}", message, e);
             } catch (OmdbApiException e) {
                 message = "Failed to communicate with OMDB API. Please try again later.";

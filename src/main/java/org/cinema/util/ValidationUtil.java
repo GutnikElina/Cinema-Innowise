@@ -6,6 +6,7 @@ import org.cinema.model.Role;
 import javax.xml.bind.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Slf4j
 public class ValidationUtil {
@@ -18,10 +19,7 @@ public class ValidationUtil {
     }
 
     public static void validateUsername(String username) {
-        if (isNullOrBlank(username)) {
-            log.error("Validation failed: username is null or empty");
-            throw new IllegalArgumentException("Username cannot be null or empty.");
-        }
+        validateNotBlank(username, "Username");
         if (username.length() < 5) {
             log.error("Validation failed: username '{}' is too short", username);
             throw new IllegalArgumentException("Username must be at least 5 characters long.");
@@ -33,10 +31,7 @@ public class ValidationUtil {
     }
 
     public static void validatePassword(String password) {
-        if (isNullOrBlank(password)) {
-            log.error("Validation failed: password is null or empty");
-            throw new IllegalArgumentException("Password cannot be null or empty.");
-        }
+        validateNotBlank(password, "Password");
         if (password.length() < 5) {
             log.error("Validation failed: password is too short");
             throw new IllegalArgumentException("Password must be at least 5 characters long.");
@@ -44,10 +39,7 @@ public class ValidationUtil {
     }
 
     public static void validateRole(String role) {
-        if (isNullOrBlank(role)) {
-            log.error("Validation failed: role is null or empty");
-            throw new IllegalArgumentException("Role must be selected.");
-        }
+        validateNotBlank(role, "Role");
         try {
             Role.valueOf(role.toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -57,18 +49,13 @@ public class ValidationUtil {
     }
 
     public static void validateParameters(String action, String ticketIdParam) {
-        if (isNullOrBlank(action) || isNullOrBlank(ticketIdParam)) {
-            log.error("Validation failed: action or ticket ID is missing");
-            throw new IllegalArgumentException("Action or ticket ID is missing!");
-        }
+        validateNotBlank(action, "Action");
+        validateNotBlank(ticketIdParam, "Ticket ID");
         parseId(ticketIdParam);
     }
 
     public static void validateDate(String dateStr) {
-        if (isNullOrBlank(dateStr)) {
-            log.error("Validation failed: date is null or empty");
-            throw new IllegalArgumentException("Date cannot be null or empty.");
-        }
+        validateNotBlank(dateStr, "Date");
         try {
             LocalDate date = LocalDate.parse(dateStr);
             if (date.isBefore(LocalDate.now())) {
@@ -82,10 +69,7 @@ public class ValidationUtil {
     }
 
     public static void validatePrice(String priceStr) {
-        if (isNullOrBlank(priceStr)) {
-            log.error("Validation failed: price is null or empty");
-            throw new IllegalArgumentException("Price cannot be null or empty.");
-        }
+        validateNotBlank(priceStr, "Price");
         try {
             BigDecimal price = new BigDecimal(priceStr);
             if (price.compareTo(BigDecimal.ZERO) <= 0) {
@@ -99,10 +83,7 @@ public class ValidationUtil {
     }
 
     public static void validateCapacity(String capacityStr) {
-        if (isNullOrBlank(capacityStr)) {
-            log.error("Validation failed: capacity is null or empty");
-            throw new IllegalArgumentException("Capacity cannot be null or empty.");
-        }
+        validateNotBlank(capacityStr, "Capacity");
         try {
             int capacity = Integer.parseInt(capacityStr);
             if (capacity <= 0) {
@@ -116,10 +97,7 @@ public class ValidationUtil {
     }
 
     public static void validateSeatNumber(String seatNumberStr, int capacity) {
-        if (isNullOrBlank(seatNumberStr)) {
-            log.error("Validation failed: seat number is null or empty");
-            throw new IllegalArgumentException("Seat number cannot be null or empty.");
-        }
+        validateNotBlank(seatNumberStr, "Seat number");
         try {
             int seatNum = Integer.parseInt(seatNumberStr);
             if (seatNum > capacity || seatNum <= 0) {
@@ -133,10 +111,7 @@ public class ValidationUtil {
     }
 
     public static int parseId(String id) {
-        if (isNullOrBlank(id)) {
-            log.error("Validation failed: ID is null or empty");
-            throw new IllegalArgumentException("ID cannot be null or empty.");
-        }
+        validateNotBlank(id, "ID");
         try {
             int parsedId = Integer.parseInt(id);
             if (parsedId <= 0) {
@@ -151,8 +126,26 @@ public class ValidationUtil {
     }
 
     public static void validateTitle(String title) {
-        if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Movie title cannot be null or empty.");
+        validateNotBlank(title, "Movie title");
+    }
+
+    public static void validateTime(String startTimeStr, String endTimeStr) {
+        validateNotBlank(startTimeStr, "Start time");
+        validateNotBlank(endTimeStr, "End time");
+
+        LocalTime startTime = LocalTime.parse(startTimeStr);
+        LocalTime endTime = LocalTime.parse(endTimeStr);
+
+        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+            log.error("Validation failed: start time '{}' is not before end time '{}'", startTimeStr, endTimeStr);
+            throw new IllegalArgumentException("Start time must be before end time.");
+        }
+    }
+
+    public static void validateNotBlank(String value, String fieldName) {
+        if (isNullOrBlank(value)) {
+            log.error("Validation failed: {} is null or empty", fieldName);
+            throw new IllegalArgumentException(fieldName + " cannot be null or empty.");
         }
     }
 

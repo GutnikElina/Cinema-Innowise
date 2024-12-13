@@ -3,18 +3,14 @@ package org.cinema.repository.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
-import org.cinema.error.NoDataFoundException;
-import org.cinema.model.FilmSession;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.Movie;
-import org.cinema.model.User;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.MovieRepository;
 import org.hibernate.query.Query;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 public class MovieRepositoryImpl extends BaseRepository implements MovieRepository {

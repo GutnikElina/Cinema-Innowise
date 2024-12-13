@@ -3,8 +3,8 @@ package org.cinema.service.impl;
 import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.error.EntityAlreadyExistException;
-import org.cinema.error.NoDataFoundException;
+import org.cinema.exception.EntityAlreadyExistException;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.repository.impl.UserRepositoryImpl;
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
         User user = new User(username, PasswordUtil.hashPassword(password), Role.USER);
         userRepository.save(user);
 
-        if (userRepository.getByUsername(username).isPresent()) {
+        if (userRepository.getByUsername(username).isEmpty()) {
             throw new NoDataFoundException("User not found in database after registration. Try again.");
         }
 
@@ -136,7 +136,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateProfile(int userId, String username, String password) {
-        ValidationUtil.validateUsername(username);
         ValidationUtil.validateIsPositive(userId);
 
         User user = userRepository.getById(userId)
