@@ -49,8 +49,8 @@ CREATE TABLE `ticket` (
 );
 
 INSERT INTO `users` (`username`, `password`, `role`, `created_at`) VALUES
-('admin', '$2a$10$uD.2PFrF1QKWhVC7eQD/EOY0RdgOz9r.RYJ2br8WsL3QwzksGdoJW', 'ADMIN', '2024-12-13 08:10:49.658637'),
-('user123', '$2a$10$uD.2PFrF1QKWhVC7eQD/EOY0RdgOz9r.RYJ2br8WsL3QwzksGdoJW', 'USER', CURRENT_TIMESTAMP);
+('admin', '$2a$10$WzKB.QKGNz6oFY/YkAJBZu2Q0Qm2cEWivpOQQUJNi5GtRMG/XQyp2', 'ADMIN', '2024-12-13 08:10:49.658637'),
+('user123', '$2a$10$PwPPHxFsZgXUm3qeNgG7T.jRB1.cWPGQxAZCYFRdQ8Kv.fTqoQ5Hy', 'USER', CURRENT_TIMESTAMP);
 
 INSERT INTO `movies` (`title`, `year`, `genre`, `director`, `plot`, `runtime`) VALUES
 ('The Matrix', '1999', 'Action, Sci-Fi', 'Lana Wachowski, Lilly Wachowski', 'A computer programmer discovers a mysterious world of digital reality', '136 min'),
