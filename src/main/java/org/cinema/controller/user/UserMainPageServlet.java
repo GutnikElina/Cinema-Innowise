@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-@WebServlet(name = "UserMainPageServlet", urlPatterns = {"/user/main"})
+@WebServlet(name = "UserMainPageServlet", urlPatterns = {"/user"})
 public class UserMainPageServlet extends HttpServlet {
 
     private static final String VIEW_PATH = "/WEB-INF/views/user.jsp";
