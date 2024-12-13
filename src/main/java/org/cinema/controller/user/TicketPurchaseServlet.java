@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Set;
 
 @Slf4j
-@WebServlet(name = "TicketPurchaseServlet", urlPatterns = {"/user/purchase"})
+@WebServlet(name = "TicketPurchaseServlet", urlPatterns = {"/user/tickets/purchase"})
 public class TicketPurchaseServlet extends HttpServlet {
 
     private static final String VIEW_PATH = "/WEB-INF/views/purchase.jsp";
