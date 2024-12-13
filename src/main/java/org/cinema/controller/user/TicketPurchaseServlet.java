@@ -101,7 +101,7 @@ public class TicketPurchaseServlet extends HttpServlet {
                     userId, sessionId, seatNumber);
 
             String message = ticketService.purchaseTicket(String.valueOf(userId), sessionId, seatNumber);
-            response.sendRedirect(request.getContextPath() + "/user/purchase?" + MESSAGE_PARAM + "=" + 
+            response.sendRedirect(request.getContextPath() + "/user/tickets/purchase?" + MESSAGE_PARAM + "=" +
                     response.encodeRedirectURL(message));
             return;
 
@@ -116,7 +116,7 @@ public class TicketPurchaseServlet extends HttpServlet {
                     "Unexpected error during ticket purchase: {}", e, e.getMessage());
         }
 
-        response.sendRedirect(request.getContextPath() + "/user/purchase");
+        response.sendRedirect(request.getContextPath() + "/user/tickets/purchase");
     }
 
     private void handleError(HttpServletRequest request, String userMessage,
