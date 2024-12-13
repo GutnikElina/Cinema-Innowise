@@ -19,6 +19,10 @@ import java.util.Set;
 @WebServlet(name = "AdminUserServlet", urlPatterns = {"/admin/users"})
 public class AdminUserServlet extends HttpServlet {
 
+    private static final String VIEW_PATH = "/WEB-INF/views/users.jsp";
+    private static final String REDIRECT_PATH = "/admin/users";
+    private static final String MESSAGE_PARAM = "message";
+
     private UserService userService;
 
     @Override
@@ -30,32 +34,32 @@ public class AdminUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.debug("Handling GET request for get users...");
-
-        Set<User> users = Collections.emptySet();
-        String message = request.getParameter("message");
+        log.debug("Handling GET request for users...");
 
         try {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
-            users = userService.findAll();
+            
+            loadDataForView(request);
+            
+            String message = request.getParameter(MESSAGE_PARAM);
+            if (message != null && !message.isEmpty()) {
+                request.setAttribute(MESSAGE_PARAM, message);
+            }
+
         } catch (IllegalArgumentException e) {
-            message = e.getMessage();
-            log.error("Validation error! {}", message, e);
+            handleError(request, "Invalid input: " + e.getMessage(), e);
+            setEmptyCollections(request);
         } catch (NoDataFoundException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Error while doing users operation: {}", e.getMessage(), e);
+            handleError(request, e.getMessage(), e);
+            setEmptyCollections(request);
         } catch (Exception e) {
-            message = "Unexpected error occurred during fetching users";
-            log.error("{}: {}", message, e.getMessage(), e);
+            handleError(request, "An unexpected error occurred while fetching users", e);
+            setEmptyCollections(request);
         }
 
-        request.setAttribute("users", users);
-        if (message != null && !message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        request.getRequestDispatcher("/WEB-INF/views/users.jsp").forward(request, response);
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
     @Override
@@ -63,50 +67,85 @@ public class AdminUserServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling POST request for users operations...");
 
-        String message = "";
-        String action = request.getParameter("action");
         try {
-            message = switch (action) {
-                case "add" -> handleAddAction(request);
-                case "delete" -> handleDeleteAction(request);
-                case "update" -> handleUpdateAction(request);
-                default -> {
-                    log.warn("Unknown action: {}", request.getParameter("action"));
-                    yield "Error! Unknown action.";
-                }
-            };
+            String action = request.getParameter("action");
+            String message = processAction(action, request);
+            request.getSession().setAttribute(MESSAGE_PARAM, message);
+
         } catch (IllegalArgumentException e) {
-            message = "Validation error! " + e.getMessage();
-            log.error("Validation error during user operation: {}", message, e);
+            log.warn("Validation error: {}", e.getMessage(), e);
+            request.getSession().setAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Error while doing users operation: {}", message, e);
+            log.warn("Business error: {}", e.getMessage(), e);
+            request.getSession().setAttribute(MESSAGE_PARAM, e.getMessage());
         } catch (Exception e) {
-            message = "Unexpected error occurred during handling users operation '" + action + "'";
-            log.error("{}: {}", message, e.getMessage(), e);
+            log.error("Unexpected error: {}", e.getMessage(), e);
+            request.getSession().setAttribute(MESSAGE_PARAM, "An unexpected error occurred");
         }
 
-        String encodedMessage = response.encodeRedirectURL(message);
-        response.sendRedirect(request.getContextPath() + "/admin/users?message=" + encodedMessage);
+        response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
+    }
+
+    private String processAction(String action, HttpServletRequest request) {
+        return switch (action) {
+            case "add" -> handleAddAction(request);
+            case "delete" -> handleDeleteAction(request);
+            case "update" -> handleUpdateAction(request);
+            default -> {
+                log.warn("Unknown action requested: {}", action);
+                yield "Unknown action requested";
+            }
+        };
+    }
+
+    private void loadDataForView(HttpServletRequest request) {
+        log.debug("Loading data for view...");
+        Set<User> users = userService.findAll();
+        request.setAttribute("users", users);
+    }
+
+    private void setEmptyCollections(HttpServletRequest request) {
+        request.setAttribute("users", Collections.emptySet());
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        return userService.save(request.getParameter("username"),
-                request.getParameter("password"), request.getParameter("role"));
+        return userService.save(
+                getRequiredParameter(request, "username"),
+                getRequiredParameter(request, "password"),
+                getRequiredParameter(request, "role")
+        );
     }
 
     private String handleUpdateAction(HttpServletRequest request) {
-        return userService.update(request.getParameter("id"), request.getParameter("username"),
-                request.getParameter("password"), request.getParameter("role"));
+        return userService.update(
+                getRequiredParameter(request, "id"),
+                getRequiredParameter(request, "username"),
+                getRequiredParameter(request, "password"),
+                getRequiredParameter(request, "role")
+        );
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
-        return userService.delete(request.getParameter("id"));
+        return userService.delete(getRequiredParameter(request, "id"));
     }
 
     private void handleEditAction(HttpServletRequest request) {
-        User user = userService.getById(request.getParameter("id"))
-                .orElseThrow(() -> new NoDataFoundException("User with this ID doesn't exist."));
+        String userId = getRequiredParameter(request, "id");
+        User user = userService.getById(userId)
+                .orElseThrow(() -> new NoDataFoundException("Error! User with ID " + userId + " doesn't exist."));
         request.setAttribute("user", user);
+    }
+
+    private String getRequiredParameter(HttpServletRequest request, String paramName) {
+        String value = request.getParameter(paramName);
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(paramName + " is required");
+        }
+        return value.trim();
+    }
+
+    private void handleError(HttpServletRequest request, String message, Exception e) {
+        log.error(message + ": {}", e.getMessage(), e);
+        request.setAttribute(MESSAGE_PARAM, message);
     }
 }

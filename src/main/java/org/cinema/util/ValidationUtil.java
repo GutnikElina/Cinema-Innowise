@@ -7,6 +7,7 @@ import javax.xml.bind.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Slf4j
 public class ValidationUtil {
@@ -146,6 +147,26 @@ public class ValidationUtil {
         if (isNullOrBlank(value)) {
             log.error("Validation failed: {} is null or empty", fieldName);
             throw new IllegalArgumentException(fieldName + " cannot be null or empty.");
+        }
+    }
+
+    public static void validateRequest(String action, String ticketId) {
+        if (Objects.isNull(action) || action.trim().isEmpty()) {
+            throw new IllegalArgumentException("Action parameter is required");
+        }
+
+        if (!action.equals("confirm") && !action.equals("reject")) {
+            throw new IllegalArgumentException("Invalid action parameter. Must be 'confirm' or 'reject'");
+        }
+
+        if (Objects.isNull(ticketId) || ticketId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Ticket ID parameter is required");
+        }
+
+        try {
+            Long.parseLong(ticketId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid ticket ID format");
         }
     }
 

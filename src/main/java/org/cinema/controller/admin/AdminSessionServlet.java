@@ -21,6 +21,10 @@ import java.util.Set;
 @WebServlet(name = "AdminSessionServlet", urlPatterns = {"/admin/sessions"})
 public class AdminSessionServlet extends HttpServlet {
 
+    private static final String VIEW_PATH = "/WEB-INF/views/sessions.jsp";
+    private static final String REDIRECT_PATH = "/admin/sessions";
+    private static final String MESSAGE_PARAM = "message";
+
     private SessionService sessionService;
 
     @Override
@@ -34,29 +38,32 @@ public class AdminSessionServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling GET request for film sessions...");
 
-        Set<FilmSessionDTO> filmSessions = Collections.emptySet();
-        String message = request.getParameter("message");
-        String action = request.getParameter("action");
-
         try {
+            String action = request.getParameter("action");
             if ("edit".equals(action)) {
                 handleEditAction(request);
             }
-            log.debug("Start to fetch sessions...");
-            filmSessions = sessionService.findAll();
+            
+            log.debug("Fetching all sessions...");
+            Set<FilmSessionDTO> filmSessions = sessionService.findAll();
+            request.setAttribute("filmSessions", filmSessions);
+            
+            String message = request.getParameter(MESSAGE_PARAM);
+            if (message != null && !message.isEmpty()) {
+                request.setAttribute(MESSAGE_PARAM, message);
+            }
+            
         } catch (IllegalArgumentException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Validation error! {}", e.getMessage(), e);
+            handleError(request, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Error while doing film sessions operation: {}", e.getMessage(), e);
+            handleError(request, e.getMessage(), e);
+            request.setAttribute("filmSessions", Collections.emptySet());
+        } catch (Exception e) {
+            handleError(request, "An unexpected error occurred while fetching sessions", e);
+            request.setAttribute("filmSessions", Collections.emptySet());
         }
 
-        request.setAttribute("filmSessions", filmSessions);
-        if (message != null && !message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        request.getRequestDispatcher("/WEB-INF/views/sessions.jsp").forward(request, response);
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
     @Override
@@ -68,31 +75,30 @@ public class AdminSessionServlet extends HttpServlet {
         String message = "";
 
         try {
-            switch (action) {
-                case "add" -> message = handleAddAction(request);
-                case "edit" -> message = handleEditSubmitAction(request);
-                case "delete" -> message = handleDeleteAction(request);
+            message = switch (action) {
+                case "add" -> handleAddAction(request);
+                case "edit" -> handleEditSubmitAction(request);
+                case "delete" -> handleDeleteAction(request);
                 default -> {
-                    message = "Error! Unknown action.";
                     log.error("Unknown action: {}", action);
+                    yield "Unknown action requested";
                 }
-            }
+            };
         } catch (IllegalArgumentException e) {
-            message = "Validation error! " + e.getMessage();
-            log.error("Validation error during film sessions action {}: {}", action, message, e);
+            log.warn("Validation error for action {}: {}", action, e.getMessage(), e);
+            message = "Error! Invalid input: " + e.getMessage();
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Error during film sessions action {}: {}", action, e.getMessage(), e);
+            log.warn("Business error for action {}: {}", action, e.getMessage(), e);
+            message = e.getMessage();
         } catch (OmdbApiException e) {
+            log.error("OMDB API error: {}", e.getMessage(), e);
             message = "Failed to communicate with OMDB API. Please try again later.";
-            log.error("API error during movie search: {}", e.getMessage(), e);
         } catch (Exception e) {
-            message = "Unexpected error occurred during film sessions operation '" + action + "'";
-            log.error("{}: {}", message, e.getMessage(), e);
+            log.error("Unexpected error for action {}: {}", action, e.getMessage(), e);
+            message = "An unexpected error occurred. Please try again later.";
         }
 
-        String encodedMessage = response.encodeRedirectURL(message);
-        response.sendRedirect(request.getContextPath() + "/admin/sessions?message=" + encodedMessage);
+        redirectWithMessage(request, response, message);
     }
 
     private void handleEditAction(HttpServletRequest request) {
@@ -102,30 +108,48 @@ public class AdminSessionServlet extends HttpServlet {
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        String movieTitle = request.getParameter("movieTitle");
-        String date = request.getParameter("date");
-        String startTime = request.getParameter("startTime");
-        String endTime = request.getParameter("endTime");
-        String capacity = request.getParameter("capacity");
-        String price = request.getParameter("price");
-
-        return sessionService.save(movieTitle, date, startTime, endTime, capacity, price);
+        return sessionService.save(
+                getRequiredParameter(request, "movieTitle"),
+                getRequiredParameter(request, "date"),
+                getRequiredParameter(request, "startTime"),
+                getRequiredParameter(request,  "endTime"),
+                getRequiredParameter(request, "capacity"),
+                getRequiredParameter(request, "price")
+        );
     }
 
     private String handleEditSubmitAction(HttpServletRequest request) {
-        String sessionId = request.getParameter("id");
-        String movieTitle = request.getParameter("movieTitle");
-        String date = request.getParameter("date");
-        String startTime = request.getParameter("startTime");
-        String endTime = request.getParameter("endTime");
-        String capacity = request.getParameter("capacity");
-        String price = request.getParameter("price");
-
-        return sessionService.update(sessionId, movieTitle, date, startTime, endTime, capacity, price);
+        return sessionService.update(
+                getRequiredParameter(request, "id"),
+                getRequiredParameter(request, "movieTitle"),
+                getRequiredParameter(request, "date"),
+                getRequiredParameter(request, "startTime"),
+                getRequiredParameter(request,  "endTime"),
+                getRequiredParameter(request, "capacity"),
+                getRequiredParameter(request, "price")
+        );
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
-        String sessionId = request.getParameter("id");
-        return sessionService.delete(sessionId);
+        return sessionService.delete(getRequiredParameter(request, "id"));
+    }
+
+    private String getRequiredParameter(HttpServletRequest request, String paramName) {
+        String value = request.getParameter(paramName);
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(paramName + " is required");
+        }
+        return value.trim();
+    }
+
+    private void handleError(HttpServletRequest request, String message, Exception e) {
+        log.error(message + ": {}", e.getMessage(), e);
+        request.setAttribute(MESSAGE_PARAM, message);
+    }
+
+    private void redirectWithMessage(HttpServletRequest request, HttpServletResponse response, String message) 
+            throws IOException {
+        String encodedMessage = response.encodeRedirectURL(message);
+        response.sendRedirect(request.getContextPath() + REDIRECT_PATH + "?" + MESSAGE_PARAM + "=" + encodedMessage);
     }
 }

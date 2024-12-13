@@ -44,7 +44,6 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
                 "ORDER BY fs.date ASC, fs.startTime ASC, t.seatNumber ASC", 
                 Ticket.class
             ).list();
-            log.info("{} tickets successfully retrieved.", tickets.size());
             return new HashSet<>(tickets);
         });
     }

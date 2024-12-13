@@ -18,12 +18,6 @@ public class HibernateConfig implements ServletContextListener {
 
     private static SessionFactory sessionFactory;
 
-    /**
-     * Returns the {@link SessionFactory} instance.
-     *
-     * @return {@link SessionFactory}
-     * @throws IllegalStateException if the session factory has not been initialized.
-     */
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             throw new IllegalStateException("SessionFactory isn't initialized.");

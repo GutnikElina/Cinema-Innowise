@@ -10,6 +10,8 @@ import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.*;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
+import org.cinema.util.ValidationUtil;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.Set;
 @WebServlet(name = "AdminConfirmServlet", urlPatterns = {"/admin/tickets/confirm"})
 public class AdminConfirmServlet extends HttpServlet {
 
+    private static final String VIEW_PATH = "/WEB-INF/views/confirmTickets.jsp";
     private TicketService ticketService;
 
     @Override
@@ -31,25 +34,21 @@ public class AdminConfirmServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling GET request for get tickets...");
 
-        Set<Ticket> tickets = Collections.emptySet();
-        String message = "";
-
         try {
             log.debug("Start to fetch tickets...");
-            tickets = ticketService.findAll();
+            Set<Ticket> tickets = ticketService.findAll();
+            request.setAttribute("tickets", tickets);
         } catch (NoDataFoundException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Error while doing tickets fetching: {}", e.getMessage(), e);
+            log.warn("No tickets found: {}", e.getMessage());
+            request.setAttribute("tickets", Collections.emptySet());
+            request.setAttribute("message", e.getMessage());
         } catch (Exception e) {
-            message = "Unexpected error occurred during fetching tickets";
-            log.error("{}: {}", message, e.getMessage(), e);
+            log.error("Unexpected error occurred during tickets fetching: {}", e.getMessage(), e);
+            request.setAttribute("tickets", Collections.emptySet());
+            request.setAttribute("message", "An unexpected error occurred while fetching tickets");
         }
 
-        request.setAttribute("tickets", tickets);
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        request.getRequestDispatcher("/WEB-INF/views/confirmTickets.jsp").forward(request, response);
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
     @Override
@@ -57,25 +56,24 @@ public class AdminConfirmServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling POST request for confirm tickets...");
 
-        String action = request.getParameter("action");
-        String ticketIdParam = request.getParameter("id");
-        String message = "";;
-
         try {
-            log.debug("Start to process action {}...", action);
-            message = ticketService.processTicketAction(action, ticketIdParam);
+            String action = request.getParameter("action");
+            String ticketIdParam = request.getParameter("id");
+
+            ValidationUtil.validateRequest(action, ticketIdParam);
+
+            log.debug("Processing action {} for ticket ID {}", action, ticketIdParam);
+            String message = ticketService.processTicketAction(action, ticketIdParam);
+
+            request.getSession().setAttribute("message", message);
         } catch (IllegalArgumentException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Validation error: {}", e.getMessage(), e);
+            log.warn("Validation error: {}", e.getMessage(), e);
+            request.getSession().setAttribute("message", e.getMessage());
         } catch (Exception e) {
-            String error = "Unexpected error occurred during ticket operation";
-            log.error("{}: {}", error, e.getMessage(), e);
-            message = error;
+            log.error("Unexpected error occurred during ticket operation: {}", e.getMessage(), e);
+            request.getSession().setAttribute("message", "An unexpected error occurred while processing the ticket");
         }
 
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        doGet(request, response);
+        response.sendRedirect(request.getContextPath() + "/admin/tickets/confirm");
     }
 }

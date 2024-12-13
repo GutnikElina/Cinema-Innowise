@@ -18,6 +18,7 @@ import org.cinema.service.UserService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.service.impl.UserServiceImpl;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -25,6 +26,10 @@ import java.util.Set;
 @Slf4j
 @WebServlet(name = "AdminTicketServlet", urlPatterns = {"/admin/tickets"})
 public class AdminTicketServlet extends HttpServlet {
+
+    private static final String VIEW_PATH = "/WEB-INF/views/tickets.jsp";
+    private static final String REDIRECT_PATH = "/admin/tickets";
+    private static final String MESSAGE_PARAM = "message";
 
     private TicketService ticketService;
     private SessionService sessionService;
@@ -41,38 +46,26 @@ public class AdminTicketServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.debug("Handling GET request for get tickets...");
+        log.debug("Handling GET request for tickets...");
 
-        Set<Ticket> tickets = Collections.emptySet();
-        Set<User> users = Collections.emptySet();
-        Set<FilmSessionDTO> filmSessions = Collections.emptySet();
-
-        String message = "";
         try {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
-            users = userService.findAll();
-            filmSessions = sessionService.findAll();
-            tickets = ticketService.findAll();
+
+            loadDataForView(request);
+
         } catch (IllegalArgumentException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Validation error! {}", e.getMessage(), e);
+            handleError(request, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
-            message = "Error! " + e.getMessage();
-            log.error("Error while doing tickets fetching: {}", e.getMessage(), e);
+            handleError(request, e.getMessage(), e);
+            setEmptyCollections(request);
         } catch (Exception e) {
-            message = "Unexpected error occurred during fetching tickets";
-            log.error("{}: {}", message, e.getMessage(), e);
+            handleError(request, "An unexpected error occurred while fetching data", e);
+            setEmptyCollections(request);
         }
 
-        request.setAttribute("tickets", tickets);
-        request.setAttribute("users", users);
-        request.setAttribute("filmSessions", filmSessions);
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        request.getRequestDispatcher("/WEB-INF/views/tickets.jsp").forward(request, response);
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
     @Override
@@ -80,55 +73,98 @@ public class AdminTicketServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling POST request for tickets operations...");
 
-        String message = "";
-        String action = request.getParameter("action");
         try {
-            message = switch (action) {
-                case "add" -> handleAddAction(request);
-                case "delete" -> handleDeleteAction(request);
-                case "update" -> handleUpdateAction(request);
-                default -> {
-                    log.warn("Unknown action: {}", request.getParameter("action"));
-                    yield "Error! Unknown action.";
-                }
-            };
+            String action = request.getParameter("action");
+            String message = processAction(action, request);
+            request.getSession().setAttribute(MESSAGE_PARAM, message);
+
         } catch (IllegalArgumentException e) {
-            message = "Validation error! " + e.getMessage();
-            log.error("Validation error during ticket action {}: {}", action, message, e);
+            log.warn("Validation error: {}", e.getMessage(), e);
+            request.getSession().setAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = e.getMessage();
-            log.error("Error during tickets action {}: {}", action, message, e);
+            log.warn("Business error: {}", e.getMessage(), e);
+            request.getSession().setAttribute(MESSAGE_PARAM, e.getMessage());
         } catch (Exception e) {
-            message = "Unexpected error occurred during tickets operation '" + action + "'";
-            log.error("{}: {}", message, e.getMessage(), e);
+            log.error("Unexpected error: {}", e.getMessage(), e);
+            request.getSession().setAttribute(MESSAGE_PARAM, "An unexpected error occurred");
         }
 
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
+        response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
+    }
 
-        doGet(request, response);
+    private String processAction(String action, HttpServletRequest request) {
+        return switch (action) {
+            case "add" -> handleAddAction(request);
+            case "delete" -> handleDeleteAction(request);
+            case "update" -> handleUpdateAction(request);
+            default -> {
+                log.warn("Unknown action requested: {}", action);
+                yield "Unknown action requested";
+            }
+        };
+    }
+
+    private void loadDataForView(HttpServletRequest request) {
+        log.debug("Loading data for view...");
+
+        Set<User> users = userService.findAll();
+        Set<FilmSessionDTO> filmSessions = sessionService.findAll();
+        Set<Ticket> tickets = ticketService.findAll();
+
+        request.setAttribute("tickets", tickets);
+        request.setAttribute("users", users);
+        request.setAttribute("filmSessions", filmSessions);
+    }
+
+    private void setEmptyCollections(HttpServletRequest request) {
+        request.setAttribute("tickets", Collections.emptySet());
+        request.setAttribute("users", Collections.emptySet());
+        request.setAttribute("filmSessions", Collections.emptySet());
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        return ticketService.save(request.getParameter("userId"), request.getParameter("sessionId"), request.getParameter("seatNumber"),
-                request.getParameter("status"), request.getParameter("requestType"));
+        return ticketService.save(
+                getRequiredParameter(request, "userId"),
+                getRequiredParameter(request, "sessionId"),
+                getRequiredParameter(request, "seatNumber"),
+                getRequiredParameter(request, "status"),
+                getRequiredParameter(request, "requestType")
+        );
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
-        return ticketService.delete(request.getParameter("id"));
+        return ticketService.delete(getRequiredParameter(request, "id"));
     }
 
     private String handleUpdateAction(HttpServletRequest request) {
-        return ticketService.update(request.getParameter("id"), request.getParameter("userId"),
-                request.getParameter("sessionId"), request.getParameter("seatNumber"),
-                request.getParameter("status"), request.getParameter("requestType"));
+        return ticketService.update(
+                getRequiredParameter(request, "id"),
+                getRequiredParameter(request, "userId"),
+                getRequiredParameter(request, "sessionId"),
+                getRequiredParameter(request, "seatNumber"),
+                getRequiredParameter(request, "status"),
+                getRequiredParameter(request, "requestType")
+        );
     }
 
     private void handleEditAction(HttpServletRequest request) {
-        Ticket ticketToEdit = ticketService.getById(request.getParameter("id")).orElseThrow(() ->
-                new NoDataFoundException("Ticket with this ID doesn't exist!"));
+        String ticketId = getRequiredParameter(request, "id");
+        Ticket ticketToEdit = ticketService.getById(ticketId).orElseThrow(() ->
+                new NoDataFoundException("Error!Ticket with ID " + ticketId + " doesn't exist!"));
 
         request.setAttribute("ticketToEdit", ticketToEdit);
+    }
+
+    private String getRequiredParameter(HttpServletRequest request, String paramName) {
+        String value = request.getParameter(paramName);
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(paramName + " is required");
+        }
+        return value.trim();
+    }
+
+    private void handleError(HttpServletRequest request, String message, Exception e) {
+        log.error(message + ": {}", e.getMessage(), e);
+        request.setAttribute(MESSAGE_PARAM, message);
     }
 }
