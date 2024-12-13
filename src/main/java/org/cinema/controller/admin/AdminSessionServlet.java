@@ -54,12 +54,15 @@ public class AdminSessionServlet extends HttpServlet {
             }
             
         } catch (IllegalArgumentException e) {
-            handleError(request, "Error! Invalid input: " + e.getMessage(), e);
+            handleError(request, "Error! Invalid input: " + e.getMessage(),
+                    "Validation error for session operation", e);
         } catch (NoDataFoundException e) {
-            handleError(request, e.getMessage(), e);
+            handleError(request, "Error! " + e.getMessage(),
+                    "No sessions found: {}", e, e.getMessage());
             request.setAttribute("filmSessions", Collections.emptySet());
         } catch (Exception e) {
-            handleError(request, "An unexpected error occurred while fetching sessions", e);
+            handleError(request, "An unexpected error occurred while fetching sessions",
+                    "Unexpected error during sessions fetching: {}", e, e.getMessage());
             request.setAttribute("filmSessions", Collections.emptySet());
         }
 
@@ -71,34 +74,37 @@ public class AdminSessionServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling POST request for film sessions...");
 
-        String action = request.getParameter("action");
-        String message = "";
-
         try {
-            message = switch (action) {
+            String action = request.getParameter("action");
+            log.debug("Processing action: {}", action);
+
+            String message = switch (action) {
                 case "add" -> handleAddAction(request);
                 case "edit" -> handleEditSubmitAction(request);
                 case "delete" -> handleDeleteAction(request);
                 default -> {
-                    log.error("Unknown action: {}", action);
+                    log.warn("Unknown action requested: {}", action);
                     yield "Unknown action requested";
                 }
             };
+
+            request.getSession().setAttribute(MESSAGE_PARAM, message);
+            
         } catch (IllegalArgumentException e) {
-            log.warn("Validation error for action {}: {}", action, e.getMessage(), e);
-            message = "Error! Invalid input: " + e.getMessage();
+            handleSessionError(request, "Error! Invalid input: " + e.getMessage(),
+                    "Validation error for session operation", e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            log.warn("Business error for action {}: {}", action, e.getMessage(), e);
-            message = e.getMessage();
+            handleSessionError(request, "Error! " + e.getMessage(),
+                    "Business error during session operation: {}", e, e.getMessage());
         } catch (OmdbApiException e) {
-            log.error("OMDB API error: {}", e.getMessage(), e);
-            message = "Failed to communicate with OMDB API. Please try again later.";
+            handleSessionError(request, "Error! Failed to communicate with OMDB API. Please try again later.",
+                    "OMDB API error during session operation", e);
         } catch (Exception e) {
-            log.error("Unexpected error for action {}: {}", action, e.getMessage(), e);
-            message = "An unexpected error occurred. Please try again later.";
+            handleSessionError(request, "An unexpected error occurred while processing the session",
+                    "Unexpected error during session operation: {}", e, e.getMessage());
         }
 
-        redirectWithMessage(request, response, message);
+        response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
     }
 
     private void handleEditAction(HttpServletRequest request) {
@@ -112,7 +118,7 @@ public class AdminSessionServlet extends HttpServlet {
                 getRequiredParameter(request, "movieTitle"),
                 getRequiredParameter(request, "date"),
                 getRequiredParameter(request, "startTime"),
-                getRequiredParameter(request,  "endTime"),
+                getRequiredParameter(request, "endTime"),
                 getRequiredParameter(request, "capacity"),
                 getRequiredParameter(request, "price")
         );
@@ -124,7 +130,7 @@ public class AdminSessionServlet extends HttpServlet {
                 getRequiredParameter(request, "movieTitle"),
                 getRequiredParameter(request, "date"),
                 getRequiredParameter(request, "startTime"),
-                getRequiredParameter(request,  "endTime"),
+                getRequiredParameter(request, "endTime"),
                 getRequiredParameter(request, "capacity"),
                 getRequiredParameter(request, "price")
         );
@@ -142,14 +148,15 @@ public class AdminSessionServlet extends HttpServlet {
         return value.trim();
     }
 
-    private void handleError(HttpServletRequest request, String message, Exception e) {
-        log.error(message + ": {}", e.getMessage(), e);
-        request.setAttribute(MESSAGE_PARAM, message);
+    private void handleError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        log.error(logMessage, logParams, e);
+        request.setAttribute(MESSAGE_PARAM, userMessage);
     }
 
-    private void redirectWithMessage(HttpServletRequest request, HttpServletResponse response, String message) 
-            throws IOException {
-        String encodedMessage = response.encodeRedirectURL(message);
-        response.sendRedirect(request.getContextPath() + REDIRECT_PATH + "?" + MESSAGE_PARAM + "=" + encodedMessage);
+    private void handleSessionError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        log.error(logMessage, logParams, e);
+        request.getSession().setAttribute(MESSAGE_PARAM, userMessage);
     }
 }

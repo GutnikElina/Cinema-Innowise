@@ -150,26 +150,6 @@ public class ValidationUtil {
         }
     }
 
-    public static void validateRequest(String action, String ticketId) {
-        if (Objects.isNull(action) || action.trim().isEmpty()) {
-            throw new IllegalArgumentException("Action parameter is required");
-        }
-
-        if (!action.equals("confirm") && !action.equals("reject")) {
-            throw new IllegalArgumentException("Invalid action parameter. Must be 'confirm' or 'reject'");
-        }
-
-        if (Objects.isNull(ticketId) || ticketId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Ticket ID parameter is required");
-        }
-
-        try {
-            Long.parseLong(ticketId);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid ticket ID format");
-        }
-    }
-
     private static boolean isNullOrBlank(String str) {
         return str == null || str.isBlank();
     }

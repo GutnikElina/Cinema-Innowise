@@ -28,6 +28,7 @@
          role="alert">
         ${message}
     </div>
+    ${pageContext.session.removeAttribute("message")}
   </c:if>
 
   <c:choose>
@@ -51,7 +52,16 @@
             <td>${user.id}</td>
             <td>${user.username}</td>
             <td>${user.role}</td>
-            <td><c:out value="${user.createdAt.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" /></td>
+            <td>
+              <c:choose>
+                <c:when test="${not empty user.createdAt}">
+                  <c:out value="${user.createdAt.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" />
+                </c:when>
+                <c:otherwise>
+                  N/A
+                </c:otherwise>
+              </c:choose>
+            </td>
             <td>
               <form method="post" action="${pageContext.request.contextPath}/admin/users" class="d-inline delete-form">
                 <input type="hidden" name="id" value="${user.id}">

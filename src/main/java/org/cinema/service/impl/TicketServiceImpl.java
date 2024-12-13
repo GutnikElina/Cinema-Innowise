@@ -100,7 +100,7 @@ public class TicketServiceImpl implements TicketService {
         Set<Ticket> tickets = ticketRepository.findAll();
 
         if (tickets.isEmpty()) {
-            throw new NoDataFoundException("Error! No tickets found in the database.");
+            throw new NoDataFoundException("No tickets found in the database.");
         }
 
         log.info("{} tickets retrieved successfully.", tickets.size());

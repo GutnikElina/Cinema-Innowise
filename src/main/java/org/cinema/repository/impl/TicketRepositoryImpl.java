@@ -62,7 +62,7 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
         executeTransaction(session -> {
             Ticket ticket = session.get(Ticket.class, id);
             if (ticket == null) {
-                throw new NoDataFoundException("Ticket with ID " + id + " doesn't exist.");
+                throw new NoDataFoundException("Error! Ticket with ID " + id + " doesn't exist.");
             }
             session.delete(ticket);
             log.info("Ticket with ID {} successfully deleted.", id);

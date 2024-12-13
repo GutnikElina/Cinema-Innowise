@@ -21,6 +21,9 @@ import java.util.Set;
 public class AdminConfirmServlet extends HttpServlet {
 
     private static final String VIEW_PATH = "/WEB-INF/views/confirmTickets.jsp";
+    private static final String MESSAGE_PARAM = "message";
+    private static final String REDIRECT_PATH = "/admin/tickets/confirm";
+
     private TicketService ticketService;
 
     @Override
@@ -38,14 +41,20 @@ public class AdminConfirmServlet extends HttpServlet {
             log.debug("Start to fetch tickets...");
             Set<Ticket> tickets = ticketService.findAll();
             request.setAttribute("tickets", tickets);
+            
+            String message = request.getParameter(MESSAGE_PARAM);
+            if (message != null && !message.isEmpty()) {
+                request.setAttribute(MESSAGE_PARAM, message);
+            }
+            
         } catch (NoDataFoundException e) {
-            log.warn("No tickets found: {}", e.getMessage());
+            handleError(request, "Error! " + e.getMessage(),
+                    "No tickets found: {}", e, e.getMessage());
             request.setAttribute("tickets", Collections.emptySet());
-            request.setAttribute("message", e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected error occurred during tickets fetching: {}", e.getMessage(), e);
+            handleError(request, "An unexpected error occurred while fetching tickets",
+                    "Unexpected error during tickets fetching: {}", e, e.getMessage());
             request.setAttribute("tickets", Collections.emptySet());
-            request.setAttribute("message", "An unexpected error occurred while fetching tickets");
         }
 
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
@@ -60,20 +69,38 @@ public class AdminConfirmServlet extends HttpServlet {
             String action = request.getParameter("action");
             String ticketIdParam = request.getParameter("id");
 
-            ValidationUtil.validateRequest(action, ticketIdParam);
+            ValidationUtil.validateParameters(action, ticketIdParam);
 
             log.debug("Processing action {} for ticket ID {}", action, ticketIdParam);
             String message = ticketService.processTicketAction(action, ticketIdParam);
-
-            request.getSession().setAttribute("message", message);
+            
+            response.sendRedirect(request.getContextPath() + REDIRECT_PATH + "?" + MESSAGE_PARAM + "=" + 
+                    response.encodeRedirectURL(message));
+            return;
+            
         } catch (IllegalArgumentException e) {
-            log.warn("Validation error: {}", e.getMessage(), e);
-            request.getSession().setAttribute("message", e.getMessage());
+            handleSessionError(request, "Error! Invalid input: " + e.getMessage(),
+                    "Validation error during ticket confirmation", e);
+        } catch (NoDataFoundException e) {
+            handleSessionError(request, "Error! " + e.getMessage(),
+                    "Business error during ticket confirmation: {}", e, e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected error occurred during ticket operation: {}", e.getMessage(), e);
-            request.getSession().setAttribute("message", "An unexpected error occurred while processing the ticket");
+            handleSessionError(request, "An unexpected error occurred while processing the ticket",
+                    "Unexpected error during ticket confirmation: {}", e, e.getMessage());
         }
 
-        response.sendRedirect(request.getContextPath() + "/admin/tickets/confirm");
+        response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
+    }
+
+    private void handleError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        log.error(logMessage, logParams, e);
+        request.setAttribute(MESSAGE_PARAM, userMessage);
+    }
+
+    private void handleSessionError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        log.error(logMessage, logParams, e);
+        request.getSession().setAttribute(MESSAGE_PARAM, userMessage);
     }
 }

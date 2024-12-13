@@ -58,16 +58,15 @@ public class AdminMainPageServlet extends HttpServlet {
             request.setAttribute("movies", movies);
             
         } catch (IllegalArgumentException e) {
-            handleError(request, "Invalid input: " + e.getMessage(), 
+            handleError(request, "Error! Invalid input: " + e.getMessage(),
                     "Validation error for movie search", e);
                     
         } catch (NoDataFoundException e) {
-            log.warn("No movies found for title '{}': {}", movieTitle, e.getMessage());
-            request.setAttribute("movies", Collections.emptyList());
-            request.setAttribute("message", e.getMessage());
+            handleError(request, "Error! No movies found for title " + movieTitle,
+                    "No movies found for title '{}':{}", e, movieTitle, e.getMessage());
             
         } catch (OmdbApiException e) {
-            handleError(request, "Failed to communicate with OMDB API. Please try again later.", 
+            handleError(request, "Error! Failed to communicate with OMDB API. Please try again later.",
                     "OMDB API error for title '{}'", e, movieTitle);
                     
         } catch (Exception e) {

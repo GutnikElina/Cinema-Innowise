@@ -10,12 +10,14 @@ import java.io.IOException;
 @WebServlet(name = "LogoutServlet", urlPatterns = {"/logout"})
 public class LogoutServlet extends HttpServlet {
 
+    private static final String VIEW_PATH = "/WEB-INF/views/login.jsp";
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         if (request.getSession(false) != null) {
             request.getSession().invalidate();
         }
-        request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 }

@@ -14,11 +14,14 @@ import org.cinema.service.impl.MovieServiceImpl;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
-@WebServlet(name = "UserMainPageServlet", urlPatterns = {"/user"})
+@WebServlet(name = "UserMainPageServlet", urlPatterns = {"/user/main"})
 public class UserMainPageServlet extends HttpServlet {
+
+    private static final String VIEW_PATH = "/WEB-INF/views/user.jsp";
+    private static final String MESSAGE_PARAM = "message";
+    private static final String MOVIES_ATTR = "movies";
 
     private MovieService movieService;
 
@@ -33,37 +36,44 @@ public class UserMainPageServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling GET request for search movies...");
 
-        Optional<String> movieTitleOpt = Optional.ofNullable(request.getParameter("movieTitle"))
-                .filter(title -> !title.trim().isEmpty());
-        List<Movie> movies = Collections.emptyList();
-        String message = "";
-
-        if (movieTitleOpt.isPresent()) {
-            String movieTitle = movieTitleOpt.get().trim();
-            log.debug("Start to fetch movies with title {}...", movieTitle);
-            try {
-                movies = movieService.searchMovies(movieTitle.trim());
-            } catch (IllegalArgumentException e) {
-                message = "Validation error! " + e.getMessage();
-                log.error("Validation error during fetching movies: {}", message, e);
-            } catch (NoDataFoundException e) {
-                message =  "Error! " + e.getMessage();
-                log.error("Error during fetching movies: {}", message, e);
-            } catch (OmdbApiException e) {
-                message = "Failed to communicate with OMDB API. Please try again later.";
-                log.error("API error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
-            } catch (Exception e) {
-                message = "Error! " + e.getMessage();
-                log.error("Error during movie search for title '{}': {}", movieTitle, e.getMessage(), e);
+        try {
+            String movieTitle = request.getParameter("movieTitle");
+            
+            if (movieTitle != null && !movieTitle.trim().isEmpty()) {
+                log.debug("Start to fetch movies with title: {}", movieTitle);
+                List<Movie> movies = movieService.searchMovies(movieTitle.trim());
+                request.setAttribute(MOVIES_ATTR, movies);
+            } else {
+                log.debug("No movie title provided or movie title is empty.");
+                request.setAttribute(MOVIES_ATTR, Collections.emptyList());
             }
-        } else {
-            log.debug("No movie title provided or movie title is empty.");
+
+            String message = request.getParameter(MESSAGE_PARAM);
+            if (message != null && !message.isEmpty()) {
+                request.setAttribute(MESSAGE_PARAM, message);
+            }
+
+        } catch (IllegalArgumentException e) {
+            handleError(request, "Invalid input: " + e.getMessage(),
+                    "Validation error during movie search", e);
+        } catch (NoDataFoundException e) {
+            handleError(request, e.getMessage(),
+                    "No movies found: {}", e, e.getMessage());
+        } catch (OmdbApiException e) {
+            handleError(request, "Failed to communicate with OMDB API. Please try again later.",
+                    "OMDB API error during movie search: {}", e, e.getMessage());
+        } catch (Exception e) {
+            handleError(request, "An unexpected error occurred while searching for movies",
+                    "Unexpected error during movie search: {}", e, e.getMessage());
         }
 
-        request.setAttribute("movies", Optional.ofNullable(movies).orElse(List.of()));
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        request.getRequestDispatcher("/WEB-INF/views/user.jsp").forward(request, response);
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
+    }
+
+    private void handleError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        log.error(logMessage, logParams, e);
+        request.setAttribute(MESSAGE_PARAM, userMessage);
+        request.setAttribute(MOVIES_ATTR, Collections.emptyList());
     }
 }

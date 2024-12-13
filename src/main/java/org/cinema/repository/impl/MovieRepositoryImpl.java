@@ -57,7 +57,7 @@ public class MovieRepositoryImpl extends BaseRepository implements MovieReposito
         executeTransaction(session -> {
             Movie movie = session.get(Movie.class, movieId);
             if (movie == null) {
-                throw new NoDataFoundException("Movie with title " + movieId + " doesn't exist.");
+                throw new NoDataFoundException("Error! Movie with title " + movieId + " doesn't exist.");
             }
             session.delete(movie);
             log.info("Movie with title '{}' successfully deleted.", movie.getTitle());

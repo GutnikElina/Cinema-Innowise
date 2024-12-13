@@ -70,6 +70,7 @@
              role="alert">
                 ${message}
         </div>
+        ${pageContext.session.removeAttribute("message")}
     </c:if>
 
     <c:if test="${empty tickets}">

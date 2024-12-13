@@ -50,6 +50,7 @@
     <div class="alert alert-warning text-center">
         ${message}
     </div>
+    ${pageContext.session.removeAttribute("message")}
   </c:if>
 
   <div class="row">

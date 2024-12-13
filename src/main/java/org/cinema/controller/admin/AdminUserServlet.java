@@ -76,7 +76,7 @@ public class AdminUserServlet extends HttpServlet {
             log.warn("Validation error: {}", e.getMessage(), e);
             request.getSession().setAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            log.warn("Business error: {}", e.getMessage(), e);
+            log.warn("Business error: {}", "Error! " + e.getMessage(), e);
             request.getSession().setAttribute(MESSAGE_PARAM, e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage(), e);
@@ -145,7 +145,7 @@ public class AdminUserServlet extends HttpServlet {
     }
 
     private void handleError(HttpServletRequest request, String message, Exception e) {
-        log.error(message + ": {}", e.getMessage(), e);
+        log.error("{}: {}", message, e.getMessage(), e);
         request.setAttribute(MESSAGE_PARAM, message);
     }
 }

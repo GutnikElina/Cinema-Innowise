@@ -40,7 +40,7 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
         executeTransaction(session -> {
             User user = session.get(User.class, id);
             if (user == null) {
-                throw new NoDataFoundException("User with ID " + id + " doesn't exist.");
+                throw new NoDataFoundException("Error! User with ID " + id + " doesn't exist.");
             }
 
             session.delete(user);

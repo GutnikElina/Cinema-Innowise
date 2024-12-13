@@ -46,6 +46,7 @@
     <div class="container my-5">
         <c:if test="${not empty message}">
             <div class="alert alert-warning text-center">${message}</div>
+            ${pageContext.session.removeAttribute("message")}
         </c:if>
 
         <div class="row">

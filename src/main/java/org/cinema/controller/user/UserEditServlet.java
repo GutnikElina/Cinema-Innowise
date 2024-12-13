@@ -18,12 +18,15 @@ import java.io.IOException;
 @WebServlet(name = "UserEditServlet", urlPatterns = {"/user/edit"})
 public class UserEditServlet extends HttpServlet {
 
+    private static final String VIEW_PATH = "/WEB-INF/views/editProfile.jsp";
+    private static final String MESSAGE_PARAM = "message";
+
     private UserService userService;
 
     @Override
     public void init() {
-        this.userService = UserServiceImpl.getInstance();
-        log.info("EditProfileServlet initialized.");
+        userService = UserServiceImpl.getInstance();
+        log.info("UserEditServlet initialized.");
     }
 
     @Override
@@ -31,14 +34,31 @@ public class UserEditServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling GET request for profile editing...");
 
-        HttpSession session = request.getSession();
-        Integer userId = (Integer) session.getAttribute("userId");
+        try {
+            Integer userId = getUserId(request.getSession());
+            log.debug("Loading profile for user ID: {}", userId);
 
-        User user = userService.getById(String.valueOf(userId))
-                .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
+            User user = userService.getById(String.valueOf(userId))
+                    .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
+            request.setAttribute("user", user);
 
-        request.setAttribute("user", user);
-        request.getRequestDispatcher("/WEB-INF/views/editProfile.jsp").forward(request, response);
+            String message = request.getParameter(MESSAGE_PARAM);
+            if (message != null && !message.isEmpty()) {
+                request.setAttribute(MESSAGE_PARAM, message);
+            }
+
+        } catch (IllegalArgumentException e) {
+            handleError(request, "Error! Invalid input: " + e.getMessage(),
+                    "Validation error during profile loading", e);
+        } catch (NoDataFoundException e) {
+            handleError(request, "Error! " + e.getMessage(),
+                    "No user found: {}", e, e.getMessage());
+        } catch (Exception e) {
+            handleError(request, "An unexpected error occurred while loading profile",
+                    "Unexpected error during profile loading: {}", e, e.getMessage());
+        }
+
+        request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
     @Override
@@ -46,32 +66,58 @@ public class UserEditServlet extends HttpServlet {
             throws ServletException, IOException {
         log.debug("Handling POST request for profile editing...");
 
-        HttpSession session = request.getSession();
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String message = "";
-
         try {
+            Integer userId = getUserId(request.getSession());
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+
             if (password != null && password.trim().isEmpty()) {
                 password = null;
             }
+
+            log.debug("Updating profile for user ID: {}", userId);
             userService.updateProfile(userId, username, password);
-            message = "Success! Profile updated successfully.";
-            log.info("User with ID {} updated their profile.", userId);
+
+            response.sendRedirect(request.getContextPath() + "/user/edit?" + MESSAGE_PARAM + "=" +
+                    response.encodeRedirectURL("Success! Profile updated successfully."));
+            return;
+
         } catch (IllegalArgumentException e) {
-            message = "Validation error! " + e.getMessage();
-            log.error("Validation error during updating user profile: {}", message, e);
+            handleSessionError(request, "Error! Invalid input: " + e.getMessage(),
+                    "Validation error during profile update", e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = e.getMessage();
-            log.error("Error during updating user profile: {}", message, e);
+            handleSessionError(request, "Error! " + e.getMessage(),
+                    "Business error during profile update: {}", e, e.getMessage());
         } catch (Exception e) {
-            message = "Unexpected error while updating user profile";
-            log.error("{}: {}", message, e.getMessage(), e);
+            handleSessionError(request, "An unexpected error occurred while updating profile",
+                    "Unexpected error during profile update: {}", e, e.getMessage());
         }
 
-        request.setAttribute("message", message);
-        request.getRequestDispatcher("/WEB-INF/views/editProfile.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/user/edit");
+    }
+
+    private Integer getUserId(HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID not found in session");
+        }
+        return userId;
+    }
+
+    private void handleError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        if (e != null) {
+            log.error(logMessage, logParams, e);
+        } else {
+            log.warn(logMessage, logParams);
+        }
+        request.setAttribute(MESSAGE_PARAM, userMessage);
+        request.setAttribute("user", null);
+    }
+
+    private void handleSessionError(HttpServletRequest request, String userMessage,
+            String logMessage, Exception e, Object... logParams) {
+        log.error(logMessage, logParams, e);
+        request.getSession().setAttribute(MESSAGE_PARAM, userMessage);
     }
 }

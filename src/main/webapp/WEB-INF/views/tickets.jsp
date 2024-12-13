@@ -26,6 +26,7 @@
              role="alert">
                 ${message}
         </div>
+        ${pageContext.session.removeAttribute("message")}
     </c:if>
 
     <c:choose>
@@ -144,7 +145,7 @@
                     <div class="mb-3">
                         <select class="form-control form-control-sm" placeholder="Select film session" name="sessionId" required>
                             <c:forEach var="filmSession" items="${filmSessions}">
-                                <option value="${filmSession.id}">
+                                <option value="${filmSession.id}" <c:if test="${filmSession.id == ticketToEdit.filmSession.id}">selected</c:if>>
                                         ${filmSession.movieTitle} -
                                     <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                                 </option>

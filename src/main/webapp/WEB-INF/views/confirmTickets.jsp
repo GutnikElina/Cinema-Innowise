@@ -17,6 +17,16 @@
     <a href="${pageContext.request.contextPath}/admin" class="btn btn-danger">Back</a>
   </div>
 
+  <c:if test="${not empty message}">
+    <div class="alert
+        <c:if test="${message.toLowerCase().contains('error')}">alert-danger</c:if>
+        <c:if test="${message.toLowerCase().contains('success')}">alert-success</c:if>"
+         role="alert">
+        ${message}
+    </div>
+    ${pageContext.session.removeAttribute("message")}
+  </c:if>
+
   <c:choose>
     <c:when test="${empty tickets}">
       <p class="text-center">No tickets available.</p>

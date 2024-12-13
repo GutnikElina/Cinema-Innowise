@@ -58,7 +58,7 @@ public class AdminTicketServlet extends HttpServlet {
         } catch (IllegalArgumentException e) {
             handleError(request, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
-            handleError(request, e.getMessage(), e);
+            handleError(request, "Error! " + e.getMessage(), e);
             setEmptyCollections(request);
         } catch (Exception e) {
             handleError(request, "An unexpected error occurred while fetching data", e);

@@ -25,6 +25,7 @@
            role="alert">
           ${message}
       </div>
+      ${pageContext.session.removeAttribute("message")}
     </c:if>
 
     <form action="${pageContext.request.contextPath}/user/tickets/purchase" method="get" class="mb-4 text-center">

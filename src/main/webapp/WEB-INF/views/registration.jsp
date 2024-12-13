@@ -18,6 +18,7 @@
            role="alert">
           ${message}
       </div>
+      ${pageContext.session.removeAttribute("message")}
     </c:if>
 
     <form method="post" action="${pageContext.request.contextPath}/registration">

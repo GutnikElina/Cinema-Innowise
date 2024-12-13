@@ -26,6 +26,7 @@
              role="alert">
                 ${message}
         </div>
+        ${pageContext.session.removeAttribute("message")}
     </c:if>
 
     <c:choose>
