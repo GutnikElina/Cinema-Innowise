@@ -76,7 +76,7 @@
     <div class="row justify-content-between">
         <div class="col-md-6">
             <h2 class="text-center">Add Session</h2>
-            <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
+            <form method="post" action="${pageContext.request.contextPath}/admin/sessions" id="addSessionForm">
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
                     <input type="text" class="form-control form-control-sm" name="movieTitle" placeholder="Movie Title" required>
@@ -97,7 +97,10 @@
                     <input type="number" class="form-control form-control-sm" name="capacity" placeholder="Capacity" required>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-secondary btn-sm">Add</button>
+                    <button type="submit" class="btn btn-secondary btn-sm" id="addButton">
+                        <span class="button-text">Add</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -138,6 +141,29 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    const spinner = submitButton.querySelector('.spinner-border');
+                    const buttonText = submitButton.querySelector('.button-text');
+                    
+                    if (spinner && buttonText) {
+                        submitButton.disabled = true;
+                        spinner.classList.remove('d-none');
+                        buttonText.classList.add('d-none');
+                    } else {
+                        submitButton.disabled = true;
+                    }
+                }
+            });
+        });
+    });
+</script>
 <script>
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
        document.getElementById('editForm').style.display = 'none';

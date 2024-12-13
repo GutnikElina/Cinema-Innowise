@@ -35,7 +35,7 @@ public class AdminSessionServlet extends HttpServlet {
         log.debug("Handling GET request for film sessions...");
 
         Set<FilmSessionDTO> filmSessions = Collections.emptySet();
-        String message = "";
+        String message = request.getParameter("message");
         String action = request.getParameter("action");
 
         try {
@@ -53,7 +53,7 @@ public class AdminSessionServlet extends HttpServlet {
         }
 
         request.setAttribute("filmSessions", filmSessions);
-        if (!message.isEmpty()) {
+        if (message != null && !message.isEmpty()) {
             request.setAttribute("message", message);
         }
         request.getRequestDispatcher("/WEB-INF/views/sessions.jsp").forward(request, response);
@@ -91,10 +91,8 @@ public class AdminSessionServlet extends HttpServlet {
             log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        if (!message.isEmpty()) {
-            request.setAttribute("message", message);
-        }
-        doGet(request, response);
+        String encodedMessage = response.encodeRedirectURL(message);
+        response.sendRedirect(request.getContextPath() + "/admin/sessions?message=" + encodedMessage);
     }
 
     private void handleEditAction(HttpServletRequest request) {

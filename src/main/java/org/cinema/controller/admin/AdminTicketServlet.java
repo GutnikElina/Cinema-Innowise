@@ -18,7 +18,6 @@ import org.cinema.service.UserService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -53,9 +52,9 @@ public class AdminTicketServlet extends HttpServlet {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
-            tickets = ticketService.findAll();
             users = userService.findAll();
             filmSessions = sessionService.findAll();
+            tickets = ticketService.findAll();
         } catch (IllegalArgumentException e) {
             message = "Error! " + e.getMessage();
             log.error("Validation error! {}", e.getMessage(), e);

@@ -31,8 +31,8 @@ public class AdminMainPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        log.debug("Handling GET request for search movies...");
 
+        log.debug("Handling GET request for search movies...");
         String message = "";
         Optional<String> movieTitleOpt = Optional.ofNullable(request.getParameter("movieTitle"))
                 .filter(title -> !title.trim().isEmpty());

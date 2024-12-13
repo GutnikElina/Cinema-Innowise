@@ -34,11 +34,6 @@ public class MyTicketsServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-//
-//        if (userId == null) {
-//            handleUnauthorizedAccess(request, response);
-//            return;
-//        }
 
         try {
             Set<Ticket> tickets = ticketService.findByUserId(userId.toString());
@@ -48,7 +43,7 @@ public class MyTicketsServlet extends HttpServlet {
             request.setAttribute("message", "Validation error: " + e.getMessage());
         } catch (NoDataFoundException e) {
             log.error("Error during fetching tickets of user with ID {} : {}", userId, e.getMessage(), e);
-            request.setAttribute("message", e.getMessage());
+            request.setAttribute("message", "Error! " + e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during fetching tickets of user with ID {} : {}",
                     userId, e.getMessage(), e);
@@ -77,7 +72,7 @@ public class MyTicketsServlet extends HttpServlet {
             request.setAttribute("message", "Validation error: " + e.getMessage());
         } catch (NoDataFoundException e) {
             log.error("Error during operation with ticket: {}", e.getMessage(), e);
-            request.setAttribute("message", e.getMessage());
+            request.setAttribute("message", "Error! " + e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during operation with ticket: {}", e.getMessage(), e);
             request.setAttribute("message", "Unexpected error loading data: " + e.getMessage());
@@ -85,11 +80,5 @@ public class MyTicketsServlet extends HttpServlet {
 
         request.setAttribute("message", message);
         doGet(request, response);
-    }
-
-    private void handleUnauthorizedAccess(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.warn("User is not logged in!");
-        request.setAttribute("message", "Error! You must log in to see your tickets.");
-        request.getRequestDispatcher("/login").forward(request, response);
     }
 }

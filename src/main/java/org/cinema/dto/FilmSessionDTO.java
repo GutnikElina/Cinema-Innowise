@@ -27,6 +27,7 @@ public class FilmSessionDTO {
         ValidationUtil.validateDate(dateStr);
         ValidationUtil.validatePrice(priceStr);
         ValidationUtil.validateCapacity(capacityStr);
+        ValidationUtil.validateTime(startTimeStr, endTimeStr);
 
         return FilmSessionDTO.builder()
                 .movieTitle(movieTitle)

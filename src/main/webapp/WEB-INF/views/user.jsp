@@ -58,7 +58,6 @@
                                 <h5 class="card-title">${movie.title}</h5>
                                 <p class="card-text">Genre: ${movie.genre}</p>
                                 <p class="card-text"><small>IMDb Rating: ${movie.imdbRating}</small></p>
-                                <a href="#" class="btn btn-primary w-100">View Details</a>
                             </div>
                         </div>
                     </div>
