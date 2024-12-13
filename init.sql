@@ -52,11 +52,6 @@ INSERT INTO `users` (`username`, `password`, `role`, `created_at`) VALUES
 ('admin', '$2a$10$R4o9QwMEPW9.YpctiGUsROhxmWd8U8/q5QlV/GE.erbKaXZgJ8sjm', 'ADMIN', '2024-12-13 08:10:49.658637'),
 ('user123', '$2a$10$QAmv0FYxfZkEBWVgWjlbjuEZRXAMMJcFQprqOmq0mpqT5fMNT4wPa', 'USER', CURRENT_TIMESTAMP);
 
-INSERT INTO `movies` (`title`, `year`, `genre`, `director`, `plot`, `runtime`) VALUES
-('The Matrix', '1999', 'Action, Sci-Fi', 'Lana Wachowski, Lilly Wachowski', 'A computer programmer discovers a mysterious world of digital reality', '136 min'),
-('Inception', '2010', 'Action, Adventure, Sci-Fi', 'Christopher Nolan', 'A thief who steals corporate secrets through dream-sharing technology', '148 min'),
-('Interstellar', '2014', 'Adventure, Drama, Sci-Fi', 'Christopher Nolan', 'A team of explorers travel through a wormhole in space', '169 min');
-
 INSERT INTO `film_session` (`movie_title`, `price`, `date`, `start_time`, `end_time`, `capacity`) VALUES
 ('The Matrix', 15.00, CURRENT_DATE, '12:00:00', '14:30:00', 100),
 ('Inception', 18.00, CURRENT_DATE, '15:30:00', '18:00:00', 80),
