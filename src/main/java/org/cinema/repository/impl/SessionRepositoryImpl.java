@@ -25,13 +25,15 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
 
     @Override
     public void save(FilmSession filmSession) {
-        executeTransaction(session -> session.save(filmSession));
+        executeTransaction(session ->
+                session.save(filmSession));
         log.info("Film session successfully added.");
     }
 
     @Override
     public Optional<FilmSession> getById(int id) {
-        return Optional.ofNullable(executeWithResult(session -> session.get(FilmSession.class, id)));
+        return Optional.ofNullable(executeWithResult(session ->
+                session.get(FilmSession.class, id)));
     }
 
     @Override
@@ -64,7 +66,7 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
                 session.delete(filmSession);
                 log.info("Film session with ID '{}' successfully deleted.", id);
             } else {
-                throw new NoDataFoundException("Film session with ID " + id + " not found.");
+                throw new NoDataFoundException("Film session with ID '" + id + "' not found.");
             }
         });
     }

@@ -27,11 +27,13 @@ public class SessionServiceImpl implements SessionService {
 
     private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
     private final MovieServiceImpl movieService = MovieServiceImpl.getInstance();
+
     private final FilmSessionMapper filmSessionMapper = FilmSessionMapper.INSTANCE;
 
     @Override
     public String save(String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
                        String capacityStr, String priceStr) {
+
         Movie movie = movieService.getMovie(movieTitle);
         FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie.getTitle(), dateStr, startTimeStr,
                 endTimeStr, capacityStr, priceStr);
@@ -42,6 +44,10 @@ public class SessionServiceImpl implements SessionService {
         }
 
         sessionRepository.save(filmSession);
+
+        if (!sessionRepository.checkIfSessionExists(filmSession)) {
+            throw new EntityAlreadyExistException("Film session not found in database after saving. Try again.");
+        }
         return "Film session successfully added.";
     }
 
@@ -55,7 +61,8 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public FilmSessionDTO getById(String id) {
-        int sessionId = Integer.parseInt(id);
+        int sessionId = ValidationUtil.parseId(id);
+
         Optional<FilmSession> session = sessionRepository.getById(sessionId);
         return session.map(filmSessionMapper::toDTO)
                 .orElseThrow(() -> new NoDataFoundException("Film session not found."));
@@ -64,17 +71,22 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public String update(String id, String movieTitle, String dateStr, String startTimeStr,
                          String endTimeStr, String capacityStr, String priceStr) {
+
         Movie movie = movieService.getMovie(movieTitle);
         FilmSessionDTO dto = FilmSessionDTO.fromStringsWithId(id, movie.getTitle(), dateStr, 
                                                             startTimeStr, endTimeStr, capacityStr, priceStr);
         FilmSession filmSession = filmSessionMapper.toEntity(dto);
         sessionRepository.update(filmSession);
+
+        if (!sessionRepository.checkIfSessionExists(filmSession)) {
+            throw new EntityAlreadyExistException("Film session not found in database after updating. Try again.");
+        }
         return "Film session successfully updated.";
     }
 
     @Override
     public String delete(String id) {
-        int sessionId = Integer.parseInt(id);
+        int sessionId = ValidationUtil.parseId(id);
         sessionRepository.delete(sessionId);
         return "Film session successfully deleted.";
     }

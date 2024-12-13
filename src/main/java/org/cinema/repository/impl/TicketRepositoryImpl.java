@@ -26,13 +26,15 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
 
     @Override
     public void save(Ticket ticket) {
-        executeTransaction(session -> session.save(ticket));
-        log.info("Ticket [{}] successfully added.", ticket);
+        executeTransaction(session ->
+                session.save(ticket));
+        log.info("Ticket successfully added.");
     }
 
     @Override
     public Optional<Ticket> getById(int id) {
-        return Optional.ofNullable(executeWithResult(session -> session.get(Ticket.class, id)));
+        return Optional.ofNullable(executeWithResult(session ->
+                session.get(Ticket.class, id)));
     }
 
     @Override
@@ -53,7 +55,7 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
         executeTransaction(session -> {
             ticket.setPurchaseTime(purchaseTime);
             session.merge(ticket);
-            log.info("Ticket with ID [{}] successfully updated.", ticket.getId());
+            log.info("Ticket with ID {} successfully updated.", ticket.getId());
         });
     }
 
@@ -62,7 +64,7 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
         executeTransaction(session -> {
             Ticket ticket = session.get(Ticket.class, id);
             if (ticket == null) {
-                throw new NoDataFoundException("Error! Ticket with ID " + id + " doesn't exist.");
+                throw new NoDataFoundException("Ticket with ID " + id + " doesn't exist.");
             }
             session.delete(ticket);
             log.info("Ticket with ID {} successfully deleted.", id);

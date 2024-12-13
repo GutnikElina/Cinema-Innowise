@@ -19,11 +19,6 @@ public class BaseRepository {
 
     protected final SessionFactory sessionFactory;
 
-    /**
-     * Constructor to initialize the DAO with a {@link SessionFactory}.
-     *
-     * @param sessionFactory the Hibernate {@link SessionFactory} to be used for creating sessions
-     */
     protected BaseRepository(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }

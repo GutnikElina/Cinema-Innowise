@@ -8,7 +8,6 @@ import org.cinema.model.Movie;
 import org.cinema.repository.BaseRepository;
 import org.cinema.repository.MovieRepository;
 import org.hibernate.query.Query;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +23,15 @@ public class MovieRepositoryImpl extends BaseRepository implements MovieReposito
 
     @Override
     public void save(Movie movie) {
-        executeTransaction(session -> session.save(movie));
+        executeTransaction(session ->
+                session.save(movie));
         log.info("Movie '{}' successfully added.", movie.getTitle());
     }
 
     @Override
     public Optional<Movie> getById(int movieId) {
-        return Optional.ofNullable(executeWithResult(session -> session.get(Movie.class, movieId)));
+        return Optional.ofNullable(executeWithResult(session ->
+                session.get(Movie.class, movieId)));
     }
 
     @Override

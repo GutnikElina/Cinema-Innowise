@@ -20,8 +20,8 @@ import java.util.List;
 public class UserMainPageServlet extends HttpServlet {
 
     private static final String VIEW_PATH = "/WEB-INF/views/user.jsp";
-    private static final String MESSAGE_PARAM = "message";
-    private static final String MOVIES_ATTR = "movies";
+    private static final String MESSAGE = "message";
+    private static final String MOVIES = "movies";
 
     private MovieService movieService;
 
@@ -42,38 +42,37 @@ public class UserMainPageServlet extends HttpServlet {
             if (movieTitle != null && !movieTitle.trim().isEmpty()) {
                 log.debug("Start to fetch movies with title: {}", movieTitle);
                 List<Movie> movies = movieService.searchMovies(movieTitle.trim());
-                request.setAttribute(MOVIES_ATTR, movies);
+                request.setAttribute(MOVIES, movies);
             } else {
                 log.debug("No movie title provided or movie title is empty.");
-                request.setAttribute(MOVIES_ATTR, Collections.emptyList());
+                request.setAttribute(MOVIES, Collections.emptyList());
             }
 
-            String message = request.getParameter(MESSAGE_PARAM);
+            String message = request.getParameter(MESSAGE);
             if (message != null && !message.isEmpty()) {
-                request.setAttribute(MESSAGE_PARAM, message);
+                request.setAttribute(MESSAGE, message);
             }
 
         } catch (IllegalArgumentException e) {
-            handleError(request, "Invalid input: " + e.getMessage(),
+            handleError(request, "Error! Invalid input: " + e.getMessage(),
                     "Validation error during movie search", e);
         } catch (NoDataFoundException e) {
-            handleError(request, e.getMessage(),
+            handleError(request, "Error! " + e.getMessage(),
                     "No movies found: {}", e, e.getMessage());
         } catch (OmdbApiException e) {
-            handleError(request, "Failed to communicate with OMDB API. Please try again later.",
+            handleError(request, "Error! Failed to communicate with OMDB API. Please try again later.",
                     "OMDB API error during movie search: {}", e, e.getMessage());
         } catch (Exception e) {
             handleError(request, "An unexpected error occurred while searching for movies",
                     "Unexpected error during movie search: {}", e, e.getMessage());
         }
-
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
     private void handleError(HttpServletRequest request, String userMessage,
             String logMessage, Exception e, Object... logParams) {
         log.error(logMessage, logParams, e);
-        request.setAttribute(MESSAGE_PARAM, userMessage);
-        request.setAttribute(MOVIES_ATTR, Collections.emptyList());
+        request.setAttribute(MESSAGE, userMessage);
+        request.setAttribute(MOVIES, Collections.emptyList());
     }
 }

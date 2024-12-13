@@ -48,7 +48,7 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.save(ticket);
 
         if (!ticketRepository.checkIfTicketExists(ticket)) {
-            throw new NoDataFoundException("Ticket not found in database after adding. Try again.");
+            throw new NoDataFoundException("Ticket not found in database after saving. Try again.");
         }
         return "Success! Ticket was successfully added to the database!";
     }
@@ -82,17 +82,13 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public String delete(String ticketIdStr) {
-        int ticketId = ValidationUtil.parseId(ticketIdStr);
-        ValidationUtil.validateIsPositive(ticketId);
-        ticketRepository.delete(ticketId);
+        ticketRepository.delete(ValidationUtil.parseId(ticketIdStr));
         return "Success! Ticket was successfully deleted!";
     }
 
     @Override
     public Optional<Ticket> getById(String ticketIdStr) {
-        int ticketId = ValidationUtil.parseId(ticketIdStr);
-        ValidationUtil.validateIsPositive(ticketId);
-        return ticketRepository.getById(ticketId);
+        return ticketRepository.getById(ValidationUtil.parseId(ticketIdStr));
     }
 
     @Override
@@ -109,6 +105,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public String purchaseTicket(String userId, String sessionId, String seatNumber) {
+
         User user = userRepository.getById(ValidationUtil.parseId(userId))
                 .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
         FilmSession session = sessionRepository.getById(ValidationUtil.parseId(sessionId))
@@ -148,15 +145,13 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public Set<Ticket> findByUserId(String userId) {
         int parsedUserId = ValidationUtil.parseId(userId);
-
         List<Ticket> ticketsList = ticketRepository.getTicketsByUserId(parsedUserId);
 
         if (ticketsList.isEmpty()) {
-            throw new NoDataFoundException("Your tickets are absent");
+            throw new NoDataFoundException("Your tickets are absent!");
         }
 
         Set<Ticket> tickets = new HashSet<>(ticketsList);
-
         log.info("{} tickets found for user with ID: {}", tickets.size(), userId);
         return tickets;
     }
@@ -164,6 +159,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public String processTicketAction(String action, String ticketIdParam) {
+
         ValidationUtil.validateParameters(action, ticketIdParam);
         Ticket ticket = getById(ticketIdParam).orElseThrow(() ->
                 new NoDataFoundException("Ticket with this ID doesn't exist!"));

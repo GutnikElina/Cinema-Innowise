@@ -25,13 +25,15 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
 
     @Override
     public void save(User user) {
-        executeTransaction(session -> session.save(user));
+        executeTransaction(session ->
+                session.save(user));
         log.info("User '{}' successfully added.", user.getUsername());
     }
 
     @Override
     public void update(User user) {
-        executeTransaction(session -> session.merge(user));
+        executeTransaction(session ->
+                session.merge(user));
         log.info("User with ID '{}' successfully updated.", user.getId());
     }
 
@@ -40,17 +42,18 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
         executeTransaction(session -> {
             User user = session.get(User.class, id);
             if (user == null) {
-                throw new NoDataFoundException("Error! User with ID " + id + " doesn't exist.");
+                throw new NoDataFoundException("User with ID '" + id + "' doesn't exist.");
             }
 
             session.delete(user);
-            log.info("User with ID {} successfully deleted.", id);
+            log.info("User with ID '{}' successfully deleted.", id);
         });
     }
 
     @Override
     public Optional<User> getById(int id) {
-        return Optional.ofNullable(executeWithResult(session -> session.get(User.class, id)));
+        return Optional.ofNullable(executeWithResult(session ->
+                session.get(User.class, id)));
     }
 
     @Override

@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         if (userRepository.getByUsername(username).isEmpty()) {
-            throw new NoDataFoundException("User not found in database after adding. Try again.");
+            throw new NoDataFoundException("User not found in database after saving. Try again.");
         }
 
         log.info("User '{}' successfully added with role '{}'.", username, userRole);
@@ -73,17 +73,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String delete(String userIdStr) {
-        int userId = ValidationUtil.parseId(userIdStr);
-        ValidationUtil.validateIsPositive(userId);
-        userRepository.delete(userId);
+        userRepository.delete(ValidationUtil.parseId(userIdStr));
         return "Success! User was successfully deleted!";
     }
 
     @Override
     public Optional<User> getById(String userIdStr) {
-        int userId = ValidationUtil.parseId(userIdStr);
-        ValidationUtil.validateIsPositive(userId);
-        return userRepository.getById(userId);
+        return userRepository.getById( ValidationUtil.parseId(userIdStr));
     }
 
     @Override
@@ -151,7 +147,6 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setUsername(username);
-
         userRepository.update(user);
         log.info("User with ID {} updated their profile.", userId);
     }
