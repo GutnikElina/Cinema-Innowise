@@ -136,7 +136,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateProfile(int userId, String username, String password) {
-        ValidationUtil.validateUsername(username);
         ValidationUtil.validateIsPositive(userId);
 
         User user = userRepository.getById(userId)

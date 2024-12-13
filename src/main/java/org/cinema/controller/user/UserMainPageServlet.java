@@ -47,7 +47,7 @@ public class UserMainPageServlet extends HttpServlet {
                 message = "Validation error! " + e.getMessage();
                 log.error("Validation error during fetching movies: {}", message, e);
             } catch (NoDataFoundException e) {
-                message = e.getMessage();
+                message =  "Error! " + e.getMessage();
                 log.error("Error during fetching movies: {}", message, e);
             } catch (OmdbApiException e) {
                 message = "Failed to communicate with OMDB API. Please try again later.";

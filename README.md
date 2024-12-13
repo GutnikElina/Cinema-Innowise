@@ -5,9 +5,51 @@
 - Backend: Java EE (Servlets, JSP), Hibernate
 - База данных: MySQL
 - Сервер: Apache Tomcat 10.0.21
-- Инструменты: Maven, Git для контроля версий, JUnit для тестирования
+- Инструменты: Maven, Git для контроля версий, JUnit для тестирования, Docker для контейнеризации
   
 = Общий срок разработки: 3 недели (26.11.2024 — 15.12.2024).
+
+## Запуск проекта
+
+### Предварительные требования
+- Git
+- Docker
+- Docker Compose
+
+### Шаги для запуска
+
+1. Клонирование репозитория:
+```bash
+git clone https://github.com/GutnikElina/Cinema-Innowise.git
+cd Cinema-Innowise
+```
+
+2. Запуск приложения:
+```bash
+docker-compose up -d
+```
+
+3. Проверка статуса:
+```bash
+docker-compose ps
+```
+
+4. Доступ к приложению:
+- Веб-интерфейс: http://localhost:8080
+- База данных: localhost:3307
+  - Username: cinema_user
+  - Password: cinema_password
+  - Database: cinema_db
+
+### Остановка приложения
+```bash
+docker-compose down
+```
+
+Для удаления всех данных (включая базу данных):
+```bash
+docker-compose down -v
+```
 
 ## Текущий этап выполнения - 7
 

@@ -79,14 +79,13 @@ public class AdminUserServlet extends HttpServlet {
             message = "Validation error! " + e.getMessage();
             log.error("Validation error during user operation: {}", message, e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            message = e.getMessage();
+            message = "Error! " + e.getMessage();
             log.error("Error while doing users operation: {}", message, e);
         } catch (Exception e) {
             message = "Unexpected error occurred during handling users operation '" + action + "'";
             log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        // Redirect to GET with message as parameter
         String encodedMessage = response.encodeRedirectURL(message);
         response.sendRedirect(request.getContextPath() + "/admin/users?message=" + encodedMessage);
     }

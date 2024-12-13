@@ -65,8 +65,8 @@ public class AdminConfirmServlet extends HttpServlet {
             log.debug("Start to process action {}...", action);
             message = ticketService.processTicketAction(action, ticketIdParam);
         } catch (IllegalArgumentException e) {
-            log.error("Validation error: {}", e.getMessage(), e);
             message = "Error! " + e.getMessage();
+            log.error("Validation error: {}", e.getMessage(), e);
         } catch (Exception e) {
             String error = "Unexpected error occurred during ticket operation";
             log.error("{}: {}", error, e.getMessage(), e);

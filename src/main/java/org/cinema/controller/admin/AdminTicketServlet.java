@@ -18,7 +18,6 @@ import org.cinema.service.UserService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -48,14 +47,14 @@ public class AdminTicketServlet extends HttpServlet {
         Set<User> users = Collections.emptySet();
         Set<FilmSessionDTO> filmSessions = Collections.emptySet();
 
-        String message = request.getParameter("message");
+        String message = "";
         try {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
-            tickets = ticketService.findAll();
             users = userService.findAll();
             filmSessions = sessionService.findAll();
+            tickets = ticketService.findAll();
         } catch (IllegalArgumentException e) {
             message = "Error! " + e.getMessage();
             log.error("Validation error! {}", e.getMessage(), e);
@@ -70,7 +69,7 @@ public class AdminTicketServlet extends HttpServlet {
         request.setAttribute("tickets", tickets);
         request.setAttribute("users", users);
         request.setAttribute("filmSessions", filmSessions);
-        if (message != null && !message.isEmpty()) {
+        if (!message.isEmpty()) {
             request.setAttribute("message", message);
         }
         request.getRequestDispatcher("/WEB-INF/views/tickets.jsp").forward(request, response);
@@ -100,13 +99,15 @@ public class AdminTicketServlet extends HttpServlet {
             message = e.getMessage();
             log.error("Error during tickets action {}: {}", action, message, e);
         } catch (Exception e) {
-            message = "Unexpected error occurred during handling tickets operation '" + action + "'";
+            message = "Unexpected error occurred during tickets operation '" + action + "'";
             log.error("{}: {}", message, e.getMessage(), e);
         }
 
-        // Redirect to GET with message as parameter
-        String encodedMessage = response.encodeRedirectURL(message);
-        response.sendRedirect(request.getContextPath() + "/admin/tickets?message=" + encodedMessage);
+        if (!message.isEmpty()) {
+            request.setAttribute("message", message);
+        }
+
+        doGet(request, response);
     }
 
     private String handleAddAction(HttpServletRequest request) {

@@ -43,7 +43,6 @@ public class SessionServiceImpl implements SessionService {
 
         sessionRepository.save(filmSession);
         return "Film session successfully added.";
-
     }
 
     @Override
