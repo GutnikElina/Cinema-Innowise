@@ -11,7 +11,6 @@ import org.cinema.model.*;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.util.ValidationUtil;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -88,7 +87,6 @@ public class AdminConfirmServlet extends HttpServlet {
             handleSessionError(request, "An unexpected error occurred while processing the ticket",
                     "Unexpected error during ticket confirmation: {}", e, e.getMessage());
         }
-
         response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
     }
 

@@ -30,7 +30,8 @@ public class AdminAccessFilter implements Filter {
         return session != null && "ADMIN".equals(session.getAttribute("role"));
     }
 
-    private void handleUnauthorizedAdmin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleUnauthorizedAdmin(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         log.warn("Admin is not logged in!");
         request.setAttribute("message",  "Error! You must log in.");
         request.getRequestDispatcher("/login").forward(request, response);

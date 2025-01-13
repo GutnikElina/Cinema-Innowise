@@ -11,6 +11,7 @@ import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class MovieServiceImpl implements MovieService {
@@ -59,6 +60,17 @@ public class MovieServiceImpl implements MovieService {
         return movie;
     }
 
+    @Override
+    public Movie getMovieById(long movieId) {
+        ValidationUtil.parseId(String.valueOf(movieId));
+        Optional<Movie> movieFromDb = movieRepository.getById(movieId);
+        if (!movieFromDb.isEmpty()) {
+            log.info("Returning the first found movie with title '{}'", movieFromDb.get().getTitle());
+            return movieFromDb.get();
+        }
+        return null;
+    }
+
     private void saveMovieToDatabase(Movie movie) {
         movieRepository.save(movie);
         log.info("Saved movie '{}' to database", movie.getTitle());
@@ -71,8 +83,6 @@ public class MovieServiceImpl implements MovieService {
         movie.setPoster(apiMovie.getPoster());
         movie.setPlot(apiMovie.getPlot());
         movie.setGenre(apiMovie.getGenre());
-        movie.setDirector(apiMovie.getDirector());
-        movie.setActors(apiMovie.getActors());
         movie.setImdbRating(apiMovie.getImdbRating());
         movie.setRuntime(apiMovie.getRuntime());
         return movie;

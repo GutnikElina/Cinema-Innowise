@@ -47,7 +47,6 @@ public class AdminUserServlet extends HttpServlet {
             if (message != null && !message.isEmpty()) {
                 request.setAttribute(MESSAGE_PARAM, message);
             }
-
         } catch (IllegalArgumentException e) {
             handleError(request, "Invalid input: " + e.getMessage(), e);
             setEmptyCollections(request);
@@ -58,7 +57,6 @@ public class AdminUserServlet extends HttpServlet {
             handleError(request, "An unexpected error occurred while fetching users", e);
             setEmptyCollections(request);
         }
-
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 

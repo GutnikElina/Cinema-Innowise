@@ -50,7 +50,7 @@
           <tr>
             <td>${ticket.id}</td>
             <td>${ticket.user.username}</td>
-            <td>${ticket.filmSession.movieTitle}</td>
+            <td>${ticket.filmSession.movie.title}</td>
             <td>${ticket.seatNumber}</td>
             <td><c:out value="${ticket.purchaseTime.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" /></td>
             <td>${ticket.status}</td>

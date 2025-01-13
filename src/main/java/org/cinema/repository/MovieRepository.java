@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface MovieRepository {
     void save(Movie movie);
-    Optional<Movie> getById(int movieId);
+    Optional<Movie> getById(long movieId);
     List<Movie> findAll();
     void update(Movie movie);
     void delete(int movieId);

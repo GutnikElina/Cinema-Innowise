@@ -21,8 +21,9 @@ public class FilmSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "movie_title", nullable = false)
-    private String movieTitle;
+    @ManyToOne
+    @JoinColumn(name = "movie_id", nullable = false)
+    private Movie movie;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;

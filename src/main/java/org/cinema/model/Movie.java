@@ -2,6 +2,7 @@ package org.cinema.model;
 
 import lombok.Data;
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -18,8 +19,6 @@ public class Movie {
     private String poster;
     private String plot;
     private String genre;
-    private String director;
-    private String actors;
-    private String imdbRating;
+    private BigDecimal imdbRating;
     private String runtime;
 }

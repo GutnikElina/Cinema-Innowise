@@ -29,7 +29,7 @@ public class MovieRepositoryImpl extends BaseRepository implements MovieReposito
     }
 
     @Override
-    public Optional<Movie> getById(int movieId) {
+    public Optional<Movie> getById(long movieId) {
         return Optional.ofNullable(executeWithResult(session ->
                 session.get(Movie.class, movieId)));
     }

@@ -2,12 +2,9 @@ package org.cinema.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.model.Role;
-
-import javax.xml.bind.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Objects;
 
 @Slf4j
 public class ValidationUtil {

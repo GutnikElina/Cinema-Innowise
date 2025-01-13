@@ -1,9 +1,7 @@
 package org.cinema.dto;
 
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+import org.cinema.model.Movie;
 import org.cinema.util.ValidationUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,23 +12,29 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmSessionDTO {
-    private int id;
-    private String movieTitle;
+    private Integer id;
+    @NonNull
+    private Movie movie;
+    @NonNull
     private BigDecimal price;
+    @NonNull
     private LocalDate date;
+    @NonNull
     private LocalTime startTime;
+    @NonNull
     private LocalTime endTime;
+    @NonNull
     private int capacity;
 
-    public static FilmSessionDTO fromStrings(String movieTitle, String dateStr, String startTimeStr, 
-                                           String endTimeStr, String capacityStr, String priceStr) {
+    public static FilmSessionDTO fromStrings(Movie movie, String dateStr, String startTimeStr,
+                                             String endTimeStr, String capacityStr, String priceStr) {
         ValidationUtil.validateDate(dateStr);
         ValidationUtil.validatePrice(priceStr);
         ValidationUtil.validateCapacity(capacityStr);
         ValidationUtil.validateTime(startTimeStr, endTimeStr);
 
         return FilmSessionDTO.builder()
-                .movieTitle(movieTitle)
+                .movie(movie)
                 .date(LocalDate.parse(dateStr))
                 .startTime(LocalTime.parse(startTimeStr))
                 .endTime(LocalTime.parse(endTimeStr))
@@ -39,10 +43,10 @@ public class FilmSessionDTO {
                 .build();
     }
 
-    public static FilmSessionDTO fromStringsWithId(String id, String movieTitle, String dateStr, 
-                                                 String startTimeStr, String endTimeStr, 
-                                                 String capacityStr, String priceStr) {
-        FilmSessionDTO dto = fromStrings(movieTitle, dateStr, startTimeStr, endTimeStr, capacityStr, priceStr);
+    public static FilmSessionDTO fromStringsWithId(String id, Movie movie, String dateStr,
+                                                   String startTimeStr, String endTimeStr,
+                                                   String capacityStr, String priceStr) {
+        FilmSessionDTO dto = fromStrings(movie, dateStr, startTimeStr, endTimeStr, capacityStr, priceStr);
         dto.setId(Integer.parseInt(id));
         return dto;
     }

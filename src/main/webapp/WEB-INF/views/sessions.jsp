@@ -49,7 +49,7 @@
                 <tbody>
                 <c:forEach var="filmSession" items="${filmSessions}">
                     <tr>
-                        <td>${filmSession.movieTitle}</td>
+                        <td>${filmSession.movie.title}</td>
                         <td>${filmSession.price}</td>
                         <td><c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))}" /></td>
                         <td><c:out value="${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" /></td>
@@ -79,8 +79,14 @@
             <h2 class="text-center">Add Session</h2>
             <form method="post" action="${pageContext.request.contextPath}/admin/sessions" id="addSessionForm">
                 <input type="hidden" name="action" value="add">
+
                 <div class="mb-3">
-                    <input type="text" class="form-control form-control-sm" name="movieTitle" placeholder="Movie Title" required>
+                    <select class="form-control form-control-sm" name="movie_id" required>
+                        <option value="" disabled selected>-- Select Movie --</option>
+                        <c:forEach var="movie" items="${movies}">
+                            <option value="${movie.id}">${movie.title}</option>
+                        </c:forEach>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <input type="number" class="form-control form-control-sm" name="price" placeholder="Price (BYN)" step="0.1" required>
@@ -112,9 +118,15 @@
                 <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
                     <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" value="${sessionToEdit.id}">
+
                     <div class="mb-3">
-                        <input type="text" class="form-control form-control-sm" name="movieTitle" value="${sessionToEdit.movieTitle}" required>
+                        <select class="form-control form-control-sm" placeholder="Select Movie" name="movie_id" required>
+                            <c:forEach var="movie" items="${movies}">
+                                <option value="${movie.id}" <c:if test="${movie.id == sessionToEdit.movie.id}">selected</c:if>>${movie.title}</option>
+                            </c:forEach>
+                        </select>
                     </div>
+
                     <div class="mb-3">
                         <input type="number" class="form-control form-control-sm" name="price" value="${sessionToEdit.price}" step="0.1" required>
                     </div>

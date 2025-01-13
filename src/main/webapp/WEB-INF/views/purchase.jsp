@@ -43,7 +43,7 @@
           <select name="sessionId" id="sessionId" class="form-select" required>
             <c:forEach var="session" items="${filmSessions}">
               <option value="${session.id}" ${selectedSession != null && selectedSession.id == session.id ? 'selected' : ''}>
-                  ${session.movieTitle} |  ${session.date} ( ${session.startTime} - ${session.endTime} ) | ${session.price} BYN
+                  ${session.movie.title} |  ${session.date} ( ${session.startTime} - ${session.endTime} ) | ${session.price} BYN
               </option>
             </c:forEach>
           </select>
@@ -53,7 +53,7 @@
     </c:if>
 
     <c:if test="${not empty selectedSession}">
-      <h3 class="text-center">Select your seat for '${selectedSession.movieTitle}'</h3>
+      <h3 class="text-center">Select your seat for '${selectedSession.movie.title}'</h3>
       <h2 class="text-center">+--------------------------------+</h2>
       <h2 class="text-center">|----------- SCREEN -----------|</h2>
       <h2 class="text-center">+--------------------------------+</h2>

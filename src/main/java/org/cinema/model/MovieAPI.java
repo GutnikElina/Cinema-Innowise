@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,14 +32,8 @@ public class MovieAPI {
     @JsonProperty("Genre")
     private String genre;
 
-    @JsonProperty("Director")
-    private String director;
-
-    @JsonProperty("Actors")
-    private String actors;
-
     @JsonProperty("imdbRating")
-    private String imdbRating;
+    private BigDecimal imdbRating;
 
     @JsonProperty("Runtime")
     private String runtime;

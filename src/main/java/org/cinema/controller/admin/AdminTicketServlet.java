@@ -52,9 +52,7 @@ public class AdminTicketServlet extends HttpServlet {
             if ("edit".equals(request.getParameter("action"))) {
                 handleEditAction(request);
             }
-
             loadDataForView(request);
-
         } catch (IllegalArgumentException e) {
             handleError(request, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
@@ -64,7 +62,6 @@ public class AdminTicketServlet extends HttpServlet {
             handleError(request, "An unexpected error occurred while fetching data", e);
             setEmptyCollections(request);
         }
-
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
@@ -77,7 +74,6 @@ public class AdminTicketServlet extends HttpServlet {
             String action = request.getParameter("action");
             String message = processAction(action, request);
             request.getSession().setAttribute(MESSAGE_PARAM, message);
-
         } catch (IllegalArgumentException e) {
             log.warn("Validation error: {}", e.getMessage(), e);
             request.getSession().setAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
@@ -88,7 +84,6 @@ public class AdminTicketServlet extends HttpServlet {
             log.error("Unexpected error: {}", e.getMessage(), e);
             request.getSession().setAttribute(MESSAGE_PARAM, "An unexpected error occurred");
         }
-
         response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
     }
 
@@ -164,7 +159,7 @@ public class AdminTicketServlet extends HttpServlet {
     }
 
     private void handleError(HttpServletRequest request, String message, Exception e) {
-        log.error(message + ": {}", e.getMessage(), e);
+        log.error("{}: {}", message, e.getMessage(), e);
         request.setAttribute(MESSAGE_PARAM, message);
     }
 }

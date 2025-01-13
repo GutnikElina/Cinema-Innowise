@@ -8,6 +8,8 @@ import org.cinema.exception.NoDataFoundException;
 import org.cinema.mapper.FilmSessionMapper;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
+import org.cinema.model.Ticket;
+import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
@@ -26,16 +28,16 @@ public class SessionServiceImpl implements SessionService {
     private static final SessionServiceImpl instance = new SessionServiceImpl();
 
     private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
-    private final MovieServiceImpl movieService = MovieServiceImpl.getInstance();
-
+    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance();
     private final FilmSessionMapper filmSessionMapper = FilmSessionMapper.INSTANCE;
 
     @Override
-    public String save(String movieTitle, String dateStr, String startTimeStr, String endTimeStr,
+    public String save(long movieId, String dateStr, String startTimeStr, String endTimeStr,
                        String capacityStr, String priceStr) {
+        Movie movie = movieRepository.getById(movieId).orElseThrow(() ->
+                new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!"));
 
-        Movie movie = movieService.getMovie(movieTitle);
-        FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie.getTitle(), dateStr, startTimeStr,
+        FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie, dateStr, startTimeStr,
                 endTimeStr, capacityStr, priceStr);
         FilmSession filmSession = filmSessionMapper.toEntity(dto);
 
@@ -69,11 +71,12 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public String update(String id, String movieTitle, String dateStr, String startTimeStr,
+    public String update(String id, long movieId, String dateStr, String startTimeStr,
                          String endTimeStr, String capacityStr, String priceStr) {
+        Movie movie = movieRepository.getById(movieId).orElseThrow(() ->
+                new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!"));
 
-        Movie movie = movieService.getMovie(movieTitle);
-        FilmSessionDTO dto = FilmSessionDTO.fromStringsWithId(id, movie.getTitle(), dateStr, 
+        FilmSessionDTO dto = FilmSessionDTO.fromStringsWithId(id, movie, dateStr,
                                                             startTimeStr, endTimeStr, capacityStr, priceStr);
         FilmSession filmSession = filmSessionMapper.toEntity(dto);
         sessionRepository.update(filmSession);

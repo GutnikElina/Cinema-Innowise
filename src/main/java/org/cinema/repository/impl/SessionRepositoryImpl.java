@@ -74,11 +74,11 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
     @Override
     public boolean checkIfSessionExists(FilmSession filmSession) {
         return executeWithResult(session -> {
-            String hql = "FROM FilmSession fs WHERE fs.movieTitle = :title AND fs.date = :date " +
+            String hql = "FROM FilmSession fs WHERE fs.movie.id = :movieId AND fs.date = :date " +
                     "AND ((fs.startTime BETWEEN :start AND :end) OR (fs.endTime BETWEEN :start AND :end))";
 
             Query<FilmSession> query = session.createQuery(hql, FilmSession.class);
-            query.setParameter("title", filmSession.getMovieTitle());
+            query.setParameter("movieId", filmSession.getMovie().getId());
             query.setParameter("date", filmSession.getDate());
             query.setParameter("start", filmSession.getStartTime());
             query.setParameter("end", filmSession.getEndTime());

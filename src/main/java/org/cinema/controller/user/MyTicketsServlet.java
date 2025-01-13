@@ -48,7 +48,6 @@ public class MyTicketsServlet extends HttpServlet {
             handleError(request, "An unexpected error occurred while loading tickets", e);
             setEmptyTickets(request);
         }
-
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 

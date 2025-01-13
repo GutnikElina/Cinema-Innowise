@@ -53,7 +53,7 @@
                         <td>${ticket.id}</td>
                         <td>${ticket.user.username}</td>
                         <td>
-                                ${ticket.filmSession.movieTitle} -
+                                ${ticket.filmSession.movie.title} -
                             <c:out value="${ticket.filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${ticket.filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                         </td>
                         <td>${ticket.seatNumber}</td>
@@ -88,7 +88,7 @@
                     <select class="form-control form-control-sm" name="userId" required>
                         <option value="" disabled selected>-- Select user --</option>
                         <c:forEach var="user" items="${users}">
-                            <option value="${user.id}">${user.username}</option>
+                            <option value="${filmSession.id}">${filmSession.movie.title}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -97,7 +97,7 @@
                         <option value="" disabled selected>-- Select film session --</option>
                         <c:forEach var="filmSession" items="${filmSessions}">
                             <option value="${filmSession.id}">
-                                    ${filmSession.movieTitle} -
+                                    ${filmSession.movie.title} -
                                 <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                             </option>
                         </c:forEach>
@@ -146,7 +146,7 @@
                         <select class="form-control form-control-sm" placeholder="Select film session" name="sessionId" required>
                             <c:forEach var="filmSession" items="${filmSessions}">
                                 <option value="${filmSession.id}" <c:if test="${filmSession.id == ticketToEdit.filmSession.id}">selected</c:if>>
-                                        ${filmSession.movieTitle} -
+                                        ${filmSession.movie.title} -
                                     <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                                 </option>
                             </c:forEach>

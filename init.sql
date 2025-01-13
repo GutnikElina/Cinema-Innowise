@@ -15,22 +15,21 @@ CREATE TABLE `movies` (
     `poster` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `plot` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `genre` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-    `director` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-    `actors` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-    `imdbRating` VARCHAR(10) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+    `imdbRating` DECIMAL(3,1) NULL DEFAULT NULL,
     `runtime` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     PRIMARY KEY (`id`) USING BTREE
 );
 
 CREATE TABLE `film_session` (
     `id` INT NOT NULL AUTO_INCREMENT,
-    `movie_title` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+    `movie_id` BIGINT NOT NULL,
     `price` DECIMAL(10,2) NOT NULL,
     `date` DATE NOT NULL,
     `start_time` TIME NOT NULL,
     `end_time` TIME NOT NULL,
     `capacity` INT NOT NULL,
-    PRIMARY KEY (`id`) USING BTREE
+    PRIMARY KEY (`id`) USING BTREE,
+    FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE `ticket` (
@@ -51,11 +50,6 @@ CREATE TABLE `ticket` (
 INSERT INTO `users` (`username`, `password`, `role`, `created_at`) VALUES
 ('admin', '$2a$10$R4o9QwMEPW9.YpctiGUsROhxmWd8U8/q5QlV/GE.erbKaXZgJ8sjm', 'ADMIN', '2024-12-13 08:10:49.658637'),
 ('user123', '$2a$10$QAmv0FYxfZkEBWVgWjlbjuEZRXAMMJcFQprqOmq0mpqT5fMNT4wPa', 'USER', CURRENT_TIMESTAMP);
-
-INSERT INTO `film_session` (`movie_title`, `price`, `date`, `start_time`, `end_time`, `capacity`) VALUES
-('The Matrix', 15.00, CURRENT_DATE, '12:00:00', '14:30:00', 100),
-('Inception', 18.00, CURRENT_DATE, '15:30:00', '18:00:00', 80),
-('Interstellar', 20.00, CURRENT_DATE, '19:00:00', '22:00:00', 120);
 
 INSERT INTO `ticket` (`user_id`, `session_id`, `seat_number`, `status`, `request_type`) VALUES
 (2, 1, '15', 'PENDING', 'PURCHASE'),

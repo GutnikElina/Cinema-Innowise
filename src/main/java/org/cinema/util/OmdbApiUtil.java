@@ -9,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
@@ -16,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
 import org.cinema.model.MovieAPI;
-import org.cinema.util.ValidationUtil;
 
 /**
  * Utility class for interacting with the OMDB API.
@@ -46,11 +48,11 @@ public class OmdbApiUtil {
     public static List<MovieAPI> searchMovies(String title) {
         log.debug("Starting movie search for title: {}", title);
         ValidationUtil.validateTitle(title);
-        
+
         try {
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
             String urlString = buildUrl("s", encodedTitle);
-            
+
             String response = fetchApiResponse(urlString);
             return parseSearchResponse(response, title);
         } catch (NoDataFoundException e) {
@@ -66,7 +68,7 @@ public class OmdbApiUtil {
 
     private static MovieAPI getMovieDetails(String movieId) {
         ValidationUtil.validateNotBlank(movieId, "Movie ID");
-        
+
         try {
             log.debug("Fetching movie details for ID: {}", movieId);
             String urlString = buildUrl("i", movieId);
@@ -87,7 +89,7 @@ public class OmdbApiUtil {
     private static String fetchApiResponse(String urlString) {
         ValidationUtil.validateNotBlank(urlString, "URL");
         log.debug("Sending API request to URL: {}", urlString);
-        
+
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlString))
@@ -96,11 +98,11 @@ public class OmdbApiUtil {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() != 200) {
                 throw new OmdbApiException("API request failed with status code: " + response.statusCode());
             }
-            
+
             return response.body();
         } catch (Exception e) {
             log.error("Failed to fetch API response from URL: {}", urlString);
@@ -118,12 +120,24 @@ public class OmdbApiUtil {
         JsonNode jsonResponse = objectMapper.readTree(response);
         if ("True".equalsIgnoreCase(jsonResponse.get("Response").asText())) {
             JsonNode searchResults = jsonResponse.get("Search");
-            List<MovieAPI> movieList = new ArrayList<>();
-
+            
+            List<CompletableFuture<MovieAPI>> futures = new ArrayList<>();
+            
             for (JsonNode node : searchResults) {
-                MovieAPI movie = getMovieDetails(node.get("imdbID").asText());
-                movieList.add(movie);
+                CompletableFuture<MovieAPI> future = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return getMovieDetails(node.get("imdbID").asText());
+                    } catch (Exception e) {
+                        log.error("Error fetching details for movie ID: {}", node.get("imdbID").asText(), e);
+                        throw new CompletionException(e);
+                    }
+                });
+                futures.add(future);
             }
+
+            List<MovieAPI> movieList = futures.stream()
+                    .map(CompletableFuture::join)
+                    .collect(Collectors.toList());
 
             log.info("Movie search completed. Total movies found: {}", movieList.size());
             return movieList;

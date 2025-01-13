@@ -10,11 +10,15 @@ import org.cinema.dto.FilmSessionDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
+import org.cinema.model.Movie;
+import org.cinema.repository.MovieRepository;
+import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.service.impl.SessionServiceImpl;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -26,10 +30,12 @@ public class AdminSessionServlet extends HttpServlet {
     private static final String MESSAGE_PARAM = "message";
 
     private SessionService sessionService;
+    private MovieRepository movieService;
 
     @Override
     public void init() {
         sessionService = SessionServiceImpl.getInstance();
+        movieService = MovieRepositoryImpl.getInstance();
         log.info("AdminSessionServlet initialized.");
     }
 
@@ -47,12 +53,14 @@ public class AdminSessionServlet extends HttpServlet {
             log.debug("Fetching all sessions...");
             Set<FilmSessionDTO> filmSessions = sessionService.findAll();
             request.setAttribute("filmSessions", filmSessions);
-            
+
+            List<Movie> movies = movieService.findAll();
+            request.setAttribute("movies", movies);
+
             String message = request.getParameter(MESSAGE_PARAM);
             if (message != null && !message.isEmpty()) {
                 request.setAttribute(MESSAGE_PARAM, message);
             }
-            
         } catch (IllegalArgumentException e) {
             handleError(request, "Error! Invalid input: " + e.getMessage(),
                     "Validation error for session operation", e);
@@ -65,7 +73,6 @@ public class AdminSessionServlet extends HttpServlet {
                     "Unexpected error during sessions fetching: {}", e, e.getMessage());
             request.setAttribute("filmSessions", Collections.emptySet());
         }
-
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
@@ -87,9 +94,7 @@ public class AdminSessionServlet extends HttpServlet {
                     yield "Unknown action requested";
                 }
             };
-
             request.getSession().setAttribute(MESSAGE_PARAM, message);
-            
         } catch (IllegalArgumentException e) {
             handleSessionError(request, "Error! Invalid input: " + e.getMessage(),
                     "Validation error for session operation", e);
@@ -103,7 +108,6 @@ public class AdminSessionServlet extends HttpServlet {
             handleSessionError(request, "An unexpected error occurred while processing the session",
                     "Unexpected error during session operation: {}", e, e.getMessage());
         }
-
         response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
     }
 
@@ -115,7 +119,7 @@ public class AdminSessionServlet extends HttpServlet {
 
     private String handleAddAction(HttpServletRequest request) {
         return sessionService.save(
-                getRequiredParameter(request, "movieTitle"),
+                Long.parseLong(getRequiredParameter(request, "movie_id")),
                 getRequiredParameter(request, "date"),
                 getRequiredParameter(request, "startTime"),
                 getRequiredParameter(request, "endTime"),
@@ -127,7 +131,7 @@ public class AdminSessionServlet extends HttpServlet {
     private String handleEditSubmitAction(HttpServletRequest request) {
         return sessionService.update(
                 getRequiredParameter(request, "id"),
-                getRequiredParameter(request, "movieTitle"),
+                Long.parseLong(getRequiredParameter(request, "movie_id")),
                 getRequiredParameter(request, "date"),
                 getRequiredParameter(request, "startTime"),
                 getRequiredParameter(request, "endTime"),
