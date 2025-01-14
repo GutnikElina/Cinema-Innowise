@@ -14,7 +14,8 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mysql.version>9.1.0</mysql.version>
+
+    <mysql.version>8.3.0</mysql.version>
     <slf4j.version>2.0.9</slf4j.version>
     <lombok.version>1.18.34</lombok.version>
     <logback.version>1.5.12</logback.version>
@@ -27,7 +28,7 @@
     <jbcrypt.version>0.4</jbcrypt.version>
     <jackson.version>2.15.2</jackson.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <hikaricp.version>5.0.1</hikaricp.version>
+    <hikaricp.version>6.2.1</hikaricp.version>
   </properties>
 
   <dependencies>
@@ -41,6 +42,12 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-hikaricp</artifactId>
       <version>${hibernate.version}</version>
     </dependency>
 

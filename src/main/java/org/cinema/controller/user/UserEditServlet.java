@@ -35,7 +35,7 @@ public class UserEditServlet extends HttpServlet {
         log.debug("Handling GET request for profile editing...");
 
         try {
-            Integer userId = getUserId(request.getSession());
+            Long userId = getUserId(request.getSession());
             log.debug("Loading profile for user ID: {}", userId);
 
             User user = userService.getById(String.valueOf(userId))
@@ -67,7 +67,7 @@ public class UserEditServlet extends HttpServlet {
         log.debug("Handling POST request for profile editing...");
 
         try {
-            Integer userId = getUserId(request.getSession());
+            Long userId = getUserId(request.getSession());
             String username = request.getParameter("username");
             String password = request.getParameter("password");
 
@@ -96,8 +96,8 @@ public class UserEditServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/user/edit");
     }
 
-    private Integer getUserId(HttpSession session) {
-        Integer userId = (Integer) session.getAttribute("userId");
+    private Long getUserId(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             throw new IllegalArgumentException("User ID not found in session");
         }

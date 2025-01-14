@@ -62,9 +62,8 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Movie getMovieById(long movieId) {
-        ValidationUtil.parseId(String.valueOf(movieId));
         Optional<Movie> movieFromDb = movieRepository.getById(movieId);
-        if (!movieFromDb.isEmpty()) {
+        if (movieFromDb.isPresent()) {
             log.info("Returning the first found movie with title '{}'", movieFromDb.get().getTitle());
             return movieFromDb.get();
         }

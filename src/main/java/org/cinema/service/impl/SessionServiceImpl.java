@@ -63,9 +63,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public FilmSessionDTO getById(String id) {
-        int sessionId = ValidationUtil.parseId(id);
-
-        Optional<FilmSession> session = sessionRepository.getById(sessionId);
+        Optional<FilmSession> session = sessionRepository.getById(ValidationUtil.parseLong(id));
         return session.map(filmSessionMapper::toDTO)
                 .orElseThrow(() -> new NoDataFoundException("Film session not found."));
     }
@@ -89,7 +87,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public String delete(String id) {
-        sessionRepository.delete(Long.parseLong(id));
+        sessionRepository.delete(ValidationUtil.parseLong(id));
         return "Film session successfully deleted.";
     }
 

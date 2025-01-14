@@ -12,7 +12,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmSessionDTO {
-    private Integer id;
+    private Long id;
     @NonNull
     private Movie movie;
     @NonNull
@@ -47,7 +47,7 @@ public class FilmSessionDTO {
                                                    String startTimeStr, String endTimeStr,
                                                    String capacityStr, String priceStr) {
         FilmSessionDTO dto = fromStrings(movie, dateStr, startTimeStr, endTimeStr, capacityStr, priceStr);
-        dto.setId(Integer.parseInt(id));
+        dto.setId(ValidationUtil.parseLong(id));
         return dto;
     }
 }

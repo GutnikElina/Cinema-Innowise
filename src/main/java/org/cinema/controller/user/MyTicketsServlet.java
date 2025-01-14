@@ -73,13 +73,13 @@ public class MyTicketsServlet extends HttpServlet {
     }
 
     private void loadUserTickets(HttpServletRequest request) {
-        Integer userId = getUserId(request.getSession());
+        Long userId = getUserId(request.getSession());
         Set<Ticket> tickets = ticketService.findByUserId(userId.toString());
         request.setAttribute("tickets", tickets);
     }
 
-    private Integer getUserId(HttpSession session) {
-        Integer userId = (Integer) session.getAttribute("userId");
+    private Long getUserId(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             throw new IllegalArgumentException("User ID not found in session");
         }

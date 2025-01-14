@@ -29,8 +29,7 @@ public abstract class AbstractHibernateRepository<T> extends BaseRepository {
             T entity = session.get(entityClass, id);
             if (entity != null) {
                 session.delete(entity);
-                throw new NoDataFoundException("Error! Entity '" + entity.getClass() +"' with id " + id + " doesn't exist.");
-            } else {
+             } else {
                 throw new NoDataFoundException("Entity with ID '" + id + "' not found.");
             }
         });

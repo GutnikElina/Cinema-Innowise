@@ -108,17 +108,26 @@ public class ValidationUtil {
         }
     }
 
+    public static long parseLong(String id) {
+        validateNotBlank(id, "ID");
+        try {
+            long parsedId = Long.parseLong(id);
+            validatePositive(parsedId, id, "long");
+            return parsedId;
+        } catch (NumberFormatException e) {
+            log.error("Validation failed: long ID '{}' has invalid format", id);
+            throw new IllegalArgumentException("ID must be a valid positive integer.");
+        }
+    }
+
     public static int parseId(String id) {
         validateNotBlank(id, "ID");
         try {
             int parsedId = Integer.parseInt(id);
-            if (parsedId <= 0) {
-                log.error("Validation failed: ID '{}' is not positive", id);
-                throw new IllegalArgumentException("ID must be a positive integer.");
-            }
+            validatePositive(parsedId, id, "int");
             return parsedId;
         } catch (NumberFormatException e) {
-            log.error("Validation failed: ID '{}' has invalid format", id);
+            log.error("Validation failed: int ID '{}' has invalid format", id);
             throw new IllegalArgumentException("ID must be a valid positive integer.");
         }
     }
@@ -149,5 +158,12 @@ public class ValidationUtil {
 
     private static boolean isNullOrBlank(String str) {
         return str == null || str.isBlank();
+    }
+
+    private static void validatePositive(long value, String id, String type) {
+        if (value <= 0) {
+            log.error("Validation failed: {} ID '{}' is not positive", type, id);
+            throw new IllegalArgumentException("ID must be a positive integer.");
+        }
     }
 }

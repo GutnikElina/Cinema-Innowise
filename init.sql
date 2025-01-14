@@ -1,5 +1,5 @@
 CREATE TABLE `users` (
-    `id` INT NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `password` VARCHAR(512) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `role` ENUM('USER','ADMIN') NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
@@ -21,7 +21,7 @@ CREATE TABLE `movies` (
 );
 
 CREATE TABLE `film_session` (
-    `id` INT NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `movie_id` BIGINT NOT NULL,
     `price` DECIMAL(10,2) NOT NULL,
     `date` DATE NOT NULL,
@@ -33,9 +33,9 @@ CREATE TABLE `film_session` (
 );
 
 CREATE TABLE `ticket` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `user_id` INT NOT NULL,
-    `session_id` INT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `user_id` BIGINT NOT NULL,
+    `session_id` BIGINT NOT NULL,
     `seat_number` VARCHAR(10) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `purchase_time` DATETIME NULL DEFAULT (CURRENT_TIMESTAMP),
     `status` ENUM('PENDING','CONFIRMED','CANCELLED','RETURNED') NOT NULL COLLATE 'utf8mb4_0900_ai_ci',

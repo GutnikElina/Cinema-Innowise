@@ -12,8 +12,8 @@ public interface TicketRepository {
     Set<Ticket> findAll();
     void update(Ticket ticket, LocalDateTime purchaseTime);
     void delete(long ticketId);
-    List<Ticket> getTicketsBySession(int sessionId);
+    List<Ticket> getTicketsBySession(long sessionId);
     boolean checkIfTicketExists(Ticket ticket);
-    List<Ticket> getTicketsByUserId(int userId);
+    List<Ticket> getTicketsByUserId(long userId);
 }
 

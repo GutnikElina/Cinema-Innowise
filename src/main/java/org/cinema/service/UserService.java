@@ -13,5 +13,5 @@ public interface UserService {
     Optional<User> getById(String userId);
     HttpSession login(String username, String password, HttpSession session);
     void register(String username, String password);
-    void updateProfile(int userId, String username, String password);
+    void updateProfile(long userId, String username, String password);
 }

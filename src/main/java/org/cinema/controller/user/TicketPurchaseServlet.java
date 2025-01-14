@@ -93,7 +93,7 @@ public class TicketPurchaseServlet extends HttpServlet {
         log.debug("Handling POST request for ticket purchase...");
 
         try {
-            Integer userId = (Integer) request.getSession().getAttribute("userId");
+            Long userId = (Long) request.getSession().getAttribute("userId");
             String sessionId = request.getParameter("sessionId");
             String seatNumber = request.getParameter("seatNumber");
 

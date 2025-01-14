@@ -73,13 +73,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String delete(String userIdStr) {
-        userRepository.delete(Long.parseLong(userIdStr));
+        userRepository.delete(ValidationUtil.parseLong(userIdStr));
         return "Success! User was successfully deleted!";
     }
 
     @Override
     public Optional<User> getById(String userIdStr) {
-        return userRepository.getById( ValidationUtil.parseId(userIdStr));
+        return userRepository.getById( ValidationUtil.parseLong(userIdStr));
     }
 
     @Override
@@ -131,8 +131,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateProfile(int userId, String username, String password) {
-        ValidationUtil.validateIsPositive(userId);
+    public void updateProfile(long userId, String username, String password) {
+        ValidationUtil.validateIsPositive((int) userId);
 
         User user = userRepository.getById(userId)
                 .orElseThrow(() -> new NoDataFoundException("User with ID " + userId + " not found."));

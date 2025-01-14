@@ -60,7 +60,7 @@ public class TicketRepositoryImpl extends AbstractHibernateRepository<Ticket> im
     }
 
     @Override
-    public List<Ticket> getTicketsBySession(int sessionId) {
+    public List<Ticket> getTicketsBySession(long sessionId) {
         return executeWithResult(session -> {
             Query<Ticket> query = session.createQuery(
                 "FROM Ticket t WHERE t.filmSession.id = :sessionId " +
@@ -93,7 +93,7 @@ public class TicketRepositoryImpl extends AbstractHibernateRepository<Ticket> im
     }
 
     @Override
-    public List<Ticket> getTicketsByUserId(int userId) {
+    public List<Ticket> getTicketsByUserId(long userId) {
         return executeWithResult(session -> {
             Query<Ticket> query = session.createQuery(
                 "FROM Ticket t JOIN FETCH t.filmSession fs " +

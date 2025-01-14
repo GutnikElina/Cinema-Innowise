@@ -39,7 +39,7 @@ public class TicketServiceImpl implements TicketService {
 
         ValidationUtil.validateSeatNumber(seatNumber, filmSession.getCapacity());
 
-        Ticket ticket = new Ticket(0, user, filmSession, seatNumber, null, status, requestType);
+        Ticket ticket = new Ticket(0L, user, filmSession, seatNumber, null, status, requestType);
 
         if (ticketRepository.checkIfTicketExists(ticket)) {
             throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
@@ -65,7 +65,7 @@ public class TicketServiceImpl implements TicketService {
 
         ValidationUtil.validateSeatNumber(seatNumber, filmSession.getCapacity());
 
-        int ticketId = ValidationUtil.parseId(id);
+        long ticketId = ValidationUtil.parseLong(id);
         Ticket ticket = new Ticket(ticketId, user, filmSession, seatNumber, null, status, requestType);
 
         Ticket existingTicket = ticketRepository.getById(ticketId).orElseThrow(() ->
@@ -82,13 +82,13 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public String delete(String ticketIdStr) {
-        ticketRepository.delete(Long.parseLong(ticketIdStr));
+        ticketRepository.delete(ValidationUtil.parseLong(ticketIdStr));
         return "Success! Ticket was successfully deleted!";
     }
 
     @Override
     public Optional<Ticket> getById(String ticketIdStr) {
-        return ticketRepository.getById(ValidationUtil.parseId(ticketIdStr));
+        return ticketRepository.getById(ValidationUtil.parseLong(ticketIdStr));
     }
 
     @Override
@@ -114,7 +114,7 @@ public class TicketServiceImpl implements TicketService {
         ValidationUtil.validateSeatNumber(seatNumber, session.getCapacity());
         log.debug("Seat number {} validated successfully for session {}.", seatNumber, sessionId);
 
-        Ticket ticket = new Ticket(0, user, session, seatNumber, null, Status.PENDING, RequestType.PURCHASE);
+        Ticket ticket = new Ticket(0L, user, session, seatNumber, null, Status.PENDING, RequestType.PURCHASE);
         if (ticketRepository.checkIfTicketExists(ticket)) {
             throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
         }
