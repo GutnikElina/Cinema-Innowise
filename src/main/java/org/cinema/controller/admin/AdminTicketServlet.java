@@ -49,18 +49,18 @@ public class AdminTicketServlet extends HttpServlet {
         log.debug("Handling GET request for tickets...");
 
         try {
-            if ("edit".equals(request.getParameter("action"))) {
+            String action = request.getParameter("action");
+            if ("edit".equals(action)) {
                 handleEditAction(request);
             }
+
             loadDataForView(request);
         } catch (IllegalArgumentException e) {
             handleError(request, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
             handleError(request, "Error! " + e.getMessage(), e);
-            setEmptyCollections(request);
         } catch (Exception e) {
             handleError(request, "An unexpected error occurred while fetching data", e);
-            setEmptyCollections(request);
         }
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
@@ -103,18 +103,13 @@ public class AdminTicketServlet extends HttpServlet {
         log.debug("Loading data for view...");
 
         Set<User> users = userService.findAll();
-        Set<FilmSessionDTO> filmSessions = sessionService.findAll();
-        Set<Ticket> tickets = ticketService.findAll();
-
-        request.setAttribute("tickets", tickets);
         request.setAttribute("users", users);
-        request.setAttribute("filmSessions", filmSessions);
-    }
 
-    private void setEmptyCollections(HttpServletRequest request) {
-        request.setAttribute("tickets", Collections.emptySet());
-        request.setAttribute("users", Collections.emptySet());
-        request.setAttribute("filmSessions", Collections.emptySet());
+        Set<FilmSessionDTO> filmSessions = sessionService.findAll();
+        request.setAttribute("filmSessions", filmSessions);
+
+        Set<Ticket> tickets = ticketService.findAll();
+        request.setAttribute("tickets", tickets);
     }
 
     private String handleAddAction(HttpServletRequest request) {

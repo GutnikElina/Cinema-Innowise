@@ -38,6 +38,9 @@
     <div class="container">
         <h1 class="display-4">Your Tickets</h1>
         <p class="lead">Manage your tickets and enjoy the show!</p>
+        <div class="text-end">
+            <a href="${pageContext.request.contextPath}/user" class="btn btn-danger">Back</a>
+        </div>
     </div>
 </div>
 

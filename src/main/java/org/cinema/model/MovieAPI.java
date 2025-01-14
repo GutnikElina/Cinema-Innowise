@@ -33,7 +33,7 @@ public class MovieAPI {
     private String genre;
 
     @JsonProperty("imdbRating")
-    private BigDecimal imdbRating;
+    private String imdbRating;
 
     @JsonProperty("Runtime")
     private String runtime;

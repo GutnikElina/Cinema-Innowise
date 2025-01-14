@@ -15,7 +15,7 @@ CREATE TABLE `movies` (
     `poster` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `plot` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `genre` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
-    `imdbRating` DECIMAL(3,1) NULL DEFAULT NULL,
+    `imdbRating` VARCHAR(10) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     `runtime` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
     PRIMARY KEY (`id`) USING BTREE
 );
@@ -50,8 +50,3 @@ CREATE TABLE `ticket` (
 INSERT INTO `users` (`username`, `password`, `role`, `created_at`) VALUES
 ('admin', '$2a$10$R4o9QwMEPW9.YpctiGUsROhxmWd8U8/q5QlV/GE.erbKaXZgJ8sjm', 'ADMIN', '2024-12-13 08:10:49.658637'),
 ('user123', '$2a$10$QAmv0FYxfZkEBWVgWjlbjuEZRXAMMJcFQprqOmq0mpqT5fMNT4wPa', 'USER', CURRENT_TIMESTAMP);
-
-INSERT INTO `ticket` (`user_id`, `session_id`, `seat_number`, `status`, `request_type`) VALUES
-(2, 1, '15', 'PENDING', 'PURCHASE'),
-(2, 2, '16', 'CONFIRMED', 'PURCHASE'),
-(2, 3, '25', 'PENDING', 'PURCHASE');

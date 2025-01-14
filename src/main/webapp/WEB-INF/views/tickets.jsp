@@ -82,13 +82,13 @@
     <div class="row justify-content-between">
         <div class="col-md-6">
             <h2 class="text-center">Add Ticket</h2>
-            <form method="post" action="${pageContext.request.contextPath}/admin/tickets">
+            <form method="post" action="${pageContext.request.contextPath}/admin/tickets" id="addTicketForm">
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="userId" required>
                         <option value="" disabled selected>-- Select user --</option>
                         <c:forEach var="user" items="${users}">
-                            <option value="${filmSession.id}">${filmSession.movie.title}</option>
+                            <option value="${user.id}">${user.username}</option>
                         </c:forEach>
                     </select>
                 </div>

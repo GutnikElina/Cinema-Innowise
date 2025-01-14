@@ -19,6 +19,6 @@ public class Movie {
     private String poster;
     private String plot;
     private String genre;
-    private BigDecimal imdbRating;
+    private String imdbRating;
     private String runtime;
 }
