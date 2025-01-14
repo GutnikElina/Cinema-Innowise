@@ -11,6 +11,6 @@ public interface MovieRepository {
     Optional<Movie> getById(long movieId);
     List<Movie> findAll();
     void update(Movie movie);
-    void delete(int movieId);
+    void delete(long movieId);
     List<Movie> findByTitle(String movieTitle);
 }

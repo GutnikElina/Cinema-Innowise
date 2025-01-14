@@ -7,10 +7,10 @@ import java.util.Set;
 
 public interface SessionRepository{
     void save(FilmSession filmSession);
-    Optional<FilmSession> getById(int filmSessionId);
+    Optional<FilmSession> getById(long filmSessionId);
     Set<FilmSession> findAll();
     void update(FilmSession filmSession);
-    void delete(int filmSessionId);
+    void delete(long filmSessionId);
     boolean checkIfSessionExists(FilmSession filmSession);
     Set<FilmSession> findByDate(LocalDate date);
 }

@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String delete(String userIdStr) {
-        userRepository.delete(ValidationUtil.parseId(userIdStr));
+        userRepository.delete(Long.parseLong(userIdStr));
         return "Success! User was successfully deleted!";
     }
 

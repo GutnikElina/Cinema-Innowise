@@ -89,8 +89,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public String delete(String id) {
-        int sessionId = ValidationUtil.parseId(id);
-        sessionRepository.delete(sessionId);
+        sessionRepository.delete(Long.parseLong(id));
         return "Film session successfully deleted.";
     }
 

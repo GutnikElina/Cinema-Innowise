@@ -27,6 +27,7 @@
     <jbcrypt.version>0.4</jbcrypt.version>
     <jackson.version>2.15.2</jackson.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
+    <hikaricp.version>5.0.1</hikaricp.version>
   </properties>
 
   <dependencies>
@@ -44,9 +45,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-c3p0</artifactId>
-      <version>${hibernate.version}</version>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>${hikaricp.version}</version>
     </dependency>
 
     <dependency>

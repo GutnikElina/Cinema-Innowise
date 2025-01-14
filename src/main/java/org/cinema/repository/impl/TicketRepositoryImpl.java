@@ -3,9 +3,8 @@ package org.cinema.repository.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
-import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.Ticket;
-import org.cinema.repository.BaseRepository;
+import org.cinema.repository.AbstractHibernateRepository;
 import org.cinema.repository.TicketRepository;
 import org.hibernate.query.Query;
 import java.time.LocalDateTime;
@@ -15,26 +14,36 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-public class TicketRepositoryImpl extends BaseRepository implements TicketRepository {
+public class TicketRepositoryImpl extends AbstractHibernateRepository<Ticket> implements TicketRepository {
 
     @Getter
     private static final TicketRepositoryImpl instance = new TicketRepositoryImpl();
 
     public TicketRepositoryImpl() {
-        super(HibernateConfig.getSessionFactory());
+        super(HibernateConfig.getSessionFactory(), Ticket.class);
     }
 
     @Override
     public void save(Ticket ticket) {
-        executeTransaction(session ->
-                session.save(ticket));
+        super.save(ticket);
         log.info("Ticket successfully added.");
     }
 
     @Override
-    public Optional<Ticket> getById(int id) {
-        return Optional.ofNullable(executeWithResult(session ->
-                session.get(Ticket.class, id)));
+    public void update(Ticket ticket, LocalDateTime purchaseTime) {
+        ticket.setPurchaseTime(purchaseTime);
+        super.update(ticket);
+        log.info("Ticket with ID {} successfully updated.", ticket.getId());
+    }
+
+    @Override
+    public void delete(long id) {
+        super.delete(id);
+    }
+
+    @Override
+    public Optional<Ticket> getById(long id) {
+        return super.getById(id);
     }
 
     @Override
@@ -47,27 +56,6 @@ public class TicketRepositoryImpl extends BaseRepository implements TicketReposi
                 Ticket.class
             ).list();
             return new HashSet<>(tickets);
-        });
-    }
-
-    @Override
-    public void update(Ticket ticket, LocalDateTime purchaseTime) {
-        executeTransaction(session -> {
-            ticket.setPurchaseTime(purchaseTime);
-            session.merge(ticket);
-            log.info("Ticket with ID {} successfully updated.", ticket.getId());
-        });
-    }
-
-    @Override
-    public void delete(int id) {
-        executeTransaction(session -> {
-            Ticket ticket = session.get(Ticket.class, id);
-            if (ticket == null) {
-                throw new NoDataFoundException("Ticket with ID " + id + " doesn't exist.");
-            }
-            session.delete(ticket);
-            log.info("Ticket with ID {} successfully deleted.", id);
         });
     }
 

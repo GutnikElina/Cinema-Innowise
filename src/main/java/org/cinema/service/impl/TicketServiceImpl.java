@@ -82,7 +82,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public String delete(String ticketIdStr) {
-        ticketRepository.delete(ValidationUtil.parseId(ticketIdStr));
+        ticketRepository.delete(Long.parseLong(ticketIdStr));
         return "Success! Ticket was successfully deleted!";
     }
 

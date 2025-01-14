@@ -6,10 +6,10 @@ import java.util.Set;
 
 public interface UserRepository {
     void save(User user);
-    Optional<User> getById(int userId);
+    Optional<User> getById(long userId);
     Set<User> findAll();
     void update(User user);
-    void delete(int userId);
+    void delete(long userId);
     Optional<User> getByUsername(String username);
 }
 

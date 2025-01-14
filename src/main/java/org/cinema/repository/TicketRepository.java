@@ -8,10 +8,10 @@ import java.util.Set;
 
 public interface TicketRepository {
     void save(Ticket ticket);
-    Optional<Ticket> getById(int ticketId);
+    Optional<Ticket> getById(long ticketId);
     Set<Ticket> findAll();
     void update(Ticket ticket, LocalDateTime purchaseTime);
-    void delete(int ticketId);
+    void delete(long ticketId);
     List<Ticket> getTicketsBySession(int sessionId);
     boolean checkIfTicketExists(Ticket ticket);
     List<Ticket> getTicketsByUserId(int userId);

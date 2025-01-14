@@ -3,37 +3,44 @@ package org.cinema.repository.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.config.HibernateConfig;
-import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.FilmSession;
-import org.cinema.repository.BaseRepository;
+import org.cinema.repository.AbstractHibernateRepository;
 import org.cinema.repository.SessionRepository;
 import org.hibernate.query.Query;
-
 import java.time.LocalDate;
 import java.util.*;
 import java.util.Optional;
 
 @Slf4j
-public class SessionRepositoryImpl extends BaseRepository implements SessionRepository {
+public class SessionRepositoryImpl extends AbstractHibernateRepository<FilmSession> implements SessionRepository {
 
     @Getter
     private static final SessionRepositoryImpl instance = new SessionRepositoryImpl();
 
     public SessionRepositoryImpl() {
-        super(HibernateConfig.getSessionFactory());
+        super(HibernateConfig.getSessionFactory(), FilmSession.class);
     }
 
     @Override
     public void save(FilmSession filmSession) {
-        executeTransaction(session ->
-                session.save(filmSession));
+        super.save(filmSession);
         log.info("Film session successfully added.");
     }
 
     @Override
-    public Optional<FilmSession> getById(int id) {
-        return Optional.ofNullable(executeWithResult(session ->
-                session.get(FilmSession.class, id)));
+    public void update(FilmSession filmSession) {
+        super.update(filmSession);
+        log.info("Film session with ID '{}' successfully updated.", filmSession.getId());
+    }
+
+    @Override
+    public void delete(long id) {
+        super.delete(id);
+    }
+
+    @Override
+    public Optional<FilmSession> getById(long id) {
+        return super.getById(id);
     }
 
     @Override
@@ -47,27 +54,6 @@ public class SessionRepositoryImpl extends BaseRepository implements SessionRepo
 
             log.info("{} film sessions successfully retrieved.", filmSessions.size());
             return new HashSet<>(filmSessions);
-        });
-    }
-
-    @Override
-    public void update(FilmSession filmSession) {
-        executeTransaction(session -> {
-            session.merge(filmSession);
-            log.info("Film session with ID '{}' successfully updated.", filmSession.getId());
-        });
-    }
-
-    @Override
-    public void delete(int id) {
-        executeTransaction(session -> {
-            FilmSession filmSession = session.get(FilmSession.class, id);
-            if (filmSession != null) {
-                session.delete(filmSession);
-                log.info("Film session with ID '{}' successfully deleted.", id);
-            } else {
-                throw new NoDataFoundException("Film session with ID '" + id + "' not found.");
-            }
         });
     }
 
