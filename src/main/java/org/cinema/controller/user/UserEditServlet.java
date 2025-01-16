@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.UserDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.User;
@@ -38,7 +39,7 @@ public class UserEditServlet extends HttpServlet {
             Long userId = getUserId(request.getSession());
             log.debug("Loading profile for user ID: {}", userId);
 
-            User user = userService.getById(String.valueOf(userId))
+            UserDTO user = userService.getById(String.valueOf(userId))
                     .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
             request.setAttribute("user", user);
 

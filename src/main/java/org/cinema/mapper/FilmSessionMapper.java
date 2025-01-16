@@ -7,7 +7,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface FilmSessionMapper {
-
     FilmSessionMapper INSTANCE = Mappers.getMapper(FilmSessionMapper.class);
 
     FilmSessionDTO toDTO(FilmSession filmSession);

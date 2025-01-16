@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.exception.EntityAlreadyExistException;
-import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
 import java.io.IOException;

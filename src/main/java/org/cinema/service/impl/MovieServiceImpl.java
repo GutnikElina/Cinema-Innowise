@@ -9,7 +9,6 @@ import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.service.MovieService;
 import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
-
 import java.util.List;
 import java.util.Optional;
 

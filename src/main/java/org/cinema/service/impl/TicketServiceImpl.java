@@ -10,7 +10,6 @@ import org.cinema.repository.impl.TicketRepositoryImpl;
 import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.TicketService;
 import org.cinema.util.ValidationUtil;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;

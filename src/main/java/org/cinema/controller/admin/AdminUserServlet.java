@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.UserDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.User;
@@ -98,7 +99,7 @@ public class AdminUserServlet extends HttpServlet {
 
     private void loadDataForView(HttpServletRequest request) {
         log.debug("Loading data for view...");
-        Set<User> users = userService.findAll();
+        Set<UserDTO> users = userService.findAll();
         request.setAttribute("users", users);
     }
 
@@ -129,7 +130,7 @@ public class AdminUserServlet extends HttpServlet {
 
     private void handleEditAction(HttpServletRequest request) {
         String userId = getRequiredParameter(request, "id");
-        User user = userService.getById(userId)
+        UserDTO user = userService.getById(userId)
                 .orElseThrow(() -> new NoDataFoundException("Error! User with ID " + userId + " doesn't exist."));
         request.setAttribute("user", user);
     }

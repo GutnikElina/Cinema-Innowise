@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.FilmSessionDTO;
+import org.cinema.dto.UserDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.FilmSession;
@@ -102,7 +103,7 @@ public class AdminTicketServlet extends HttpServlet {
     private void loadDataForView(HttpServletRequest request) {
         log.debug("Loading data for view...");
 
-        Set<User> users = userService.findAll();
+        Set<UserDTO> users = userService.findAll();
         request.setAttribute("users", users);
 
         Set<FilmSessionDTO> filmSessions = sessionService.findAll();

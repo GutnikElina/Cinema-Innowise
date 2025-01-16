@@ -15,7 +15,6 @@ import org.cinema.repository.MovieRepository;
 import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.service.impl.SessionServiceImpl;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;

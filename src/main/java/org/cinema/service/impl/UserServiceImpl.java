@@ -3,8 +3,10 @@ package org.cinema.service.impl;
 import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.UserDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
+import org.cinema.mapper.UserMapper;
 import org.cinema.model.Role;
 import org.cinema.model.User;
 import org.cinema.repository.impl.UserRepositoryImpl;
@@ -13,6 +15,7 @@ import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -21,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private static final UserServiceImpl instance = new UserServiceImpl();
 
     private final UserRepositoryImpl userRepository = UserRepositoryImpl.getInstance();
+    private final UserMapper userMapper = UserMapper.INSTANCE;
 
     @Override
     public String save(String username, String password, String role) {
@@ -78,12 +82,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getById(String userIdStr) {
-        return userRepository.getById( ValidationUtil.parseLong(userIdStr));
+    public Optional<UserDTO> getById(String userIdStr) {
+        return userRepository.getById(ValidationUtil.parseLong(userIdStr))
+                .map(userMapper::toDTO);
     }
 
     @Override
-    public Set<User> findAll() {
+    public Set<UserDTO> findAll() {
         Set<User> users = userRepository.findAll();
 
         if (users.isEmpty()) {
@@ -91,7 +96,9 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("{} users retrieved successfully.", users.size());
-        return users;
+        return users.stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toSet());
     }
 
     @Override

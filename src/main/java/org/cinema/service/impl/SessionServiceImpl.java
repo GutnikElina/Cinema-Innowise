@@ -3,20 +3,17 @@ package org.cinema.service.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.FilmSessionDTO;
+import org.cinema.dto.factory.FilmSessionDTOFactory;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.mapper.FilmSessionMapper;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
-import org.cinema.model.Ticket;
 import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.repository.impl.SessionRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +34,7 @@ public class SessionServiceImpl implements SessionService {
         Movie movie = movieRepository.getById(movieId).orElseThrow(() ->
                 new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!"));
 
-        FilmSessionDTO dto = FilmSessionDTO.fromStrings(movie, dateStr, startTimeStr,
+        FilmSessionDTO dto = FilmSessionDTOFactory.create(movie, dateStr, startTimeStr,
                 endTimeStr, capacityStr, priceStr);
         FilmSession filmSession = filmSessionMapper.toEntity(dto);
 
@@ -74,7 +71,7 @@ public class SessionServiceImpl implements SessionService {
         Movie movie = movieRepository.getById(movieId).orElseThrow(() ->
                 new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!"));
 
-        FilmSessionDTO dto = FilmSessionDTO.fromStringsWithId(id, movie, dateStr,
+        FilmSessionDTO dto = FilmSessionDTOFactory.createWithId(id, movie, dateStr,
                                                             startTimeStr, endTimeStr, capacityStr, priceStr);
         FilmSession filmSession = filmSessionMapper.toEntity(dto);
         sessionRepository.update(filmSession);
