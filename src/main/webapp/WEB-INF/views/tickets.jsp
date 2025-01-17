@@ -97,7 +97,7 @@
                         <option value="" disabled selected>-- Select film session --</option>
                         <c:forEach var="filmSession" items="${filmSessions}">
                             <option value="${filmSession.id}">
-                                    ${filmSession.movie.title} -
+                                    ${filmSession.movieTitle} -
                                 <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                             </option>
                         </c:forEach>
@@ -146,7 +146,7 @@
                         <select class="form-control form-control-sm" placeholder="Select film session" name="sessionId" required>
                             <c:forEach var="filmSession" items="${filmSessions}">
                                 <option value="${filmSession.id}" <c:if test="${filmSession.id == ticketToEdit.filmSession.id}">selected</c:if>>
-                                        ${filmSession.movie.title} -
+                                        ${filmSession.movieTitle} -
                                     <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                                 </option>
                             </c:forEach>
@@ -182,19 +182,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
-      document.getElementById('editForm').style.display = 'none';
+        document.getElementById('editForm').style.display = 'none';
     });
 </script>
 <script>
     document.querySelectorAll('.delete-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const form = this.closest('.delete-form');
-      const confirmDelete = confirm('Are you sure you want to delete ticket?');
-      if (confirmDelete) {
-        form.submit();
-      }
+        button.addEventListener('click', function() {
+            const form = this.closest('.delete-form');
+            const confirmDelete = confirm('Are you sure you want to delete ticket?');
+            if (confirmDelete) {
+                form.submit();
+            }
+        });
     });
-  });
 </script>
 
 </body>

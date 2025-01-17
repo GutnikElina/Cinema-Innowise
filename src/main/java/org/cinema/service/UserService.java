@@ -1,18 +1,19 @@
 package org.cinema.service;
 
 import jakarta.servlet.http.HttpSession;
-import org.cinema.dto.UserDTO;
-import org.cinema.model.User;
+import org.cinema.dto.userDTO.UserResponseDTO;
+import org.cinema.dto.userDTO.UserUpdateDTO;
+import org.cinema.dto.userDTO.UserCreateDTO;
 import java.util.Optional;
 import java.util.Set;
 
 public interface UserService {
-    String save(String username, String password, String role);
-    String update(String userId, String username, String password, String role);
+    String save(UserCreateDTO userCreateDTO);
+    String update(Long userId, UserCreateDTO userUpdateDTO);
     String delete(String userId);
-    Optional<UserDTO> getById(String userId);
-    Set<UserDTO> findAll();
-    HttpSession login(String username, String password, HttpSession session);
-    void register(String username, String password);
-    void updateProfile(long userId, String username, String password);
+    Optional<UserResponseDTO> getById(String userId);
+    Set<UserResponseDTO> findAll();
+    HttpSession login(UserUpdateDTO userUpdateDTO, HttpSession session);
+    void register(UserUpdateDTO userCreateDTO);
+    void updateProfile(long userId, UserUpdateDTO userCreateDTO);
 }

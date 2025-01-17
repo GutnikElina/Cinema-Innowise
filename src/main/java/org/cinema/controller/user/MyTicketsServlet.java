@@ -11,7 +11,6 @@ import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.Ticket;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;

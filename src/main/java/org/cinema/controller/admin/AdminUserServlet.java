@@ -6,12 +6,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dto.UserDTO;
+import org.cinema.dto.userDTO.UserCreateDTO;
+import org.cinema.dto.userDTO.UserResponseDTO;
+import org.cinema.dto.userDTO.UserUpdateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
+import org.cinema.util.ValidationUtil;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -99,7 +101,7 @@ public class AdminUserServlet extends HttpServlet {
 
     private void loadDataForView(HttpServletRequest request) {
         log.debug("Loading data for view...");
-        Set<UserDTO> users = userService.findAll();
+        Set<UserResponseDTO> users = userService.findAll();
         request.setAttribute("users", users);
     }
 
@@ -108,20 +110,22 @@ public class AdminUserServlet extends HttpServlet {
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        return userService.save(
-                getRequiredParameter(request, "username"),
-                getRequiredParameter(request, "password"),
-                getRequiredParameter(request, "role")
-        );
+        UserCreateDTO userCreateDTO = UserCreateDTO.builder()
+                .username(getRequiredParameter(request, "username"))
+                .password(getRequiredParameter(request, "password"))
+                .role(getRequiredParameter(request, "role"))
+                .build();
+        return userService.save(userCreateDTO);
     }
 
     private String handleUpdateAction(HttpServletRequest request) {
-        return userService.update(
-                getRequiredParameter(request, "id"),
-                getRequiredParameter(request, "username"),
-                getRequiredParameter(request, "password"),
-                getRequiredParameter(request, "role")
-        );
+        Long userId = ValidationUtil.parseLong(getRequiredParameter(request, "id"));
+        UserCreateDTO userUpdateDTO = UserCreateDTO.builder()
+                .username(getRequiredParameter(request, "username"))
+                .password(getRequiredParameter(request, "password"))
+                .role(getRequiredParameter(request, "role"))
+                .build();
+        return userService.update(userId, userUpdateDTO);
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
@@ -130,7 +134,7 @@ public class AdminUserServlet extends HttpServlet {
 
     private void handleEditAction(HttpServletRequest request) {
         String userId = getRequiredParameter(request, "id");
-        UserDTO user = userService.getById(userId)
+        UserResponseDTO user = userService.getById(userId)
                 .orElseThrow(() -> new NoDataFoundException("Error! User with ID " + userId + " doesn't exist."));
         request.setAttribute("user", user);
     }

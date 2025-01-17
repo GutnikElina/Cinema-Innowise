@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.userDTO.UserCreateDTO;
+import org.cinema.dto.userDTO.UserUpdateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
@@ -15,7 +17,7 @@ import java.io.IOException;
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/registration"})
 public class RegisterServlet extends HttpServlet {
 
-    private static final String VIEW_PATH = "/WEB-INF/views/register.jsp";
+    private static final String VIEW_PATH = "/WEB-INF/views/registration.jsp";
     private static final String LOGIN_PATH = "/login";
     private static final String MESSAGE_PARAM = "message";
 
@@ -44,11 +46,13 @@ public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("Handling POST request for registration...");
-        String username = request.getParameter("newLogin");
-        String password = request.getParameter("newPassword");
 
         try {
-            userService.register(username, password);
+            UserUpdateDTO userCreateDTO = UserUpdateDTO.builder()
+                    .username(request.getParameter("newLogin"))
+                    .password(request.getParameter("newPassword"))
+                    .build();
+            userService.register(userCreateDTO);
             handleSuccessfulRegistration(request, response);
             return;
         } catch (IllegalArgumentException e) {
@@ -62,7 +66,7 @@ public class RegisterServlet extends HttpServlet {
                     "Unexpected error during registration attempt: {}", e, e.getMessage());
         }
 
-        response.sendRedirect(request.getContextPath() + "/register");
+        response.sendRedirect(request.getContextPath() + "/registration");
     }
 
     private void handleSuccessfulRegistration(HttpServletRequest request, HttpServletResponse response)

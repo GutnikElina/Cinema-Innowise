@@ -6,22 +6,18 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dto.FilmSessionDTO;
-import org.cinema.dto.UserDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
+import org.cinema.dto.userDTO.UserResponseDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.FilmSession;
 import org.cinema.model.Ticket;
-import org.cinema.model.User;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.service.impl.UserServiceImpl;
-
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
 
 @Slf4j
@@ -103,10 +99,10 @@ public class AdminTicketServlet extends HttpServlet {
     private void loadDataForView(HttpServletRequest request) {
         log.debug("Loading data for view...");
 
-        Set<UserDTO> users = userService.findAll();
+        Set<UserResponseDTO> users = userService.findAll();
         request.setAttribute("users", users);
 
-        Set<FilmSessionDTO> filmSessions = sessionService.findAll();
+        Set<FilmSessionResponseDTO> filmSessions = sessionService.findAll();
         request.setAttribute("filmSessions", filmSessions);
 
         Set<Ticket> tickets = ticketService.findAll();

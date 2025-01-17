@@ -1,17 +1,16 @@
 package org.cinema.service;
 
-import org.cinema.dto.FilmSessionDTO;
-import org.cinema.model.FilmSession;
-import java.util.Optional;
+import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
+
 import java.util.Set;
 
 public interface SessionService {
-    Set<FilmSessionDTO> findAll();
-    FilmSessionDTO getById(String id);
-    String save(long movieId, String dateStr, String startTimeStr, String endTimeStr,
-                String capacityStr, String priceStr);
-    String update(String id, long movieId, String dateStr, String startTimeStr, String endTimeStr,
-                  String capacityStr, String priceStr);
+    String save(FilmSessionCreateDTO createDTO, Long movieId);
+    String update(FilmSessionUpdateDTO updateDTO, Long movieId);
     String delete(String id);
-    Set<FilmSessionDTO> findByDate(String date);
+    FilmSessionResponseDTO getById(String id);
+    Set<FilmSessionResponseDTO> findAll();
+    Set<FilmSessionResponseDTO> findByDate(String date);
 }

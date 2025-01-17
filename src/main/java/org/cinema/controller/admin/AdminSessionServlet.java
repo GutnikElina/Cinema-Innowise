@@ -6,7 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dto.FilmSessionDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
@@ -15,7 +17,11 @@ import org.cinema.repository.MovieRepository;
 import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.service.SessionService;
 import org.cinema.service.impl.SessionServiceImpl;
+import org.cinema.util.ValidationUtil;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +56,7 @@ public class AdminSessionServlet extends HttpServlet {
             }
             
             log.debug("Fetching all sessions...");
-            Set<FilmSessionDTO> filmSessions = sessionService.findAll();
+            Set<FilmSessionResponseDTO> filmSessions = sessionService.findAll();
             request.setAttribute("filmSessions", filmSessions);
 
             List<Movie> movies = movieService.findAll();
@@ -112,31 +118,49 @@ public class AdminSessionServlet extends HttpServlet {
 
     private void handleEditAction(HttpServletRequest request) {
         String sessionId = request.getParameter("id");
-        FilmSessionDTO session = sessionService.getById(sessionId);
-        request.setAttribute("sessionToEdit", session);
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Session ID is required for editing");
+        }
+        FilmSessionResponseDTO sessionToEdit = sessionService.getById(sessionId);
+        if (sessionToEdit == null) {
+            throw new NoDataFoundException("Session not found for ID: " + sessionId);
+        }
+        request.setAttribute("sessionToEdit", sessionToEdit);
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        return sessionService.save(
-                Long.parseLong(getRequiredParameter(request, "movie_id")),
-                getRequiredParameter(request, "date"),
-                getRequiredParameter(request, "startTime"),
-                getRequiredParameter(request, "endTime"),
-                getRequiredParameter(request, "capacity"),
-                getRequiredParameter(request, "price")
-        );
+        Long movieId = ValidationUtil.parseLong(getRequiredParameter(request, "movieId"));
+
+        ValidationUtil.validateDate(getRequiredParameter(request, "date"));
+        ValidationUtil.validatePrice(getRequiredParameter(request, "price"));
+        ValidationUtil.validateCapacity(getRequiredParameter(request, "capacity"));
+        ValidationUtil.validateTime(getRequiredParameter(request, "startTime"),
+                getRequiredParameter(request, "endTime"));
+
+        FilmSessionCreateDTO createDTO = FilmSessionCreateDTO.builder()
+                .price(new BigDecimal(getRequiredParameter(request, "price")))
+                .date(LocalDate.parse(getRequiredParameter(request, "date")))
+                .startTime(LocalTime.parse(getRequiredParameter(request, "startTime")))
+                .endTime(LocalTime.parse(getRequiredParameter(request, "endTime")))
+                .capacity(Integer.parseInt(getRequiredParameter(request, "capacity")))
+                .build();
+
+        return sessionService.save(createDTO, movieId);
     }
 
     private String handleEditSubmitAction(HttpServletRequest request) {
-        return sessionService.update(
-                getRequiredParameter(request, "id"),
-                Long.parseLong(getRequiredParameter(request, "movie_id")),
-                getRequiredParameter(request, "date"),
-                getRequiredParameter(request, "startTime"),
-                getRequiredParameter(request, "endTime"),
-                getRequiredParameter(request, "capacity"),
-                getRequiredParameter(request, "price")
-        );
+        Long movieId = ValidationUtil.parseLong(getRequiredParameter(request, "movie_id"));
+
+        FilmSessionUpdateDTO updateDTO = FilmSessionUpdateDTO.builder()
+                .id(ValidationUtil.parseLong(getRequiredParameter(request, "id")))
+                .price(new BigDecimal(getRequiredParameter(request, "price")))
+                .date(LocalDate.parse(getRequiredParameter(request, "date")))
+                .startTime(LocalTime.parse(getRequiredParameter(request, "startTime")))
+                .endTime(LocalTime.parse(getRequiredParameter(request, "endTime")))
+                .capacity(Integer.parseInt(getRequiredParameter(request, "capacity")))
+                .build();
+
+        return sessionService.update(updateDTO, movieId);
     }
 
     private String handleDeleteAction(HttpServletRequest request) {

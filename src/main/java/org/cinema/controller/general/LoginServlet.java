@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.userDTO.UserUpdateDTO;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
 import java.io.IOException;
@@ -41,10 +42,11 @@ public class LoginServlet extends HttpServlet {
         log.debug("Handling POST request for authorization...");
 
         try {
-            String username = getRequiredParameter(request, "login");
-            String password = getRequiredParameter(request, "password");
-
-            processLogin(request, response, username, password);
+            UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
+                    .username(getRequiredParameter(request, "login"))
+                    .password(getRequiredParameter(request, "password"))
+                    .build();
+            processLogin(request, response, userUpdateDTO);
 
         } catch (IllegalArgumentException e) {
             log.warn("Login validation error: {}", e.getMessage());
@@ -58,21 +60,21 @@ public class LoginServlet extends HttpServlet {
     }
 
     private void processLogin(HttpServletRequest request, HttpServletResponse response,
-            String username, String password) throws IOException, ServletException {
+                              UserUpdateDTO userUpdateDTO) throws IOException, ServletException {
         try {
-            HttpSession session = loginService.login(username, password, request.getSession());
+            HttpSession session = loginService.login(userUpdateDTO, request.getSession());
             String role = (String) session.getAttribute("role");
 
             if ("ADMIN".equals(role)) {
-                log.info("Admin '{}' logged in successfully", username);
+                log.info("Admin '{}' logged in successfully", userUpdateDTO.getUsername());
                 redirectToPath(request, response, ADMIN_REDIRECT_PATH);
             } else {
-                log.info("User '{}' logged in successfully", username);
+                log.info("User '{}' logged in successfully", userUpdateDTO.getUsername());
                 redirectToPath(request, response, USER_REDIRECT_PATH);
             }
 
         } catch (IllegalArgumentException e) {
-            log.warn("Login failed for user '{}': {}", username, e.getMessage());
+            log.warn("Login failed for user '{}': {}", userUpdateDTO.getUsername(), e.getMessage());
             handleError(request, "Error! " + e.getMessage());
             forwardToLoginPage(request, response);
         }

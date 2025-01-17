@@ -1,18 +1,13 @@
-package org.cinema.dto;
+package org.cinema.dto.userDTO;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.cinema.model.Role;
-
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserDTO {
+public class UserResponseDTO {
     private Long id;
     private String username;
     private Role role;

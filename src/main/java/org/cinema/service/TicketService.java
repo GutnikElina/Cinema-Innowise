@@ -6,11 +6,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface TicketService {
-    Optional<Ticket> getById(String ticketId);
-    String delete(String id);
-    Set<Ticket> findAll();
     String save(String userId, String sessionId, String seatNumber, String statusStr, String requestTypeStr);
     String update(String id, String userId, String sessionId, String seatNumber, String statusStr, String requestTypeStr);
+    String delete(String id);
+    Optional<Ticket> getById(String ticketId);
+    Set<Ticket> findAll();
     FilmSession getSessionDetailsWithTickets(String sessionId);
     String processTicketAction(String action, String ticketIdParam);
     String purchaseTicket(String userId, String sessionId, String seatNumber);

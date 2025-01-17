@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dto.FilmSessionDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.model.FilmSession;
@@ -42,7 +42,7 @@ public class TicketPurchaseServlet extends HttpServlet {
 
         try {
             String selectedDate = request.getParameter("date");
-            Set<FilmSessionDTO> filmSessions;
+            Set<FilmSessionResponseDTO> filmSessions;
 
             if (selectedDate == null || selectedDate.isEmpty()) {
                 log.debug("No date selected, fetching all sessions");

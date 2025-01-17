@@ -88,6 +88,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public Optional<Ticket> getById(String ticketIdStr) {
         return ticketRepository.getById(ValidationUtil.parseLong(ticketIdStr));
+                //.map(ticketMapper::toDTO);
     }
 
     @Override
@@ -100,6 +101,9 @@ public class TicketServiceImpl implements TicketService {
 
         log.info("{} tickets retrieved successfully.", tickets.size());
         return tickets;
+                //.stream()
+                //.map(TicketMapper.INSTANCE::toDTO)
+                //.collect(Collectors.toSet());
     }
 
     @Override

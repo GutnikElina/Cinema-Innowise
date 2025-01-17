@@ -1,18 +1,17 @@
-package org.cinema.dto;
+package org.cinema.dto.filmSessionDTO;
 
-import lombok.*;
-import org.cinema.model.Movie;
+import lombok.Builder;
+import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class FilmSessionDTO {
+public class FilmSessionResponseDTO {
     private Long id;
-    private Movie movie;
+    private Long movieId;
+    private String movieTitle;
     private BigDecimal price;
     private LocalDate date;
     private LocalTime startTime;
