@@ -49,8 +49,8 @@
         <c:forEach var="ticket" items="${tickets}">
           <tr>
             <td>${ticket.id}</td>
-            <td>${ticket.user.username}</td>
-            <td>${ticket.filmSession.movie.title}</td>
+            <td>${ticket.username}</td>
+            <td>${ticket.movieTitle}</td>
             <td>${ticket.seatNumber}</td>
             <td><c:out value="${ticket.purchaseTime.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" /></td>
             <td>${ticket.status}</td>

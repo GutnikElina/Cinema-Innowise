@@ -80,9 +80,10 @@
             <form method="post" action="${pageContext.request.contextPath}/admin/sessions" id="addSessionForm">
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
-                    <select name="movieId" id="movieId" class="form-select form-select-sm">
+                    <select class="form-control form-control-sm" name="movieId" required>
+                        <option value="" disabled selected>-- Select movie --</option>
                         <c:forEach var="movie" items="${movies}">
-                            <option value="${movie.id}" <c:if test="${movie.id == sessionToEdit.movieId}">selected</c:if>>${movie.title}</option>
+                            <option value="${movie.id}">${movie.title}</option>
                         </c:forEach>
                     </select>
                 </div>

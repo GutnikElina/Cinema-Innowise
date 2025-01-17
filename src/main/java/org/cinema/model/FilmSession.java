@@ -39,8 +39,5 @@ public class FilmSession {
 
     @Column(nullable = false)
     private int capacity;
-
-    @Transient 
-    private List<Integer> takenSeats = new ArrayList<>();
 }
 

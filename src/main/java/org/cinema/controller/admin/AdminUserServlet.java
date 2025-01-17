@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.userDTO.UserCreateDTO;
 import org.cinema.dto.userDTO.UserResponseDTO;
-import org.cinema.dto.userDTO.UserUpdateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.UserService;

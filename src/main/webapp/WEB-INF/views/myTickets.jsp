@@ -76,7 +76,7 @@
                 <c:forEach var="ticket" items="${tickets}">
                     <tr>
                         <td>${ticket.id}</td>
-                        <td>${ticket.filmSession.movie.title}</td>
+                        <td>${ticket.movieTitle}</td>
                         <td>${ticket.seatNumber}</td>
                         <td>${ticket.status}</td>
                         <td>${ticket.requestType}</td>

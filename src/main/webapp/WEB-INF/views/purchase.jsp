@@ -53,7 +53,7 @@
     </c:if>
 
     <c:if test="${not empty selectedSession}">
-      <h3 class="text-center">Select your seat for '${selectedSession.movie.title}'</h3>
+      <h3 class="text-center">Select your seat for '${selectedSession.movieTitle}'</h3>
       <h2 class="text-center">+--------------------------------+</h2>
       <h2 class="text-center">|----------- SCREEN -----------|</h2>
       <h2 class="text-center">+--------------------------------+</h2>

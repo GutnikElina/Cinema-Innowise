@@ -7,16 +7,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
+import org.cinema.dto.ticketDTO.TicketCreateDTO;
+import org.cinema.dto.ticketDTO.TicketResponseDTO;
+import org.cinema.dto.ticketDTO.TicketUpdateDTO;
 import org.cinema.dto.userDTO.UserResponseDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.Ticket;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.service.impl.UserServiceImpl;
+import org.cinema.util.ValidationUtil;
 import java.io.IOException;
 import java.util.Set;
 
@@ -105,18 +108,19 @@ public class AdminTicketServlet extends HttpServlet {
         Set<FilmSessionResponseDTO> filmSessions = sessionService.findAll();
         request.setAttribute("filmSessions", filmSessions);
 
-        Set<Ticket> tickets = ticketService.findAll();
+        Set<TicketResponseDTO> tickets = ticketService.findAll();
         request.setAttribute("tickets", tickets);
     }
 
     private String handleAddAction(HttpServletRequest request) {
-        return ticketService.save(
-                getRequiredParameter(request, "userId"),
-                getRequiredParameter(request, "sessionId"),
-                getRequiredParameter(request, "seatNumber"),
-                getRequiredParameter(request, "status"),
-                getRequiredParameter(request, "requestType")
-        );
+        TicketCreateDTO createDTO = TicketCreateDTO.builder()
+                .userId(ValidationUtil.parseLong(getRequiredParameter(request, "userId")))
+                .sessionId(ValidationUtil.parseLong(getRequiredParameter(request, "sessionId")))
+                .seatNumber(getRequiredParameter(request, "seatNumber"))
+                .status(getRequiredParameter(request, "status"))
+                .requestType(getRequiredParameter(request, "requestType"))
+                .build();
+        return ticketService.save(createDTO);
     }
 
     private String handleDeleteAction(HttpServletRequest request) {
@@ -124,21 +128,22 @@ public class AdminTicketServlet extends HttpServlet {
     }
 
     private String handleUpdateAction(HttpServletRequest request) {
-        return ticketService.update(
-                getRequiredParameter(request, "id"),
-                getRequiredParameter(request, "userId"),
-                getRequiredParameter(request, "sessionId"),
-                getRequiredParameter(request, "seatNumber"),
-                getRequiredParameter(request, "status"),
-                getRequiredParameter(request, "requestType")
-        );
+        TicketUpdateDTO updateDTO = TicketUpdateDTO.builder()
+                .id(ValidationUtil.parseLong(getRequiredParameter(request, "id")))
+                .userId(ValidationUtil.parseLong(getRequiredParameter(request, "userId")))
+                .sessionId(ValidationUtil.parseLong(getRequiredParameter(request, "sessionId")))
+                .seatNumber(getRequiredParameter(request, "seatNumber"))
+                .status(getRequiredParameter(request, "status"))
+                .requestType(getRequiredParameter(request, "requestType"))
+                .build();
+        return ticketService.update(updateDTO);
     }
 
     private void handleEditAction(HttpServletRequest request) {
         String ticketId = getRequiredParameter(request, "id");
-        Ticket ticketToEdit = ticketService.getById(ticketId).orElseThrow(() ->
+        TicketResponseDTO ticketToEdit = ticketService.getById(ticketId).orElseThrow(() ->
                 new NoDataFoundException("Error!Ticket with ID " + ticketId + " doesn't exist!"));
-
+        log.info(ticketToEdit.toString());
         request.setAttribute("ticketToEdit", ticketToEdit);
     }
 

@@ -51,9 +51,9 @@
                 <c:forEach var="ticket" items="${tickets}">
                     <tr>
                         <td>${ticket.id}</td>
-                        <td>${ticket.user.username}</td>
+                        <td>${ticket.username}</td>
                         <td>
-                                ${ticket.filmSession.movie.title} -
+                                ${ticket.movieTitle} -
                             <c:out value="${ticket.filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${ticket.filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                         </td>
                         <td>${ticket.seatNumber}</td>
@@ -121,7 +121,6 @@
                         <option value="PURCHASE">Purchase</option>
                         <option value="RETURN">Return</option>
                     </select>
-
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-secondary btn-sm">Add</button>
@@ -138,7 +137,7 @@
                     <div class="mb-3">
                         <select class="form-control form-control-sm" placeholder="Select user" name="userId" required>
                             <c:forEach var="user" items="${users}">
-                                <option value="${user.id}" <c:if test="${user.id == ticketToEdit.user.id}">selected</c:if>>${user.username}</option>
+                                <option value="${user.id}" <c:if test="${user.id == ticketToEdit.userId}">selected</c:if>>${user.username}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -181,6 +180,29 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    const spinner = submitButton.querySelector('.spinner-border');
+                    const buttonText = submitButton.querySelector('.button-text');
+
+                    if (spinner && buttonText) {
+                        submitButton.disabled = true;
+                        spinner.classList.remove('d-none');
+                        buttonText.classList.add('d-none');
+                    } else {
+                        submitButton.disabled = true;
+                    }
+                }
+            });
+        });
+    });
+</script>
+<script>
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
         document.getElementById('editForm').style.display = 'none';
     });
@@ -189,7 +211,7 @@
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             const form = this.closest('.delete-form');
-            const confirmDelete = confirm('Are you sure you want to delete ticket?');
+            const confirmDelete = confirm('Are you sure you want to delete this ticket?');
             if (confirmDelete) {
                 form.submit();
             }
@@ -198,4 +220,3 @@
 </script>
 
 </body>
-</html>

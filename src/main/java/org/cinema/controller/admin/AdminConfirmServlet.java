@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.ticketDTO.TicketResponseDTO;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.Ticket;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
 import org.cinema.util.ValidationUtil;
@@ -38,7 +38,7 @@ public class AdminConfirmServlet extends HttpServlet {
 
         try {
             log.debug("Start to fetch tickets...");
-            Set<Ticket> tickets = ticketService.findAll();
+            Set<TicketResponseDTO> tickets = ticketService.findAll();
             request.setAttribute("tickets", tickets);
             
             String message = request.getParameter(MESSAGE_PARAM);
@@ -71,7 +71,7 @@ public class AdminConfirmServlet extends HttpServlet {
             ValidationUtil.validateParameters(action, ticketIdParam);
 
             log.debug("Processing action {} for ticket ID {}", action, ticketIdParam);
-            String message = ticketService.processTicketAction(action, ticketIdParam);
+            String message = ticketService.processTicketAction(action, ValidationUtil.parseLong(ticketIdParam));
             
             response.sendRedirect(request.getContextPath() + REDIRECT_PATH + "?" + MESSAGE_PARAM + "=" + 
                     response.encodeRedirectURL(message));
