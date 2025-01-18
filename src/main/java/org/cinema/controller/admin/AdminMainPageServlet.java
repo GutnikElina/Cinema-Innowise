@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
-import org.cinema.model.Movie;
 import org.cinema.service.MovieService;
 import org.cinema.service.impl.MovieServiceImpl;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class AdminMainPageServlet extends HttpServlet {
     private void processMovieSearch(HttpServletRequest request, String movieTitle) {
         try {
             log.debug("Searching for movies with title: {}", movieTitle);
-            List<Movie> movies = movieService.searchMovies(movieTitle);
+            List<MovieResponseDTO> movies = movieService.searchMovies(movieTitle);
             request.setAttribute("movies", movies);
             
         } catch (IllegalArgumentException e) {

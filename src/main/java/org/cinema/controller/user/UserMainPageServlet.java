@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
-import org.cinema.model.Movie;
 import org.cinema.service.MovieService;
 import org.cinema.service.impl.MovieServiceImpl;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class UserMainPageServlet extends HttpServlet {
             
             if (movieTitle != null && !movieTitle.trim().isEmpty()) {
                 log.debug("Start to fetch movies with title: {}", movieTitle);
-                List<Movie> movies = movieService.searchMovies(movieTitle.trim());
+                List<MovieResponseDTO> movies = movieService.searchMovies(movieTitle.trim());
                 request.setAttribute(MOVIES, movies);
             } else {
                 log.debug("No movie title provided or movie title is empty.");

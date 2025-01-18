@@ -10,7 +10,6 @@ import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.FilmSession;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.SessionServiceImpl;

@@ -9,13 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
+import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
-import org.cinema.model.Movie;
-import org.cinema.repository.MovieRepository;
-import org.cinema.repository.impl.MovieRepositoryImpl;
+import org.cinema.service.MovieService;
 import org.cinema.service.SessionService;
+import org.cinema.service.impl.MovieServiceImpl;
 import org.cinema.service.impl.SessionServiceImpl;
 import org.cinema.util.ValidationUtil;
 import java.io.IOException;
@@ -35,12 +35,12 @@ public class AdminSessionServlet extends HttpServlet {
     private static final String MESSAGE_PARAM = "message";
 
     private SessionService sessionService;
-    private MovieRepository movieService;
+    private MovieService movieService;
 
     @Override
     public void init() {
         sessionService = SessionServiceImpl.getInstance();
-        movieService = MovieRepositoryImpl.getInstance();
+        movieService = MovieServiceImpl.getInstance();
         log.info("AdminSessionServlet initialized.");
     }
 
@@ -59,7 +59,7 @@ public class AdminSessionServlet extends HttpServlet {
             Set<FilmSessionResponseDTO> filmSessions = sessionService.findAll();
             request.setAttribute("filmSessions", filmSessions);
 
-            List<Movie> movies = movieService.findAll();
+            List<MovieResponseDTO> movies = movieService.findAll();
             request.setAttribute("movies", movies);
 
             String message = request.getParameter(MESSAGE_PARAM);
