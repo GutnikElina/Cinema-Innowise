@@ -2,6 +2,7 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.config.HibernateConfig;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
@@ -28,7 +29,7 @@ public class SessionServiceImpl implements SessionService {
     private static final SessionServiceImpl instance = new SessionServiceImpl();
 
     private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
-    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance();
+    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance(HibernateConfig.getSessionFactory());
 
     @Override
     public String save(FilmSessionCreateDTO createDTO, Long movieId) {

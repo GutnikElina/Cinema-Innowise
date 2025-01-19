@@ -5,11 +5,17 @@ import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * Utility class for password hashing and validation using bcrypt.
- * This class provides methods to securely hash passwords with a salt and verify passwords against stored hashes.
+ * Provides methods to hash passwords and verify them against stored hashes.
  */
 @Slf4j
 public class PasswordUtil {
 
+    /**
+     * Hashes the given password using bcrypt.
+     *
+     * @param password the password to hash
+     * @return the hashed password
+     */
     public static String hashPassword(String password) {
         try {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -21,6 +27,13 @@ public class PasswordUtil {
         }
     }
 
+    /**
+     * Verifies if the given password matches the stored hash.
+     *
+     * @param password the password to check
+     * @param storedHash the stored password hash
+     * @return true if the password matches the hash, false otherwise
+     */
     public static boolean checkPassword(String password, String storedHash) {
         try {
             return BCrypt.checkpw(password, storedHash);

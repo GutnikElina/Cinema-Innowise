@@ -3,6 +3,9 @@ package org.cinema.dto.ticketDTO;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO for creating a new ticket.
+ */
 @Data
 @Builder
 public class TicketCreateDTO {

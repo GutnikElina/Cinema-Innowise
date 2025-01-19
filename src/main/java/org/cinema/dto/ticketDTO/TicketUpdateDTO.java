@@ -3,6 +3,9 @@ package org.cinema.dto.ticketDTO;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO for updating ticket details.
+ */
 @Data
 @Builder
 public class TicketUpdateDTO {

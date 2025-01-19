@@ -14,13 +14,12 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <mysql.version>8.3.0</mysql.version>
+    <mysql.version>9.1.0</mysql.version>
     <slf4j.version>2.0.9</slf4j.version>
     <lombok.version>1.18.34</lombok.version>
-    <logback.version>1.5.12</logback.version>
+    <logback.version>1.5.16</logback.version>
     <junit.version>5.11.3</junit.version>
-    <javax.version>2.2</javax.version>
+    <h2.version>2.3.232</h2.version>
     <hibernate.version>5.6.15.Final</hibernate.version>
     <jakarta.version>6.1.0</jakarta.version>
     <jakarta.servlet.jsp.jstl.version>3.0.1</jakarta.servlet.jsp.jstl.version>
@@ -29,10 +28,10 @@
     <jackson.version>2.15.2</jackson.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <hikaricp.version>6.2.1</hikaricp.version>
+    <jakarta.el.version>4.0.2</jakarta.el.version>
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>org.mindrot</groupId>
       <artifactId>jbcrypt</artifactId>
@@ -79,12 +78,6 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
-      <version>${javax.version}</version>
     </dependency>
 
     <dependency>
@@ -137,9 +130,16 @@
     </dependency>
 
     <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>jakarta.el</artifactId>
-      <version>4.0.2</version>
+      <version>${jakarta.el.version}</version>
     </dependency>
   </dependencies>
 

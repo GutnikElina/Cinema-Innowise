@@ -2,6 +2,7 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.config.HibernateConfig;
 import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.mapper.filmSessionMapper.FilmSessionResponseMapper;
@@ -24,7 +25,7 @@ public class MovieServiceImpl implements MovieService {
     @Getter
     private static final MovieServiceImpl instance = new MovieServiceImpl();
 
-    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance();
+    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance(HibernateConfig.getSessionFactory());
 
     @Override
     public List<MovieResponseDTO> findAll() {

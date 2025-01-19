@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * DTO for updating an existing film session with new details.
+ */
 @Data
 @Builder
 public class FilmSessionUpdateDTO {

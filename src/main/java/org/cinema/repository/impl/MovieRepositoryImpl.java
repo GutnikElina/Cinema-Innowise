@@ -1,11 +1,10 @@
 package org.cinema.repository.impl;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.config.HibernateConfig;
 import org.cinema.model.Movie;
 import org.cinema.repository.AbstractHibernateRepository;
 import org.cinema.repository.MovieRepository;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +12,23 @@ import java.util.Optional;
 @Slf4j
 public class MovieRepositoryImpl extends AbstractHibernateRepository<Movie> implements MovieRepository {
 
-    @Getter
-    private static final MovieRepositoryImpl instance = new MovieRepositoryImpl();
+    private MovieRepositoryImpl(SessionFactory sessionFactory) {
+        super(sessionFactory, Movie.class);
+    }
 
-    public MovieRepositoryImpl() {
-        super(HibernateConfig.getSessionFactory(), Movie.class);
+    public static MovieRepositoryImpl getInstance(SessionFactory sessionFactory) {
+        Holder.initialize(sessionFactory);
+        return Holder.INSTANCE;
+    }
+
+    private static class Holder {
+        private static MovieRepositoryImpl INSTANCE;
+
+        static void initialize(SessionFactory sessionFactory) {
+            if (INSTANCE == null) {
+                INSTANCE = new MovieRepositoryImpl(sessionFactory);
+            }
+        }
     }
 
     @Override
