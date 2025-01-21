@@ -8,24 +8,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
-/**
- * Filter for protecting the admin section of the application.
- * Ensures that only users with an "ADMIN" role can access pages under the "/admin/*" URL pattern.
- * If the user is not an admin or not logged in, they are redirected to the login page.
- */
 @Slf4j
 @WebFilter("/admin/*")
 public class AdminAccessFilter implements Filter {
 
-    /**
-     * Checks the session for admin privileges and either proceeds with the request or handles unauthorized access.
-     *
-     * @param request the servlet request.
-     * @param response the servlet response.
-     * @param chain the filter chain to pass the request along if authorized.
-     * @throws IOException if an input or output error occurs during the filter's operation.
-     * @throws ServletException if the request handling fails during the filter's operation.
-     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -40,28 +26,20 @@ public class AdminAccessFilter implements Filter {
         }
     }
 
-    /**
-     * Verifies if the user has the "ADMIN" role by checking the session attribute.
-     *
-     * @param session the HTTP session associated with the request.
-     * @return true if the user has the "ADMIN" role, false otherwise.
-     */
     private boolean isAdmin(HttpSession session) {
-        return session != null && "ADMIN".equals(session.getAttribute("role"));
+        if (session == null) {
+            return false;
+        }
+        Object role = session.getAttribute("role");
+        return "ADMIN".equals(role);
     }
 
-    /**
-     * Handles unauthorized access by redirecting to the login page with an error message.
-     *
-     * @param request the servlet request.
-     * @param response the servlet response.
-     * @throws ServletException if an error occurs during the request dispatch.
-     * @throws IOException if an error occurs while forwarding the request.
-     */
     private void handleUnauthorizedAdmin(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        log.warn("Admin is not logged in!");
+            throws IOException {
+        String clientIP = request.getRemoteAddr();
+        String requestedPath = request.getRequestURI();
+        log.warn("Unauthorized access attempt detected. IP: {}, Path: {}", clientIP, requestedPath);
         request.setAttribute("message",  "Error! You must log in.");
-        request.getRequestDispatcher("/login").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/login");
     }
 }

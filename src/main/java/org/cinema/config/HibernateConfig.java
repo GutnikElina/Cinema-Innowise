@@ -41,7 +41,9 @@ public class HibernateConfig implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         try {
             log.debug("Initializing Hibernate SessionFactory...");
-            sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+            sessionFactory = new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .buildSessionFactory();
             sce.getServletContext().setAttribute("SessionFactory", sessionFactory);
             log.info("Hibernate SessionFactory initialized successfully.");
         } catch (HibernateException e) {

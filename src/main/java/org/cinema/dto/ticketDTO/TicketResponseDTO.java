@@ -6,9 +6,6 @@ import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO for representing ticket details in the response.
- */
 @Data
 @Builder
 public class TicketResponseDTO {

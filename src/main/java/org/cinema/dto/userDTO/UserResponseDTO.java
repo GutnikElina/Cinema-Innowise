@@ -5,9 +5,6 @@ import lombok.Data;
 import org.cinema.model.Role;
 import java.time.LocalDateTime;
 
-/**
- * DTO for representing user details in the response.
- */
 @Data
 @Builder
 public class UserResponseDTO {

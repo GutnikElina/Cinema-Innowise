@@ -58,7 +58,6 @@ public class MovieRepositoryImpl extends AbstractHibernateRepository<Movie> impl
         return executeWithResult(session -> {
             log.debug("Retrieving all movies...");
             List<Movie> movies = session.createQuery("FROM Movie", Movie.class).list();
-
             log.info("{} movies successfully retrieved.", movies.size());
             return movies;
         });
@@ -67,8 +66,7 @@ public class MovieRepositoryImpl extends AbstractHibernateRepository<Movie> impl
     @Override
     public List<Movie> findByTitle(String title) {
         return executeWithResult(session -> {
-            Query<Movie> query = session.createQuery(
-                    "FROM Movie WHERE LOWER(title) LIKE LOWER(:title)", Movie.class);
+            Query<Movie> query = session.createQuery("FROM Movie WHERE LOWER(title) LIKE LOWER(:title)", Movie.class);
             query.setParameter("title", "%" + title + "%");
             return query.list();
         });

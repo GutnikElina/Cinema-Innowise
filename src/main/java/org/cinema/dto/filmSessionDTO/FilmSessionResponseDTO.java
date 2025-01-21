@@ -8,9 +8,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DTO for responding with film session details, including taken seats.
- */
 @Data
 @Builder
 public class FilmSessionResponseDTO {

@@ -1,5 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Locale" %>
+<%
+  String lang = (String) session.getAttribute("lang");
+  if (lang == null || lang.isEmpty()) {
+    lang = "en";
+  }
+  ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
+%>
 <html>
 <head>
   <meta charset="UTF-8">

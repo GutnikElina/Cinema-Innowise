@@ -15,6 +15,10 @@ public interface UserCreateMapper {
     User toEntity(UserCreateDTO userCreateDTO);
 
     default Role mapRole(String role) {
-        return role != null ? Role.valueOf(role.toUpperCase()) : null;
+        try {
+            return role != null ? Role.valueOf(role.toUpperCase()) : null;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role: " + role, e);
+        }
     }
 }

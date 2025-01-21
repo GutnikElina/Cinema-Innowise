@@ -45,15 +45,12 @@ public class AdminConfirmServlet extends HttpServlet {
             if (message != null && !message.isEmpty()) {
                 request.setAttribute(MESSAGE_PARAM, message);
             }
-            
         } catch (NoDataFoundException e) {
-            handleError(request, "Error! " + e.getMessage(),
+            handleError(request, response,"Error! " + e.getMessage(),
                     "No tickets found: {}", e, e.getMessage());
-            request.setAttribute("tickets", Collections.emptySet());
         } catch (Exception e) {
-            handleError(request, "An unexpected error occurred while fetching tickets",
+            handleError(request, response,"An unexpected error occurred while fetching tickets",
                     "Unexpected error during tickets fetching: {}", e, e.getMessage());
-            request.setAttribute("tickets", Collections.emptySet());
         }
 
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
@@ -75,30 +72,30 @@ public class AdminConfirmServlet extends HttpServlet {
             
             response.sendRedirect(request.getContextPath() + REDIRECT_PATH + "?" + MESSAGE_PARAM + "=" + 
                     response.encodeRedirectURL(message));
-            return;
-            
+
         } catch (IllegalArgumentException e) {
-            handleSessionError(request, "Error! Invalid input: " + e.getMessage(),
+            handleSessionError(request, response, "Error! Invalid input: " + e.getMessage(),
                     "Validation error during ticket confirmation", e);
         } catch (NoDataFoundException e) {
-            handleSessionError(request, "Error! " + e.getMessage(),
+            handleSessionError(request, response,"Error! " + e.getMessage(),
                     "Business error during ticket confirmation: {}", e, e.getMessage());
         } catch (Exception e) {
-            handleSessionError(request, "An unexpected error occurred while processing the ticket",
+            handleSessionError(request, response,"An unexpected error occurred while processing the ticket",
                     "Unexpected error during ticket confirmation: {}", e, e.getMessage());
         }
-        response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
     }
 
-    private void handleError(HttpServletRequest request, String userMessage,
-            String logMessage, Exception e, Object... logParams) {
+    private void handleError(HttpServletRequest request, HttpServletResponse response, String userMessage,
+                             String logMessage, Exception e, Object... logParams) {
         log.error(logMessage, logParams, e);
         request.setAttribute(MESSAGE_PARAM, userMessage);
+        request.setAttribute("tickets", Collections.emptySet());
     }
 
-    private void handleSessionError(HttpServletRequest request, String userMessage,
-            String logMessage, Exception e, Object... logParams) {
+    private void handleSessionError(HttpServletRequest request, HttpServletResponse response, String userMessage,
+            String logMessage, Exception e, Object... logParams) throws IOException {
         log.error(logMessage, logParams, e);
         request.getSession().setAttribute(MESSAGE_PARAM, userMessage);
+        response.sendRedirect(request.getContextPath() + REDIRECT_PATH);
     }
 }

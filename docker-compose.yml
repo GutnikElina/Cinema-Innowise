@@ -6,26 +6,34 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - MYSQL_HOST=db
       - MYSQL_USER=cinema_user
       - MYSQL_PASSWORD=cinema_password
       - MYSQL_DATABASE=cinema_db
+    restart: always
 
   db:
     image: mysql:8.0
     ports:
       - "3307:3306"
     environment:
-      - MYSQL_DATABASE=cinema_db
-      - MYSQL_USER=cinema_user
-      - MYSQL_PASSWORD=cinema_password
-      - MYSQL_ROOT_PASSWORD=root_password
+      MYSQL_DATABASE: cinema_db
+      MYSQL_USER: cinema_user
+      MYSQL_PASSWORD: cinema_password
+      MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot_password || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
 
 volumes:
   mysql_data:

@@ -55,7 +55,6 @@ public class OmdbApiUtil {
      * @throws OmdbApiException if there's an error during the request or data processing
      * @throws NoDataFoundException if no movies are found for the given title
      */
-
     public static List<MovieAPI> searchMovies(String title) {
         log.debug("Starting movie search for title: {}", title);
         ValidationUtil.validateTitle(title);

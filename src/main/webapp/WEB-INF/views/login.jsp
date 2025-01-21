@@ -1,9 +1,9 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Locale" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%
   String lang = (String) session.getAttribute("lang");
-  if (lang == null) {
+  if (lang == null || lang.isEmpty()) {
     lang = "en";
   }
   ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
