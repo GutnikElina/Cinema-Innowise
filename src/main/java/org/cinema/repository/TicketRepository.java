@@ -1,77 +1,60 @@
 package org.cinema.repository;
 
 import org.cinema.model.Ticket;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * Repository interface for managing {@link Ticket} entities.
- * Provides methods for saving, retrieving, updating, and deleting tickets,
- * as well as finding tickets by specific criteria.
  */
-public interface TicketRepository {
+@Repository
+public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     /**
-     * Saves a new ticket to the repository.
+     * Retrieves all tickets with their associated film sessions.
      *
-     * @param ticket the {@link Ticket} entity to be saved.
+     * @return a set of {@link Ticket} entities.
      */
-    void save(Ticket ticket);
+    @Query("SELECT DISTINCT t FROM Ticket t JOIN FETCH t.filmSession fs " +
+            "ORDER BY fs.date ASC, fs.startTime ASC, t.seatNumber ASC")
+    Set<Ticket> findAllWithSessions();
 
     /**
-     * Retrieves a ticket by its unique identifier.
+     * Retrieves all tickets associated with a specific film session.
      *
-     * @param ticketId the ID of the ticket to retrieve.
-     * @return an {@link Optional} containing the {@link Ticket} if found, or empty if not found.
+     * @param sessionId the ID of the film session.
+     * @return a list of {@link Ticket} entities.
      */
-    Optional<Ticket> getById(long ticketId);
+    @Query("SELECT t FROM Ticket t WHERE t.filmSession.id = :sessionId " +
+            "ORDER BY t.seatNumber ASC")
+    List<Ticket> findTicketsBySession(@Param("sessionId") long sessionId);
 
     /**
-     * Retrieves all tickets in the repository.
+     * Checks if a ticket already exists for a specific seat in a film session.
      *
-     * @return a {@link Set} of all {@link Ticket} entities.
+     * @param sessionId the ID of the film session.
+     * @param seatNumber the seat number.
+     * @return true if the ticket exists, otherwise false.
      */
-    Set<Ticket> findAll();
+    @Query("SELECT COUNT(t) > 0 FROM Ticket t WHERE t.filmSession.id = :sessionId " +
+            "AND t.seatNumber = :seatNumber")
+    boolean existsBySessionAndSeat(@Param("sessionId") long sessionId,
+                                   @Param("seatNumber") int seatNumber);
 
     /**
-     * Updates an existing ticket in the repository with new purchase time details.
+     * Retrieves all tickets purchased by a specific user.
      *
-     * @param ticket        the {@link Ticket} entity with updated details.
-     * @param purchaseTime the new {@link LocalDateTime} of purchase.
+     * @param userId the ID of the user.
+     * @return a list of {@link Ticket} entities.
      */
-    void update(Ticket ticket, LocalDateTime purchaseTime);
-
-    /**
-     * Deletes a ticket from the repository by its unique identifier.
-     *
-     * @param ticketId the ID of the ticket to delete.
-     */
-    void delete(long ticketId);
-
-    /**
-     * Retrieves a list of tickets for a specific session.
-     *
-     * @param sessionId the ID of the session to retrieve tickets for.
-     * @return a {@link List} of {@link Ticket} entities for the specified session.
-     */
-    List<Ticket> getTicketsBySession(long sessionId);
-
-    /**
-     * Checks if a ticket with the same details already exists in the repository.
-     *
-     * @param ticket the {@link Ticket} entity to check.
-     * @return {@code true} if the ticket exists, {@code false} otherwise.
-     */
-    boolean checkIfTicketExists(Ticket ticket);
-
-    /**
-     * Retrieves a list of tickets purchased by a specific user.
-     *
-     * @param userId the ID of the user to retrieve tickets for.
-     * @return a {@link List} of {@link Ticket} entities purchased by the specified user.
-     */
-    List<Ticket> getTicketsByUserId(long userId);
+    @Query("SELECT t FROM Ticket t JOIN FETCH t.filmSession fs " +
+            "WHERE t.user.id = :userId " +
+            "ORDER BY fs.date ASC, fs.startTime ASC, t.seatNumber ASC")
+    List<Ticket> findTicketsByUserId(@Param("userId") long userId);
 }

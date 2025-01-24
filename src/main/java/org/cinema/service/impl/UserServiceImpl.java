@@ -1,7 +1,8 @@
 package org.cinema.service.impl;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.userDTO.UserCreateDTO;
 import org.cinema.dto.userDTO.UserResponseDTO;
@@ -13,31 +14,31 @@ import org.cinema.mapper.userMapper.UserResponseMapper;
 import org.cinema.mapper.userMapper.UserUpdateMapper;
 import org.cinema.model.Role;
 import org.cinema.model.User;
-import org.cinema.repository.impl.UserRepositoryImpl;
+import org.cinema.repository.UserRepository;
 import org.cinema.service.UserService;
 import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
-
+import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Getter
-    private static final UserServiceImpl instance = new UserServiceImpl();
-
-    private final UserRepositoryImpl userRepository = UserRepositoryImpl.getInstance();
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public String save(UserCreateDTO userCreateDTO) {
         ValidationUtil.validateUsername(userCreateDTO.getUsername());
         ValidationUtil.validatePassword(userCreateDTO.getPassword());
         ValidationUtil.validateRole(userCreateDTO.getRole());
 
-        if (userRepository.getByUsername(userCreateDTO.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent()) {
             throw new EntityAlreadyExistException("Username already exists. Please choose another one.");
         }
 
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(PasswordUtil.hashPassword(userCreateDTO.getPassword()));
         userRepository.save(user);
 
-        if (userRepository.getByUsername(userCreateDTO.getUsername()).isEmpty()) {
+        if (userRepository.findByUsername(userCreateDTO.getUsername()).isEmpty()) {
             throw new NoDataFoundException("User not found in database after saving. Try again.");
         }
 
@@ -54,15 +55,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public String update(Long userId, UserCreateDTO userUpdateDTO) {
         ValidationUtil.validateUsername(userUpdateDTO.getUsername());
         ValidationUtil.validatePassword(userUpdateDTO.getPassword());
 
-        User existingUser = userRepository.getById(userId)
+        User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new NoDataFoundException("User with ID " + userId + " doesn't exist."));
 
         if (!existingUser.getUsername().equals(userUpdateDTO.getUsername()) &&
-                userRepository.getByUsername(userUpdateDTO.getUsername()).isPresent()) {
+                userRepository.findByUsername(userUpdateDTO.getUsername()).isPresent()) {
             throw new EntityAlreadyExistException("Username '" + userUpdateDTO.getUsername() + "' is already taken.");
         }
 
@@ -71,9 +73,9 @@ public class UserServiceImpl implements UserService {
         existingUser.setPassword(PasswordUtil.hashPassword(userUpdateDTO.getPassword()));
         existingUser.setRole(Role.valueOf(userUpdateDTO.getRole()));
 
-        userRepository.update(existingUser);
+        userRepository.save(existingUser);
 
-        if (userRepository.getByUsername(userToUpdate.getUsername()).isEmpty()) {
+        if (userRepository.findByUsername(userToUpdate.getUsername()).isEmpty()) {
             throw new NoDataFoundException("User not found in database after updating. Try again.");
         }
 
@@ -82,20 +84,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public String delete(String userIdStr) {
-        userRepository.delete(ValidationUtil.parseLong(userIdStr));
+        Long userId = ValidationUtil.parseLong(userIdStr);
+        userRepository.deleteById(userId);
         return "Success! User was successfully deleted!";
     }
 
     @Override
     public Optional<UserResponseDTO> getById(String userIdStr) {
-        return userRepository.getById(ValidationUtil.parseLong(userIdStr))
+        Long userId = ValidationUtil.parseLong(userIdStr);
+        return userRepository.findById(userId)
                 .map(UserResponseMapper.INSTANCE::toDTO);
     }
 
     @Override
     public Set<UserResponseDTO> findAll() {
-        Set<User> users = userRepository.findAll();
+        Set<User> users = userRepository.findAllOrderedByCreatedAt();
 
         if (users.isEmpty()) {
             throw new NoDataFoundException("No users found in the database.");
@@ -112,7 +117,7 @@ public class UserServiceImpl implements UserService {
         ValidationUtil.validateUsername(userUpdateDTO.getUsername());
         ValidationUtil.validatePassword(userUpdateDTO.getPassword());
 
-        User user = userRepository.getByUsername(userUpdateDTO.getUsername())
+        User user = userRepository.findByUsername(userUpdateDTO.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password."));
 
         if (!PasswordUtil.checkPassword(userUpdateDTO.getPassword(), user.getPassword())) {
@@ -125,11 +130,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void register(UserUpdateDTO userCreateDTO) {
         ValidationUtil.validateUsername(userCreateDTO.getUsername());
         ValidationUtil.validatePassword(userCreateDTO.getPassword());
 
-        if (userRepository.getByUsername(userCreateDTO.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent()) {
             throw new EntityAlreadyExistException("Username already exists. Please choose another one.");
         }
 
@@ -138,7 +144,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.USER);
         userRepository.save(user);
 
-        if (userRepository.getByUsername(userCreateDTO.getUsername()).isEmpty()) {
+        if (userRepository.findByUsername(userCreateDTO.getUsername()).isEmpty()) {
             throw new NoDataFoundException("User not found in database after registration. Try again.");
         }
 
@@ -146,13 +152,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateProfile(long userId, UserUpdateDTO userUpdateDTO) {
         ValidationUtil.validateIsPositive((int) userId);
 
-        User user = userRepository.getById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoDataFoundException("User with ID " + userId + " not found."));
 
-        if (!user.getUsername().equals(userUpdateDTO.getUsername()) && userRepository.getByUsername(userUpdateDTO.getUsername()).isPresent()) {
+        if (!user.getUsername().equals(userUpdateDTO.getUsername()) && userRepository.findByUsername(userUpdateDTO.getUsername()).isPresent()) {
             throw new EntityAlreadyExistException("Username '" + userUpdateDTO.getUsername() + "' is already taken.");
         }
 
@@ -162,7 +169,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setUsername(userUpdateDTO.getUsername());
-        userRepository.update(user);
+        userRepository.save(user);
         log.info("User with ID {} updated their profile.", userId);
     }
 }

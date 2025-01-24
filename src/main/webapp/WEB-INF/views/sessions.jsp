@@ -127,7 +127,7 @@
                     <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" value="${sessionToEdit.id}">
                     <div class="mb-3">
-                        <select name="movie_id" id="movie_id" class="form-select form-select-sm">
+                        <select name="movieId" id="movieId" class="form-select form-select-sm">
                             <c:forEach var="movie" items="${movies}">
                                 <option value="${movie.id}" <c:if test="${movie.id == sessionToEdit.movieId}">selected</c:if>>${movie.title}</option>
                             </c:forEach>

@@ -46,7 +46,7 @@
     <h1 class="display-4">Welcome, Admin</h1>
     <p class="lead">Manage users, sessions, and tickets efficiently.</p>
     <form method="get" action="${pageContext.request.contextPath}/admin" class="mt-4">
-      <div class="input-group">
+    <div class="input-group">
         <input type="text" name="movieTitle" class="form-control" placeholder="Search movies..." required>
         <button type="submit" class="btn btn-primary">Search</button>
       </div>

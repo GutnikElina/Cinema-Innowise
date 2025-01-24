@@ -1,8 +1,8 @@
 package org.cinema.service.impl;
 
-import lombok.Getter;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.config.HibernateConfig;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
@@ -13,78 +13,84 @@ import org.cinema.mapper.filmSessionMapper.FilmSessionResponseMapper;
 import org.cinema.mapper.filmSessionMapper.FilmSessionUpdateMapper;
 import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
-import org.cinema.repository.impl.MovieRepositoryImpl;
-import org.cinema.repository.impl.SessionRepositoryImpl;
+import org.cinema.repository.MovieRepository;
+import org.cinema.repository.SessionRepository;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 @Slf4j
+@RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
-    @Getter
-    private static final SessionServiceImpl instance = new SessionServiceImpl();
-
-    private final SessionRepositoryImpl sessionRepository = SessionRepositoryImpl.getInstance();
-    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance(HibernateConfig.getSessionFactory());
+    private final SessionRepository sessionRepository;
+    private final MovieRepository movieRepository;
 
     @Override
+    @Transactional
     public String save(FilmSessionCreateDTO createDTO, Long movieId) {
-        Movie movie = movieRepository.getById(movieId).orElseThrow(() ->
+        Movie movie = movieRepository.findById(movieId).orElseThrow(() ->
                 new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!")
         );
 
         FilmSession filmSession = FilmSessionCreateMapper.INSTANCE.toEntity(createDTO);
         filmSession.setMovie(movie);
 
-        if (sessionRepository.checkIfSessionExists(filmSession)) {
+        if (sessionRepository.existsOverlappingSession(movieId, filmSession.getDate(),
+                filmSession.getStartTime(), filmSession.getEndTime())) {
             throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
         }
 
         sessionRepository.save(filmSession);
 
-        if (!sessionRepository.checkIfSessionExists(filmSession)) {
-            throw new EntityAlreadyExistException("Film session not found in database after saving. Try again.");
-        }
         return "Film session successfully added.";
     }
 
     @Override
+    @Transactional
     public String update(FilmSessionUpdateDTO updateDTO, Long movieId) {
-        Movie movie = movieRepository.getById(movieId).orElseThrow(() ->
+        Movie movie = movieRepository.findById(movieId).orElseThrow(() ->
                 new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!")
         );
 
         FilmSession filmSession = FilmSessionUpdateMapper.INSTANCE.toEntity(updateDTO);
         filmSession.setMovie(movie);
 
-        sessionRepository.update(filmSession);
-
-        if (!sessionRepository.checkIfSessionExists(filmSession)) {
-            throw new EntityAlreadyExistException("Film session not found in database after updating. Try again.");
+        if (sessionRepository.existsOverlappingSession(movieId, filmSession.getDate(),
+                filmSession.getStartTime(), filmSession.getEndTime())) {
+            throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
         }
+
+        sessionRepository.save(filmSession);
+
         return "Film session successfully updated.";
     }
 
     @Override
+    @Transactional
     public String delete(String id) {
-        sessionRepository.delete(ValidationUtil.parseLong(id));
+        Long sessionId = ValidationUtil.parseLong(id);
+        sessionRepository.deleteById(sessionId);
         return "Film session successfully deleted.";
     }
 
     @Override
     public FilmSessionResponseDTO getById(String id) {
-        Optional<FilmSession> session = sessionRepository.getById(ValidationUtil.parseLong(id));
+        Long sessionId = ValidationUtil.parseLong(id);
+        Optional<FilmSession> session = sessionRepository.findById(sessionId);
         return session.map(FilmSessionResponseMapper.INSTANCE::toDTO)
                 .orElseThrow(() -> new NoDataFoundException("Film session not found."));
     }
 
     @Override
     public Set<FilmSessionResponseDTO> findAll() {
-        Set<FilmSession> sessions = sessionRepository.findAll();
+        Set<FilmSession> sessions = sessionRepository.findAll().stream().collect(Collectors.toSet());
         return sessions.stream()
                 .map(FilmSessionResponseMapper.INSTANCE::toDTO)
                 .collect(Collectors.toSet());

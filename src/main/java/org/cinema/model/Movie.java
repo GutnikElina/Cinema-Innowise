@@ -1,8 +1,7 @@
 package org.cinema.model;
 
 import lombok.Data;
-import javax.persistence.*;
-import java.math.BigDecimal;
+import jakarta.persistence.*;
 
 @Data
 @Entity

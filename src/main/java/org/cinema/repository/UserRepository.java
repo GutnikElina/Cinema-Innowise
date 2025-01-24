@@ -1,58 +1,33 @@
 package org.cinema.repository;
 
 import org.cinema.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * Repository interface for managing {@link User} entities.
- * Provides methods for saving, retrieving, updating, and deleting users,
- * as well as finding users by specific criteria.
  */
-public interface UserRepository {
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
-     * Saves a new user to the repository.
+     * Finds a user by their username.
      *
-     * @param user the {@link User} entity to be saved.
+     * @param username the username of the user.
+     * @return an {@link Optional} containing the user, or empty if not found.
      */
-    void save(User user);
+    Optional<User> findByUsername(String username);
 
     /**
-     * Retrieves a user by its unique identifier.
+     * Retrieves all users as a set.
      *
-     * @param userId the ID of the user to retrieve.
-     * @return an {@link Optional} containing the {@link User} if found, or empty if not found.
+     * @return a set of all {@link User} entities.
      */
-    Optional<User> getById(long userId);
-
-    /**
-     * Retrieves all users in the repository.
-     *
-     * @return a {@link Set} of all {@link User} entities.
-     */
-    Set<User> findAll();
-
-    /**
-     * Updates an existing user in the repository.
-     *
-     * @param user the {@link User} entity with updated details.
-     */
-    void update(User user);
-
-    /**
-     * Deletes a user from the repository by its unique identifier.
-     *
-     * @param userId the ID of the user to delete.
-     */
-    void delete(long userId);
-
-    /**
-     * Retrieves a user by their username.
-     *
-     * @param username the username of the user to retrieve.
-     * @return an {@link Optional} containing the {@link User} if found, or empty if not found.
-     */
-    Optional<User> getByUsername(String username);
+    @Query("SELECT u FROM User u ORDER BY u.createdAt ASC")
+    Set<User> findAllOrderedByCreatedAt();
 }

@@ -1,67 +1,41 @@
 package org.cinema.repository;
 
 import org.cinema.model.FilmSession;
-
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.time.LocalTime;
 import java.util.Set;
 
 /**
  * Repository interface for managing {@link FilmSession} entities.
- * Provides methods for saving, retrieving, updating, and deleting film sessions,
- * as well as finding sessions by specific criteria.
  */
-public interface SessionRepository {
+@Repository
+public interface SessionRepository extends JpaRepository<FilmSession, Long> {
 
     /**
-     * Saves a new film session to the repository.
+     * Retrieves all film sessions for the given date.
      *
-     * @param filmSession the {@link FilmSession} entity to be saved.
-     */
-    void save(FilmSession filmSession);
-
-    /**
-     * Retrieves a film session by its unique identifier.
-     *
-     * @param filmSessionId the ID of the film session to retrieve.
-     * @return an {@link Optional} containing the {@link FilmSession} if found, or empty if not found.
-     */
-    Optional<FilmSession> getById(long filmSessionId);
-
-    /**
-     * Retrieves all film sessions in the repository.
-     *
-     * @return a {@link Set} of all {@link FilmSession} entities.
-     */
-    Set<FilmSession> findAll();
-
-    /**
-     * Updates an existing film session in the repository.
-     *
-     * @param filmSession the {@link FilmSession} entity with updated details.
-     */
-    void update(FilmSession filmSession);
-
-    /**
-     * Deletes a film session from the repository by its unique identifier.
-     *
-     * @param filmSessionId the ID of the film session to delete.
-     */
-    void delete(long filmSessionId);
-
-    /**
-     * Checks if a film session with the same details already exists in the repository.
-     *
-     * @param filmSession the {@link FilmSession} entity to check.
-     * @return {@code true} if the session exists, {@code false} otherwise.
-     */
-    boolean checkIfSessionExists(FilmSession filmSession);
-
-    /**
-     * Finds all film sessions scheduled for a specific date.
-     *
-     * @param date the {@link LocalDate} to search for film sessions.
-     * @return a {@link Set} of {@link FilmSession} entities scheduled for the specified date.
+     * @param date the date for which film sessions are to be retrieved.
+     * @return a set of {@link FilmSession} entities for the given date.
      */
     Set<FilmSession> findByDate(LocalDate date);
+
+    /**
+     * Checks if a film session overlaps with an existing one.
+     *
+     * @param movieId   the ID of the movie.
+     * @param date      the date of the film session.
+     * @param startTime the start time of the film session.
+     * @param endTime   the end time of the film session.
+     * @return true if a conflicting session exists, otherwise false.
+     */
+    @Query("SELECT COUNT(fs) > 0 FROM FilmSession fs WHERE fs.movie.id = :movieId AND fs.date = :date " +
+            "AND ((fs.startTime BETWEEN :start AND :end) OR (fs.endTime BETWEEN :start AND :end))")
+    boolean existsOverlappingSession(@Param("movieId") Long movieId,
+                                     @Param("date") LocalDate date,
+                                     @Param("start") LocalTime startTime,
+                                     @Param("end") LocalTime endTime);
 }

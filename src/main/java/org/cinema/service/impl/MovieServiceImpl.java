@@ -1,31 +1,27 @@
 package org.cinema.service.impl;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.config.HibernateConfig;
 import org.cinema.dto.movieDTO.MovieResponseDTO;
-import org.cinema.exception.NoDataFoundException;
-import org.cinema.mapper.filmSessionMapper.FilmSessionResponseMapper;
 import org.cinema.mapper.movieMapper.MovieResponseMapper;
-import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
 import org.cinema.model.MovieAPI;
-import org.cinema.repository.impl.MovieRepositoryImpl;
+import org.cinema.repository.MovieRepository;
 import org.cinema.service.MovieService;
 import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 @Slf4j
+@RequiredArgsConstructor
 public class MovieServiceImpl implements MovieService {
 
-    @Getter
-    private static final MovieServiceImpl instance = new MovieServiceImpl();
-
-    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance(HibernateConfig.getSessionFactory());
+    private final MovieRepository movieRepository;
 
     @Override
     public List<MovieResponseDTO> findAll() {
@@ -38,7 +34,8 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<MovieResponseDTO> searchMovies(String title) {
         ValidationUtil.validateTitle(title);
-        List<Movie> moviesFromDb = movieRepository.findByTitle(title);
+
+        List<Movie> moviesFromDb = movieRepository.findByTitleContainingIgnoreCase(title);
         if (!moviesFromDb.isEmpty()) {
             log.info("Found {} movie(s) with title '{}'", moviesFromDb.size(), title);
             return moviesFromDb.stream()
