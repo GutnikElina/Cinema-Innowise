@@ -7,11 +7,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.ticketDTO.TicketResponseDTO;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.Ticket;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.TicketServiceImpl;
-
+import org.cinema.util.ValidationUtil;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -74,7 +74,7 @@ public class MyTicketsServlet extends HttpServlet {
 
     private void loadUserTickets(HttpServletRequest request) {
         Long userId = getUserId(request.getSession());
-        Set<Ticket> tickets = ticketService.findByUserId(userId.toString());
+        Set<TicketResponseDTO> tickets = ticketService.findByUserId(userId.toString());
         request.setAttribute("tickets", tickets);
     }
 
@@ -88,7 +88,7 @@ public class MyTicketsServlet extends HttpServlet {
 
     private String processTicketAction(String action, HttpServletRequest request) {
         if ("returnMyTicket".equals(action)) {
-            String ticketId = getRequiredParameter(request, "id");
+            Long ticketId = ValidationUtil.parseLong(getRequiredParameter(request, "id"));
             return ticketService.processTicketAction(action, ticketId);
         } else {
             log.warn("Unknown action requested: {}", action);

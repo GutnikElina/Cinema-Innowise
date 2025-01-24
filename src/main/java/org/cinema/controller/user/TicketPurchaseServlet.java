@@ -6,10 +6,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dto.FilmSessionDTO;
+import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
+import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.FilmSession;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
 import org.cinema.service.impl.SessionServiceImpl;
@@ -42,7 +42,7 @@ public class TicketPurchaseServlet extends HttpServlet {
 
         try {
             String selectedDate = request.getParameter("date");
-            Set<FilmSessionDTO> filmSessions;
+            Set<FilmSessionResponseDTO> filmSessions;
 
             if (selectedDate == null || selectedDate.isEmpty()) {
                 log.debug("No date selected, fetching all sessions");
@@ -63,7 +63,7 @@ public class TicketPurchaseServlet extends HttpServlet {
             String sessionId = request.getParameter("sessionId");
             if (sessionId != null && !sessionId.trim().isEmpty()) {
                 log.debug("Loading details for session ID: {}", sessionId);
-                FilmSession selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
+                FilmSessionResponseDTO selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
                 request.setAttribute("selectedSession", selectedSession);
                 request.setAttribute("sessionId", sessionId);
             }
@@ -83,7 +83,6 @@ public class TicketPurchaseServlet extends HttpServlet {
             handleError(request, "An unexpected error occurred while loading sessions",
                     "Unexpected error during session loading: {}", e, e.getMessage());
         }
-
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
@@ -97,12 +96,18 @@ public class TicketPurchaseServlet extends HttpServlet {
             String sessionId = request.getParameter("sessionId");
             String seatNumber = request.getParameter("seatNumber");
 
-            log.debug("Processing ticket purchase for user ID: {}, session ID: {}, seat: {}", 
+            log.debug("Processing ticket purchase for user ID: {}, session ID: {}, seat: {}",
                     userId, sessionId, seatNumber);
 
-            String message = ticketService.purchaseTicket(String.valueOf(userId), sessionId, seatNumber);
-            response.sendRedirect(request.getContextPath() + "/user/tickets/purchase?" + MESSAGE_PARAM + "=" +
-                    response.encodeRedirectURL(message));
+            TicketCreateDTO ticketCreateDTO = TicketCreateDTO.builder()
+                    .userId(userId)
+                    .sessionId(Long.valueOf(sessionId))
+                    .seatNumber(seatNumber)
+                    .build();
+
+            String message = ticketService.purchaseTicket(ticketCreateDTO);
+            response.sendRedirect(request.getContextPath() + "/user/tickets/purchase?" +
+                    MESSAGE_PARAM + "=" + response.encodeRedirectURL(message));
             return;
 
         } catch (IllegalArgumentException e) {

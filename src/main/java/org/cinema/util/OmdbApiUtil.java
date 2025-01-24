@@ -45,6 +45,16 @@ public class OmdbApiUtil {
         }
     }
 
+    /**
+     * Searches for movies by title using the OMDB API.
+     * Sends a request to the OMDB API, parses the results into {@link MovieAPI} objects.
+     * Throws exceptions if no data is found or an error occurs.
+     *
+     * @param title the movie title to search for
+     * @return a list of {@link MovieAPI} objects with search results
+     * @throws OmdbApiException if there's an error during the request or data processing
+     * @throws NoDataFoundException if no movies are found for the given title
+     */
     public static List<MovieAPI> searchMovies(String title) {
         log.debug("Starting movie search for title: {}", title);
         ValidationUtil.validateTitle(title);
@@ -66,6 +76,14 @@ public class OmdbApiUtil {
         }
     }
 
+    /**
+     * Fetches movie details from the OMDB API using the provided movie ID.
+     *
+     * @param movieId the ID of the movie to fetch details for
+     * @return the {@link MovieAPI} object containing movie details
+     * @throws NoDataFoundException if no data is found for the given movie ID
+     * @throws OmdbApiException if an error occurs while fetching or parsing the movie details
+     */
     private static MovieAPI getMovieDetails(String movieId) {
         ValidationUtil.validateNotBlank(movieId, "Movie ID");
 
@@ -86,6 +104,13 @@ public class OmdbApiUtil {
         }
     }
 
+    /**
+     * Sends an HTTP request to the OMDB API to fetch the response from the given URL.
+     *
+     * @param urlString the URL to send the GET request to
+     * @return the response body as a string
+     * @throws OmdbApiException if the API request fails or the response status code is not 200
+     */
     private static String fetchApiResponse(String urlString) {
         ValidationUtil.validateNotBlank(urlString, "URL");
         log.debug("Sending API request to URL: {}", urlString);
@@ -110,12 +135,29 @@ public class OmdbApiUtil {
         }
     }
 
+    /**
+     * Builds the URL for the OMDB API request with the specified parameter name and value.
+     *
+     * @param paramName the name of the parameter (e.g., "s" for search, "i" for movie details)
+     * @param paramValue the value of the parameter (e.g., movie title or ID)
+     * @return the formatted URL string for the API request
+     * @throws IllegalArgumentException if the parameter name or value is blank
+     */
     private static String buildUrl(String paramName, String paramValue) {
         ValidationUtil.validateNotBlank(paramName, "Parameter name");
         ValidationUtil.validateNotBlank(paramValue, "Parameter value");
         return String.format("%s?%s=%s&apikey=%s", BASE_URL, paramName, paramValue, API_KEY);
     }
 
+    /**
+     * Parses the JSON response from the search API and converts it into a list of {@link MovieAPI} objects.
+     *
+     * @param response the JSON response body as a string
+     * @param title the title of the movie being searched
+     * @return a list of {@link MovieAPI} objects corresponding to the search results
+     * @throws IOException if an error occurs during JSON parsing
+     * @throws NoDataFoundException if no search results are found
+     */
     private static List<MovieAPI> parseSearchResponse(String response, String title) throws IOException {
         JsonNode jsonResponse = objectMapper.readTree(response);
         if ("True".equalsIgnoreCase(jsonResponse.get("Response").asText())) {
@@ -146,6 +188,15 @@ public class OmdbApiUtil {
         }
     }
 
+    /**
+     * Parses the JSON response for a single movie and converts it into a {@link MovieAPI} object.
+     *
+     * @param response the JSON response body as a string
+     * @param movieId the ID of the movie being parsed
+     * @return the {@link MovieAPI} object representing the movie details
+     * @throws IOException if an error occurs during JSON parsing
+     * @throws NoDataFoundException if no details are found for the movie ID
+     */
     private static MovieAPI parseMovieResponse(String response, String movieId) throws IOException {
         MovieAPI movie = objectMapper.readValue(response, MovieAPI.class);
         if (movie != null && "True".equalsIgnoreCase(movie.getResponse())) {

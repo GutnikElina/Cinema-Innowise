@@ -1,6 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Locale" %>
+<%
+    String lang = (String) session.getAttribute("lang");
+    if (lang == null || lang.isEmpty()) {
+        lang = "en";
+    }
+    ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
+%>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -51,9 +60,9 @@
                 <c:forEach var="ticket" items="${tickets}">
                     <tr>
                         <td>${ticket.id}</td>
-                        <td>${ticket.user.username}</td>
+                        <td>${ticket.username}</td>
                         <td>
-                                ${ticket.filmSession.movie.title} -
+                                ${ticket.movieTitle} -
                             <c:out value="${ticket.filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${ticket.filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                         </td>
                         <td>${ticket.seatNumber}</td>
@@ -97,7 +106,7 @@
                         <option value="" disabled selected>-- Select film session --</option>
                         <c:forEach var="filmSession" items="${filmSessions}">
                             <option value="${filmSession.id}">
-                                    ${filmSession.movie.title} -
+                                    ${filmSession.movieTitle} -
                                 <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                             </option>
                         </c:forEach>
@@ -121,7 +130,6 @@
                         <option value="PURCHASE">Purchase</option>
                         <option value="RETURN">Return</option>
                     </select>
-
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-secondary btn-sm">Add</button>
@@ -138,7 +146,7 @@
                     <div class="mb-3">
                         <select class="form-control form-control-sm" placeholder="Select user" name="userId" required>
                             <c:forEach var="user" items="${users}">
-                                <option value="${user.id}" <c:if test="${user.id == ticketToEdit.user.id}">selected</c:if>>${user.username}</option>
+                                <option value="${user.id}" <c:if test="${user.id == ticketToEdit.userId}">selected</c:if>>${user.username}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -146,7 +154,7 @@
                         <select class="form-control form-control-sm" placeholder="Select film session" name="sessionId" required>
                             <c:forEach var="filmSession" items="${filmSessions}">
                                 <option value="${filmSession.id}" <c:if test="${filmSession.id == ticketToEdit.filmSession.id}">selected</c:if>>
-                                        ${filmSession.movie.title} -
+                                        ${filmSession.movieTitle} -
                                     <c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))} ${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" />
                                 </option>
                             </c:forEach>
@@ -181,21 +189,43 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    const spinner = submitButton.querySelector('.spinner-border');
+                    const buttonText = submitButton.querySelector('.button-text');
+
+                    if (spinner && buttonText) {
+                        submitButton.disabled = true;
+                        spinner.classList.remove('d-none');
+                        buttonText.classList.add('d-none');
+                    } else {
+                        submitButton.disabled = true;
+                    }
+                }
+            });
+        });
+    });
+</script>
+<script>
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
-      document.getElementById('editForm').style.display = 'none';
+        document.getElementById('editForm').style.display = 'none';
     });
 </script>
 <script>
     document.querySelectorAll('.delete-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const form = this.closest('.delete-form');
-      const confirmDelete = confirm('Are you sure you want to delete ticket?');
-      if (confirmDelete) {
-        form.submit();
-      }
+        button.addEventListener('click', function() {
+            const form = this.closest('.delete-form');
+            const confirmDelete = confirm('Are you sure you want to delete this ticket?');
+            if (confirmDelete) {
+                form.submit();
+            }
+        });
     });
-  });
 </script>
 
 </body>
-</html>

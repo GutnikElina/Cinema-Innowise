@@ -1,6 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Locale" %>
+<%
+  String lang = (String) session.getAttribute("lang");
+  if (lang == null || lang.isEmpty()) {
+    lang = "en";
+  }
+  ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
+%>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -49,8 +58,8 @@
         <c:forEach var="ticket" items="${tickets}">
           <tr>
             <td>${ticket.id}</td>
-            <td>${ticket.user.username}</td>
-            <td>${ticket.filmSession.movie.title}</td>
+            <td>${ticket.username}</td>
+            <td>${ticket.movieTitle}</td>
             <td>${ticket.seatNumber}</td>
             <td><c:out value="${ticket.purchaseTime.format(DateTimeFormatter.ofPattern('dd.MM.yyyy HH:mm'))}" /></td>
             <td>${ticket.status}</td>

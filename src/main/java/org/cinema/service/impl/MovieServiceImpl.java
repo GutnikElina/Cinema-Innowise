@@ -2,69 +2,56 @@ package org.cinema.service.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.config.HibernateConfig;
+import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.NoDataFoundException;
+import org.cinema.mapper.filmSessionMapper.FilmSessionResponseMapper;
+import org.cinema.mapper.movieMapper.MovieResponseMapper;
+import org.cinema.model.FilmSession;
 import org.cinema.model.Movie;
 import org.cinema.model.MovieAPI;
 import org.cinema.repository.impl.MovieRepositoryImpl;
 import org.cinema.service.MovieService;
 import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class MovieServiceImpl implements MovieService {
 
-    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance();
+    @Getter
+    private static final MovieServiceImpl instance = new MovieServiceImpl();
+
+    private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance(HibernateConfig.getSessionFactory());
 
     @Override
-    public List<Movie> searchMovies(String title) {
+    public List<MovieResponseDTO> findAll() {
+        List<Movie> movies = movieRepository.findAll();
+        return movies.stream()
+                .map(MovieResponseMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovieResponseDTO> searchMovies(String title) {
         ValidationUtil.validateTitle(title);
         List<Movie> moviesFromDb = movieRepository.findByTitle(title);
         if (!moviesFromDb.isEmpty()) {
             log.info("Found {} movie(s) with title '{}'", moviesFromDb.size(), title);
-            return moviesFromDb;
+            return moviesFromDb.stream()
+                    .map(MovieResponseMapper.INSTANCE::toDTO)
+                    .toList();
         }
 
         List<MovieAPI> apiMovies = OmdbApiUtil.searchMovies(title);
         return apiMovies.stream()
                 .map(this::convertToMovie)
                 .peek(this::saveMovieToDatabase)
+                .map(MovieResponseMapper.INSTANCE::toDTO)
                 .toList();
-    }
-
-    @Override
-    public Movie getMovie(String title) {
-        ValidationUtil.validateTitle(title);
-        List<Movie> moviesFromDb = movieRepository.findByTitle(title);
-        if (!moviesFromDb.isEmpty()) {
-            log.info("Returning the first found movie with title '{}'", title);
-            return moviesFromDb.get(0);
-        }
-
-        List<MovieAPI> apiMovies = OmdbApiUtil.searchMovies(title);
-        List<Movie> movies = apiMovies.stream()
-                .map(this::convertToMovie)
-                .peek(this::saveMovieToDatabase)
-                .toList();
-
-        Movie movie = movies.get(0);
-        if (movie == null) {
-            throw new NoDataFoundException("No movie found with title: " + title);
-        }
-
-        return movie;
-    }
-
-    @Override
-    public Movie getMovieById(long movieId) {
-        Optional<Movie> movieFromDb = movieRepository.getById(movieId);
-        if (movieFromDb.isPresent()) {
-            log.info("Returning the first found movie with title '{}'", movieFromDb.get().getTitle());
-            return movieFromDb.get();
-        }
-        return null;
     }
 
     private void saveMovieToDatabase(Movie movie) {

@@ -1,5 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Locale" %>
+<%
+  String lang = (String) session.getAttribute("lang");
+  if (lang == null || lang.isEmpty()) {
+    lang = "en";
+  }
+  ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
+%>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -43,7 +52,7 @@
           <select name="sessionId" id="sessionId" class="form-select" required>
             <c:forEach var="session" items="${filmSessions}">
               <option value="${session.id}" ${selectedSession != null && selectedSession.id == session.id ? 'selected' : ''}>
-                  ${session.movie.title} |  ${session.date} ( ${session.startTime} - ${session.endTime} ) | ${session.price} BYN
+                  ${session.movieTitle} |  ${session.date} ( ${session.startTime} - ${session.endTime} ) | ${session.price} BYN
               </option>
             </c:forEach>
           </select>
@@ -53,7 +62,7 @@
     </c:if>
 
     <c:if test="${not empty selectedSession}">
-      <h3 class="text-center">Select your seat for '${selectedSession.movie.title}'</h3>
+      <h3 class="text-center">Select your seat for '${selectedSession.movieTitle}'</h3>
       <h2 class="text-center">+--------------------------------+</h2>
       <h2 class="text-center">|----------- SCREEN -----------|</h2>
       <h2 class="text-center">+--------------------------------+</h2>

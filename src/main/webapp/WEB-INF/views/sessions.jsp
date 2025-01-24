@@ -1,6 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Locale" %>
+<%
+    String lang = (String) session.getAttribute("lang");
+    if (lang == null || lang.isEmpty()) {
+        lang = "en";
+    }
+    ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
+%>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -49,7 +58,7 @@
                 <tbody>
                 <c:forEach var="filmSession" items="${filmSessions}">
                     <tr>
-                        <td>${filmSession.movie.title}</td>
+                        <td>${filmSession.movieTitle}</td>
                         <td>${filmSession.price}</td>
                         <td><c:out value="${filmSession.date.format(DateTimeFormatter.ofPattern('dd.MM.yyyy'))}" /></td>
                         <td><c:out value="${filmSession.startTime.format(DateTimeFormatter.ofPattern('HH:mm'))}" /></td>
@@ -79,10 +88,9 @@
             <h2 class="text-center">Add Session</h2>
             <form method="post" action="${pageContext.request.contextPath}/admin/sessions" id="addSessionForm">
                 <input type="hidden" name="action" value="add">
-
                 <div class="mb-3">
-                    <select class="form-control form-control-sm" name="movie_id" required>
-                        <option value="" disabled selected>-- Select Movie --</option>
+                    <select class="form-control form-control-sm" name="movieId" required>
+                        <option value="" disabled selected>-- Select movie --</option>
                         <c:forEach var="movie" items="${movies}">
                             <option value="${movie.id}">${movie.title}</option>
                         </c:forEach>
@@ -118,15 +126,13 @@
                 <form method="post" action="${pageContext.request.contextPath}/admin/sessions">
                     <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" value="${sessionToEdit.id}">
-
                     <div class="mb-3">
-                        <select class="form-control form-control-sm" placeholder="Select Movie" name="movie_id" required>
+                        <select name="movie_id" id="movie_id" class="form-select form-select-sm">
                             <c:forEach var="movie" items="${movies}">
-                                <option value="${movie.id}" <c:if test="${movie.id == sessionToEdit.movie.id}">selected</c:if>>${movie.title}</option>
+                                <option value="${movie.id}" <c:if test="${movie.id == sessionToEdit.movieId}">selected</c:if>>${movie.title}</option>
                             </c:forEach>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <input type="number" class="form-control form-control-sm" name="price" value="${sessionToEdit.price}" step="0.1" required>
                     </div>
@@ -157,14 +163,14 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const forms = document.querySelectorAll('form');
-        
+
         forms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 const submitButton = this.querySelector('button[type="submit"]');
                 if (submitButton) {
                     const spinner = submitButton.querySelector('.spinner-border');
                     const buttonText = submitButton.querySelector('.button-text');
-                    
+
                     if (spinner && buttonText) {
                         submitButton.disabled = true;
                         spinner.classList.remove('d-none');
@@ -179,18 +185,18 @@
 </script>
 <script>
     document.getElementById('cancelEditBtn').addEventListener('click', function() {
-       document.getElementById('editForm').style.display = 'none';
+        document.getElementById('editForm').style.display = 'none';
     });
 </script>
 <script>
     document.querySelectorAll('.delete-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const form = this.closest('.delete-form');
-        const confirmDelete = confirm('Are you sure you want to delete film session?');
-        if (confirmDelete) {
-           form.submit();
-        }
-      });
+        button.addEventListener('click', function() {
+            const form = this.closest('.delete-form');
+            const confirmDelete = confirm('Are you sure you want to delete film session?');
+            if (confirmDelete) {
+                form.submit();
+            }
+        });
     });
 </script>
 

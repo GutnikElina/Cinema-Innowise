@@ -27,13 +27,19 @@ public class AdminAccessFilter implements Filter {
     }
 
     private boolean isAdmin(HttpSession session) {
-        return session != null && "ADMIN".equals(session.getAttribute("role"));
+        if (session == null) {
+            return false;
+        }
+        Object role = session.getAttribute("role");
+        return "ADMIN".equals(role);
     }
 
     private void handleUnauthorizedAdmin(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        log.warn("Admin is not logged in!");
+            throws IOException {
+        String clientIP = request.getRemoteAddr();
+        String requestedPath = request.getRequestURI();
+        log.warn("Unauthorized access attempt detected. IP: {}, Path: {}", clientIP, requestedPath);
         request.setAttribute("message",  "Error! You must log in.");
-        request.getRequestDispatcher("/login").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/login");
     }
 }

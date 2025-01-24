@@ -3,13 +3,15 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.hikari.dataSourceClassName">com.mysql.cj.jdbc.MysqlDataSource</property>
-        <property name="hibernate.hikari.dataSource.url">jdbc:mysql://127.0.0.1:3306/cinema_db?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=Europe/Moscow</property>
-        <property name="hibernate.hikari.dataSource.user">root</property>
-        <property name="hibernate.hikari.dataSource.password">password</property>
+        <property name="hibernate.hikari.dataSource.url">jdbc:mysql://db:3306/cinema_db?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=Europe/Moscow</property>
+        <property name="hibernate.hikari.dataSource.user">cinema_user</property>
+        <property name="hibernate.hikari.dataSource.password">cinema_password</property>
+
         <property name="hibernate.hikari.maximumPoolSize">10</property>
         <property name="hibernate.hikari.minimumIdle">5</property>
         <property name="hibernate.hikari.idleTimeout">30000</property>
         <property name="hibernate.hikari.connectionTimeout">30000</property>
+        <property name="hibernate.hikari.leakDetectionThreshold">2000</property>
 
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
         <property name="hibernate.current_session_context_class">thread</property>

@@ -18,6 +18,12 @@ public class HibernateConfig implements ServletContextListener {
 
     private static SessionFactory sessionFactory;
 
+    /**
+     * Returns the initialized {@link SessionFactory}.
+     *
+     * @return the {@link SessionFactory}
+     * @throws IllegalStateException if the {@link SessionFactory} is not initialized
+     */
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             throw new IllegalStateException("SessionFactory isn't initialized.");
@@ -35,7 +41,9 @@ public class HibernateConfig implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         try {
             log.debug("Initializing Hibernate SessionFactory...");
-            sessionFactory = new Configuration().configure().buildSessionFactory();
+            sessionFactory = new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .buildSessionFactory();
             sce.getServletContext().setAttribute("SessionFactory", sessionFactory);
             log.info("Hibernate SessionFactory initialized successfully.");
         } catch (HibernateException e) {

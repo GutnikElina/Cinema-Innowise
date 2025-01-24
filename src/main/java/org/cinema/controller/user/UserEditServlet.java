@@ -7,12 +7,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.dto.userDTO.UserResponseDTO;
+import org.cinema.dto.userDTO.UserUpdateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
-import org.cinema.model.User;
 import org.cinema.service.UserService;
 import org.cinema.service.impl.UserServiceImpl;
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 @WebServlet(name = "UserEditServlet", urlPatterns = {"/user/edit"})
@@ -38,7 +40,7 @@ public class UserEditServlet extends HttpServlet {
             Long userId = getUserId(request.getSession());
             log.debug("Loading profile for user ID: {}", userId);
 
-            User user = userService.getById(String.valueOf(userId))
+            UserResponseDTO user = userService.getById(String.valueOf(userId))
                     .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
             request.setAttribute("user", user);
 
@@ -67,16 +69,16 @@ public class UserEditServlet extends HttpServlet {
         log.debug("Handling POST request for profile editing...");
 
         try {
+            String password = !Objects.equals(request.getParameter("password"), "") ?
+                    request.getParameter("password") : "null";
             Long userId = getUserId(request.getSession());
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
-
-            if (password != null && password.trim().isEmpty()) {
-                password = null;
-            }
+            UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
+                    .username(request.getParameter("username"))
+                    .password(password)
+                    .build();
 
             log.debug("Updating profile for user ID: {}", userId);
-            userService.zupdateProfile(userId, username, password);
+            userService.updateProfile(userId, userUpdateDTO);
 
             response.sendRedirect(request.getContextPath() + "/user/edit?" + MESSAGE_PARAM + "=" +
                     response.encodeRedirectURL("Success! Profile updated successfully."));
