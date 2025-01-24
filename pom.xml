@@ -29,6 +29,7 @@
     <jackson.version>2.15.2</jackson.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <hikaricp.version>6.2.1</hikaricp.version>
+    <spring.version>6.2.2</spring.version>
   </properties>
 
   <dependencies>
@@ -141,6 +142,30 @@
       <artifactId>jakarta.el</artifactId>
       <version>4.0.2</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -163,6 +188,12 @@
               <groupId>org.mapstruct</groupId>
               <artifactId>mapstruct-processor</artifactId>
               <version>${mapstruct.version}</version>
+            </annotationProcessorPath>
+
+            <annotationProcessorPath>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-context</artifactId>
+              <version>${spring.version}</version>
             </annotationProcessorPath>
           </annotationProcessorPaths>
         </configuration>

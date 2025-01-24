@@ -16,9 +16,6 @@ import java.util.Optional;
 @Slf4j
 public class MovieServiceImpl implements MovieService {
 
-    @Getter
-    private static final MovieServiceImpl instance = new MovieServiceImpl();
-
     private final MovieRepositoryImpl movieRepository = MovieRepositoryImpl.getInstance();
 
     @Override

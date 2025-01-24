@@ -10,6 +10,7 @@ import org.cinema.repository.impl.TicketRepositoryImpl;
 import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.TicketService;
 import org.cinema.util.ValidationUtil;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,10 +18,8 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
+@Service
 public class TicketServiceImpl implements TicketService {
-
-    @Getter
-    private static final TicketServiceImpl instance = new TicketServiceImpl();
 
     private final TicketRepositoryImpl ticketRepository = TicketRepositoryImpl.getInstance();
     private final UserRepositoryImpl userRepository = UserRepositoryImpl.getInstance();

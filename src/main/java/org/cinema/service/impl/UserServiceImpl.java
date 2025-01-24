@@ -11,13 +11,15 @@ import org.cinema.repository.impl.UserRepositoryImpl;
 import org.cinema.service.UserService;
 import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
+import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 import java.util.Set;
 
+@Service
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    @Getter
     private static final UserServiceImpl instance = new UserServiceImpl();
 
     private final UserRepositoryImpl userRepository = UserRepositoryImpl.getInstance();

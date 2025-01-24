@@ -76,7 +76,7 @@ public class UserEditServlet extends HttpServlet {
             }
 
             log.debug("Updating profile for user ID: {}", userId);
-            userService.updateProfile(userId, username, password);
+            userService.zupdateProfile(userId, username, password);
 
             response.sendRedirect(request.getContextPath() + "/user/edit?" + MESSAGE_PARAM + "=" +
                     response.encodeRedirectURL("Success! Profile updated successfully."));
