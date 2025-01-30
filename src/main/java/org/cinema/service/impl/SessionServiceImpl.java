@@ -1,7 +1,6 @@
 package org.cinema.service.impl;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
@@ -17,8 +16,8 @@ import org.cinema.repository.MovieRepository;
 import org.cinema.repository.SessionRepository;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -26,11 +25,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
     private final SessionRepository sessionRepository;
     private final MovieRepository movieRepository;
+
+    @Autowired
+    private SessionServiceImpl(SessionRepository sessionRepository,
+                               MovieRepository movieRepository) {
+        this.sessionRepository = sessionRepository;
+        this.movieRepository = movieRepository;
+    }
 
     @Override
     @Transactional
@@ -61,11 +66,6 @@ public class SessionServiceImpl implements SessionService {
 
         FilmSession filmSession = FilmSessionUpdateMapper.INSTANCE.toEntity(updateDTO);
         filmSession.setMovie(movie);
-
-        if (sessionRepository.existsOverlappingSession(movieId, filmSession.getDate(),
-                filmSession.getStartTime(), filmSession.getEndTime())) {
-            throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
-        }
 
         sessionRepository.save(filmSession);
 

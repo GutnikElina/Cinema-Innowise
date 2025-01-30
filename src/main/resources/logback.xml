@@ -5,7 +5,9 @@
         </encoder>
     </appender>
 
-        <root level="INFO">
+    <logger name="org.springframework.security" level="DEBUG"/>
+
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

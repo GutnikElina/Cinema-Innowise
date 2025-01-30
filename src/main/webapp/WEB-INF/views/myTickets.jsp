@@ -1,14 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.Locale" %>
-<%
-    String lang = (String) session.getAttribute("lang");
-    if (lang == null || lang.isEmpty()) {
-        lang = "en";
-    }
-    ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
-%>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -92,7 +84,7 @@
                         <td class="table-actions">
                             <form method="post" action="${pageContext.request.contextPath}/user/tickets" style="display:inline;">
                                 <input type="hidden" name="action" value="returnMyTicket">
-                                <input type="hidden" name="id" value="${ticket.id}">
+                                <input type="hidden" name="ticketId" value="${ticket.id}">
                                 <button
                                         type="submit"
                                         class="btn btn-warning btn-sm <c:if test='${!((ticket.status == "PENDING" || ticket.status == "CONFIRMED") && ticket.requestType != "RETURN")}'>btn-secondary</c:if>'"

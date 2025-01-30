@@ -1,8 +1,6 @@
 package org.cinema.service.impl;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.userDTO.UserCreateDTO;
 import org.cinema.dto.userDTO.UserResponseDTO;
@@ -14,10 +12,13 @@ import org.cinema.mapper.userMapper.UserResponseMapper;
 import org.cinema.mapper.userMapper.UserUpdateMapper;
 import org.cinema.model.Role;
 import org.cinema.model.User;
+import org.cinema.repository.SessionRepository;
+import org.cinema.repository.TicketRepository;
 import org.cinema.repository.UserRepository;
 import org.cinema.service.UserService;
 import org.cinema.util.PasswordUtil;
 import org.cinema.util.ValidationUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,10 +27,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional
@@ -113,23 +118,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public HttpSession login(UserUpdateDTO userUpdateDTO, HttpSession session) {
-        ValidationUtil.validateUsername(userUpdateDTO.getUsername());
-        ValidationUtil.validatePassword(userUpdateDTO.getPassword());
-
-        User user = userRepository.findByUsername(userUpdateDTO.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password."));
-
-        if (!PasswordUtil.checkPassword(userUpdateDTO.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password.");
-        }
-
-        session.setAttribute("userId", user.getId());
-        session.setAttribute("role", user.getRole().toString());
-        return session;
-    }
-
-    @Override
     @Transactional
     public void register(UserUpdateDTO userCreateDTO) {
         ValidationUtil.validateUsername(userCreateDTO.getUsername());
@@ -141,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
         User user = UserUpdateMapper.INSTANCE.toEntity(userCreateDTO);
         user.setPassword(PasswordUtil.hashPassword(userCreateDTO.getPassword()));
-        user.setRole(Role.USER);
+        user.setRole(Role.ROLE_USER);
         userRepository.save(user);
 
         if (userRepository.findByUsername(userCreateDTO.getUsername()).isEmpty()) {
@@ -171,5 +159,11 @@ public class UserServiceImpl implements UserService {
         user.setUsername(userUpdateDTO.getUsername());
         userRepository.save(user);
         log.info("User with ID {} updated their profile.", userId);
+    }
+
+    @Override
+    public Optional<UserResponseDTO> findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(UserResponseMapper.INSTANCE::toDTO);
     }
 }

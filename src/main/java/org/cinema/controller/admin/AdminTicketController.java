@@ -2,11 +2,9 @@ package org.cinema.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.dto.ticketDTO.TicketResponseDTO;
 import org.cinema.dto.ticketDTO.TicketUpdateDTO;
-import org.cinema.dto.userDTO.UserResponseDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.SessionService;
@@ -15,19 +13,14 @@ import org.cinema.service.UserService;
 import org.cinema.util.ValidationUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMapping;
-import java.util.Set;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
 @RequestMapping("/admin/tickets")
 @RequiredArgsConstructor
 public class AdminTicketController {
-
-    private static final String MESSAGE_PARAM = "message";
 
     private final TicketService ticketService;
     private final SessionService sessionService;
@@ -36,21 +29,20 @@ public class AdminTicketController {
     @GetMapping
     public String showTicketsPage(@RequestParam(value = "action", required = false) String action,
                                   @RequestParam(value = "id", required = false) String ticketId,
-                                  Model model) {
+                                  Model model, RedirectAttributes redirectAttributes) {
         log.debug("Handling GET request for tickets...");
 
         try {
-            if ("edit".equals(action)) {
+            if ("edit".equals(action) && ticketId != null) {
                 handleEditAction(ticketId, model);
             }
-
             loadDataForView(model);
         } catch (IllegalArgumentException e) {
-            handleError(model, "Error! Invalid input: " + e.getMessage(), e);
+            handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
-            handleError(model, "Error! " + e.getMessage(), e);
+            handleError(redirectAttributes, "Error! " + e.getMessage(), e);
         } catch (Exception e) {
-            handleError(model, "An unexpected error occurred while fetching data", e);
+            handleError(redirectAttributes, "An unexpected error occurred while fetching data", e);
         }
         return "tickets";
     }
@@ -62,21 +54,18 @@ public class AdminTicketController {
                                       @RequestParam(required = false) String seatNumber,
                                       @RequestParam(required = false) String status,
                                       @RequestParam(required = false) String requestType,
-                                      Model model) {
+                                      RedirectAttributes redirectAttributes) {
         log.debug("Handling POST request for tickets operations...");
 
         try {
             String message = processAction(action, id, userId, sessionId, seatNumber, status, requestType);
-            model.addAttribute(MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute("message", message);
         } catch (IllegalArgumentException e) {
-            log.warn("Validation error: {}", e.getMessage(), e);
-            model.addAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
+            handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            log.warn("Business error: {}", e.getMessage(), e);
-            model.addAttribute(MESSAGE_PARAM, e.getMessage());
+            handleError(redirectAttributes, "Error! " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("Unexpected error: {}", e.getMessage(), e);
-            model.addAttribute(MESSAGE_PARAM, "An unexpected error occurred");
+            handleError(redirectAttributes, "An unexpected error occurred", e);
         }
         return "redirect:/admin/tickets";
     }
@@ -95,15 +84,9 @@ public class AdminTicketController {
 
     private void loadDataForView(Model model) {
         log.debug("Loading data for view...");
-
-        Set<UserResponseDTO> users = userService.findAll();
-        model.addAttribute("users", users);
-
-        Set<FilmSessionResponseDTO> filmSessions = sessionService.findAll();
-        model.addAttribute("filmSessions", filmSessions);
-
-        Set<TicketResponseDTO> tickets = ticketService.findAll();
-        model.addAttribute("tickets", tickets);
+        model.addAttribute("users", userService.findAll());
+        model.addAttribute("filmSessions", sessionService.findAll());
+        model.addAttribute("tickets", ticketService.findAll());
     }
 
     private String handleAddAction(String userId, String sessionId, String seatNumber, String status, String requestType) {
@@ -140,8 +123,8 @@ public class AdminTicketController {
         model.addAttribute("ticketToEdit", ticketToEdit);
     }
 
-    private void handleError(Model model, String message, Exception e) {
-        log.error("{}: {}", message, e.getMessage(), e);
-        model.addAttribute(MESSAGE_PARAM, message);
+    private void handleError(RedirectAttributes redirectAttributes, String userMessage, Exception e) {
+        log.error("{}: {}", userMessage, e.getMessage(), e);
+        redirectAttributes.addFlashAttribute("message", userMessage);
     }
 }

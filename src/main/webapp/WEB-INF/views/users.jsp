@@ -1,15 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.Locale" %>
-<%
-  String lang = (String) session.getAttribute("lang");
-  if (lang == null || lang.isEmpty()) {
-    lang = "en";
-  }
-  ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
-%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,8 +94,8 @@
         </div>
         <div class="mb-3">
           <select class="form-select" name="role">
-            <option value="USER">User</option>
-            <option value="ADMIN">Administrator</option>
+            <option value="ROLE_USER">User</option>
+            <option value="ROLE_ADMIN">Administrator</option>
           </select>
         </div>
         <input type="hidden" name="action" value="add">
@@ -127,8 +119,8 @@
           </div>
           <div class="mb-3">
             <select class="form-select" name="role">
-              <option value="USER" <c:if test="${user.role == 'USER'}">selected</c:if>>User</option>
-              <option value="ADMIN" <c:if test="${user.role == 'ADMIN'}">selected</c:if>>Administrator</option>
+              <option value="ROLE_USER" <c:if test="${user.role == 'ROLE_USER'}">selected</c:if>>User</option>
+              <option value="ROLE_ADMIN" <c:if test="${user.role == 'ROLE_ADMIN'}">selected</c:if>>Administrator</option>
             </select>
           </div>
           <div class="text-center">

@@ -33,9 +33,10 @@ public interface SessionRepository extends JpaRepository<FilmSession, Long> {
      * @return true if a conflicting session exists, otherwise false.
      */
     @Query("SELECT COUNT(fs) > 0 FROM FilmSession fs WHERE fs.movie.id = :movieId AND fs.date = :date " +
-            "AND ((fs.startTime BETWEEN :start AND :end) OR (fs.endTime BETWEEN :start AND :end))")
+            "AND (:start < fs.endTime AND :end > fs.startTime)")
     boolean existsOverlappingSession(@Param("movieId") Long movieId,
                                      @Param("date") LocalDate date,
                                      @Param("start") LocalTime startTime,
                                      @Param("end") LocalTime endTime);
+
 }

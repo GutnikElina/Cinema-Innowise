@@ -6,6 +6,7 @@ import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,40 +23,35 @@ public class MyTicketsController {
     private final TicketService ticketService;
 
     @GetMapping
-    public String getUserTickets(@SessionAttribute("userId") Long userId, RedirectAttributes redirectAttributes) {
+    public String getUserTickets(@SessionAttribute("userId") Long userId, Model model, RedirectAttributes redirectAttributes) {
         try {
             Set<TicketResponseDTO> tickets = ticketService.findByUserId(userId.toString());
-            redirectAttributes.addFlashAttribute("tickets", tickets);
+            model.addAttribute("tickets", tickets);
         } catch (IllegalArgumentException | NoDataFoundException e) {
             handleError(redirectAttributes, "Error! " + e.getMessage());
         } catch (Exception e) {
             handleError(redirectAttributes, "An unexpected error occurred while loading tickets");
         }
-        return "redirect:/user/tickets";
+        return "myTickets";
     }
 
     @PostMapping
     public String processTicketAction(@RequestParam String action,
                                       @RequestParam(required = false) Long ticketId,
-                                      @SessionAttribute("userId") Long userId,
                                       RedirectAttributes redirectAttributes) {
         try {
-            String message = processTicketAction(action, ticketId);
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
+            if ("returnMyTicket".equals(action)) {
+                String message = ticketService.processTicketAction(action, ticketId);
+                redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
+            } else {
+                redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! Unknown action requested");
+            }
         } catch (IllegalArgumentException | NoDataFoundException e) {
             handleError(redirectAttributes, e.getMessage());
         } catch (Exception e) {
             handleError(redirectAttributes, "An unexpected error occurred while processing ticket action");
         }
         return "redirect:/user/tickets";
-    }
-
-    private String processTicketAction(String action, Long ticketId) {
-        if ("returnMyTicket".equals(action)) {
-            return ticketService.processTicketAction(action, ticketId);
-        } else {
-            return "Error! Unknown action requested";
-        }
     }
 
     private void handleError(RedirectAttributes redirectAttributes, String message) {

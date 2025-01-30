@@ -1,13 +1,6 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.Locale" %>
-<%
-  String lang = (String) session.getAttribute("lang");
-  if (lang == null || lang.isEmpty()) {
-    lang = "en";
-  }
-  ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(lang));
-%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+
 <html>
 <head>
   <title>Login</title>
@@ -18,33 +11,39 @@
 <body class="bg-dark text-white">
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
   <div class="form-container bg-secondary mx-auto p-5 shadow-lg rounded">
-    <h2 class="text-center mb-4 text-warning"><%= messages.getString("welcomeBack.message") %></h2>
+    <h2 class="text-center mb-4 text-warning">
+      <spring:message code="welcomeBack.message" />
+    </h2>
 
-    <c:if test="${not empty message}">
-      <div class="alert
-        <c:if test="${message.toLowerCase().contains('error')}">alert-danger</c:if>
-        <c:if test="${message.toLowerCase().contains('success')}">alert-success</c:if>"
-           role="alert">
-          ${message}
+    <c:if test="${param.error != false}">
+      <div class="alert alert-danger" role="alert">
+        <spring:message code="errorLogin.message" />
       </div>
-      ${pageContext.session.removeAttribute("message")}
     </c:if>
 
     <form method="post" action="${pageContext.request.contextPath}/login">
       <div class="mb-3">
-        <label for="login" class="form-label"><%= messages.getString("username.user") %></label>
-        <input type="text" id="login" name="login" class="form-control" placeholder="<%= messages.getString("enterUsername.message") %>" required>
+        <label for="login" class="form-label">
+          <spring:message code="username.user" />
+        </label>
+        <input type="text" id="login" name="username" class="form-control" placeholder="<spring:message code='enterUsername.message' />" required>
       </div>
       <div class="mb-3">
-        <label for="password" class="form-label"><%= messages.getString("password.user") %></label>
-        <input type="password" id="password" name="password" class="form-control" placeholder="<%= messages.getString("enterPassword.message") %>" required>
+        <label for="password" class="form-label">
+          <spring:message code="password.user" />
+        </label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="<spring:message code='enterPassword.message' />" required>
       </div>
       <div class="text-center">
-        <button type="submit" class="btn btn-warning w-100"><%= messages.getString("login.button") %></button>
+        <button type="submit" class="btn btn-warning w-100">
+          <spring:message code="login.button" />
+        </button>
       </div>
     </form>
     <div class="text-center mt-3">
-      <a href="${pageContext.request.contextPath}/registration" class="btn btn-link text-white-50 text-decoration-none"><%= messages.getString("register.button") %></a>
+      <a href="${pageContext.request.contextPath}/registration" class="btn btn-link text-white-50 text-decoration-none">
+        <spring:message code="register.button" />
+      </a>
     </div>
   </div>
 </div>

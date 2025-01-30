@@ -37,11 +37,4 @@ public class Ticket {
     @Column(name = "request_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private RequestType requestType;
-
-    @PrePersist
-    private void prePersist() {
-        if (purchaseTime == null) {
-            purchaseTime = LocalDateTime.now();
-        }
-    }
 }

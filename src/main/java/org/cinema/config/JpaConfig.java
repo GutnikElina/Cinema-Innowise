@@ -22,6 +22,7 @@ public class JpaConfig {
     @Bean
     public DataSource dataSource() {
         HikariConfig hikariConfig = new HikariConfig();
+
         hikariConfig.setDataSourceClassName("com.mysql.cj.jdbc.MysqlDataSource");
         hikariConfig.addDataSourceProperty("url", "jdbc:mysql://127.0.0.1:3306/cinema_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Moscow");
         hikariConfig.addDataSourceProperty("user", "root");
@@ -41,25 +42,22 @@ public class JpaConfig {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource());
         factoryBean.setPackagesToScan("org.cinema.model");
-        factoryBean.setPersistenceUnitName("cinemaPU");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         factoryBean.setJpaVendorAdapter(vendorAdapter);
 
         Properties jpaProperties = new Properties();
-        jpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
         jpaProperties.put("hibernate.current_session_context_class", "thread");
         jpaProperties.put("hibernate.jdbc.time_zone", "Europe/Moscow");
         jpaProperties.put("hibernate.show_sql", "true");
         jpaProperties.put("hibernate.hbm2ddl.auto", "update");
 
         factoryBean.setJpaProperties(jpaProperties);
-
-        factoryBean.setEntityManagerFactoryInterface(jakarta.persistence.EntityManagerFactory.class);
+        factoryBean.setEntityManagerFactoryInterface(jakarta.persistence.EntityManagerFactory.class); //почему без
+        // этого конфликт между EntityManagerFactory и SessionFactory
 
         return factoryBean;
     }
-
 
     @Bean
     public PlatformTransactionManager transactionManager() {
@@ -69,7 +67,7 @@ public class JpaConfig {
     }
 
     @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+    public static PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 }

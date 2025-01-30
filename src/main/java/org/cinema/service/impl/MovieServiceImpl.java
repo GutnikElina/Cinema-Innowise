@@ -1,7 +1,7 @@
 package org.cinema.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.config.LocaleConfig;
 import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.mapper.movieMapper.MovieResponseMapper;
 import org.cinema.model.Movie;
@@ -12,16 +12,19 @@ import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
+
+    @Autowired
+    private MovieServiceImpl(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
+    }
 
     @Override
     public List<MovieResponseDTO> findAll() {

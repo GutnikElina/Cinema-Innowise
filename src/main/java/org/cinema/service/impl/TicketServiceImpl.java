@@ -1,7 +1,6 @@
 package org.cinema.service.impl;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
@@ -12,15 +11,15 @@ import org.cinema.exception.NoDataFoundException;
 import org.cinema.mapper.filmSessionMapper.FilmSessionResponseMapper;
 import org.cinema.mapper.ticketMapper.TicketCreateMapper;
 import org.cinema.mapper.ticketMapper.TicketResponseMapper;
-import org.cinema.mapper.ticketMapper.TicketUpdateMapper;
 import org.cinema.model.*;
 import org.cinema.repository.SessionRepository;
 import org.cinema.repository.TicketRepository;
 import org.cinema.repository.UserRepository;
 import org.cinema.service.TicketService;
 import org.cinema.util.ValidationUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,12 +27,20 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
+
+    @Autowired
+    private TicketServiceImpl(TicketRepository ticketRepository,
+                              UserRepository userRepository,
+                              SessionRepository sessionRepository) {
+        this.ticketRepository = ticketRepository;
+        this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
+    }
 
     @Override
     @Transactional
@@ -46,6 +53,10 @@ public class TicketServiceImpl implements TicketService {
         FilmSession filmSession = sessionRepository.findById(createDTO.getSessionId())
                 .orElseThrow(() -> new NoDataFoundException("Session with this ID doesn't exist!"));
 
+        if (ticketRepository.existsBySessionAndSeat(filmSession.getId(), Integer.parseInt(createDTO.getSeatNumber()))) {
+            throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
+        }
+
         ValidationUtil.validateSeatNumber(createDTO.getSeatNumber(), filmSession.getCapacity());
 
         Ticket ticket = TicketCreateMapper.INSTANCE.toEntity(createDTO);
@@ -54,10 +65,9 @@ public class TicketServiceImpl implements TicketService {
         ticket.setStatus(status);
         ticket.setRequestType(requestType);
 
-        if (ticketRepository.existsBySessionAndSeat(filmSession.getId(), Integer.parseInt(createDTO.getSeatNumber()))) {
-            throw new EntityAlreadyExistException("Ticket already exists with this session and seat. Try again.");
+        if (ticket.getPurchaseTime() == null) {
+            ticket.setPurchaseTime(LocalDateTime.now());
         }
-
         ticketRepository.save(ticket);
 
         return "Success! Ticket was successfully added to the database!";
@@ -66,6 +76,9 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public String update(TicketUpdateDTO updateDTO) {
+        Ticket existingTicket = ticketRepository.findById(updateDTO.getId())
+                .orElseThrow(() -> new NoDataFoundException("Ticket with this ID doesn't exist!"));
+
         Status status = Status.valueOf(updateDTO.getStatus().toUpperCase());
         RequestType requestType = RequestType.valueOf(updateDTO.getRequestType().toUpperCase());
 
@@ -76,16 +89,13 @@ public class TicketServiceImpl implements TicketService {
 
         ValidationUtil.validateSeatNumber(updateDTO.getSeatNumber(), filmSession.getCapacity());
 
-        Ticket ticket = TicketUpdateMapper.INSTANCE.toEntity(updateDTO);
-        ticket.setUser(user);
-        ticket.setFilmSession(filmSession);
-        ticket.setStatus(status);
-        ticket.setRequestType(requestType);
+        existingTicket.setStatus(status);
+        existingTicket.setRequestType(requestType);
+        existingTicket.setUser(user);
+        existingTicket.setFilmSession(filmSession);
+        existingTicket.setSeatNumber(updateDTO.getSeatNumber());
 
-        Ticket existingTicket = ticketRepository.findById(ticket.getId())
-                .orElseThrow(() -> new NoDataFoundException("Ticket with this ID doesn't exist!"));
-
-        ticketRepository.save(ticket);
+        ticketRepository.save(existingTicket);
 
         return "Success! Ticket was successfully updated in the database!";
     }

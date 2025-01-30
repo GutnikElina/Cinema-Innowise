@@ -52,15 +52,6 @@ public interface UserService {
     Set<UserResponseDTO> findAll();
 
     /**
-     * Logs a user in.
-     *
-     * @param userUpdateDTO the DTO containing login details.
-     * @param session the current HTTP session.
-     * @return the updated HTTP session.
-     */
-    HttpSession login(UserUpdateDTO userUpdateDTO, HttpSession session);
-
-    /**
      * Registers a new user.
      *
      * @param userCreateDTO the DTO containing registration details.
@@ -74,4 +65,6 @@ public interface UserService {
      * @param userCreateDTO the DTO containing updated profile details.
      */
     void updateProfile(long userId, UserUpdateDTO userCreateDTO);
+
+    Optional<UserResponseDTO> findByUsername(String username);
 }
