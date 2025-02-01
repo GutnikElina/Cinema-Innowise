@@ -22,12 +22,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return an {@link Optional} containing the user, or empty if not found.
      */
     Optional<User> findByUsername(String username);
-
-    /**
-     * Retrieves all users as a set.
-     *
-     * @return a set of all {@link User} entities.
-     */
-    @Query("SELECT u FROM User u ORDER BY u.createdAt ASC")
-    Set<User> findAllOrderedByCreatedAt();
 }

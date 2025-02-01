@@ -10,6 +10,5 @@ import org.mapstruct.factory.Mappers;
 public interface UserUpdateMapper {
     UserUpdateMapper INSTANCE = Mappers.getMapper(UserUpdateMapper.class);
 
-    @Mapping(target = "password", source = "password")
     User toEntity(UserUpdateDTO userUpdateDTO);
 }

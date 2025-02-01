@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
-@RequestMapping("/admin/tickets")
 @RequiredArgsConstructor
 public class AdminTicketController {
 
@@ -26,11 +25,11 @@ public class AdminTicketController {
     private final SessionService sessionService;
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/admin/tickets")
     public String showTicketsPage(@RequestParam(value = "action", required = false) String action,
                                   @RequestParam(value = "id", required = false) String ticketId,
                                   Model model, RedirectAttributes redirectAttributes) {
-        log.debug("Handling GET request for tickets...");
+        log.debug("Handling GET request for admin tickets page...");
 
         try {
             if ("edit".equals(action) && ticketId != null) {
@@ -40,14 +39,14 @@ public class AdminTicketController {
         } catch (IllegalArgumentException e) {
             handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
-            handleError(redirectAttributes, "Error! " + e.getMessage(), e);
+            handleError(redirectAttributes, e.getMessage(), e);
         } catch (Exception e) {
             handleError(redirectAttributes, "An unexpected error occurred while fetching data", e);
         }
         return "tickets";
     }
 
-    @PostMapping
+    @PostMapping("/admin/tickets")
     public String processTicketAction(@RequestParam String action, @RequestParam(required = false) String id,
                                       @RequestParam(required = false) String userId,
                                       @RequestParam(required = false) String sessionId,
@@ -55,7 +54,7 @@ public class AdminTicketController {
                                       @RequestParam(required = false) String status,
                                       @RequestParam(required = false) String requestType,
                                       RedirectAttributes redirectAttributes) {
-        log.debug("Handling POST request for tickets operations...");
+        log.debug("Handling POST request for admin tickets page...");
 
         try {
             String message = processAction(action, id, userId, sessionId, seatNumber, status, requestType);
@@ -63,7 +62,7 @@ public class AdminTicketController {
         } catch (IllegalArgumentException e) {
             handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            handleError(redirectAttributes, "Error! " + e.getMessage(), e);
+            handleError(redirectAttributes, e.getMessage(), e);
         } catch (Exception e) {
             handleError(redirectAttributes, "An unexpected error occurred", e);
         }
@@ -117,8 +116,7 @@ public class AdminTicketController {
     }
 
     private void handleEditAction(String ticketId, Model model) {
-        TicketResponseDTO ticketToEdit = ticketService.getById(ticketId).orElseThrow(() ->
-                new NoDataFoundException("Error! Ticket with ID " + ticketId + " doesn't exist!"));
+        TicketResponseDTO ticketToEdit = ticketService.getById(ticketId);
         log.info(ticketToEdit.toString());
         model.addAttribute("ticketToEdit", ticketToEdit);
     }

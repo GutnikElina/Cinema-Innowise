@@ -4,8 +4,7 @@ import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.dto.ticketDTO.TicketResponseDTO;
 import org.cinema.dto.ticketDTO.TicketUpdateDTO;
-import java.util.Optional;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Service interface for managing tickets.
@@ -39,16 +38,16 @@ public interface TicketService {
      * Retrieves a ticket by its ID.
      *
      * @param ticketId the ID of the ticket to retrieve.
-     * @return an {@link Optional} containing the {@link TicketResponseDTO}, if found.
+     * @return containing the {@link TicketResponseDTO}, if found.
      */
-    Optional<TicketResponseDTO> getById(String ticketId);
+    TicketResponseDTO getById(String ticketId);
 
     /**
      * Retrieves all tickets.
      *
-     * @return a set of {@link TicketResponseDTO}.
+     * @return a list of {@link TicketResponseDTO}.
      */
-    Set<TicketResponseDTO> findAll();
+    List<TicketResponseDTO> findAll();
 
     /**
      * Retrieves session details along with associated tickets.
@@ -70,9 +69,9 @@ public interface TicketService {
      * Retrieves tickets by user ID.
      *
      * @param userId the ID of the user to retrieve tickets for.
-     * @return a set of {@link TicketResponseDTO}.
+     * @return a list of {@link TicketResponseDTO}.
      */
-    Set<TicketResponseDTO> findByUserId(String userId);
+    List<TicketResponseDTO> findByUserId(String userId);
 
     /**
      * Processes an action on a ticket.

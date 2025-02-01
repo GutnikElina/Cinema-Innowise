@@ -1,12 +1,12 @@
 package org.cinema.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.userDTO.UserResponseDTO;
 import org.cinema.dto.userDTO.UserUpdateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/edit")
 @RequiredArgsConstructor
@@ -27,10 +28,11 @@ public class UserEditController {
 
     @GetMapping()
     public String showEditProfilePage(@RequestParam(required = false) String message, Model model, HttpSession session) {
+        log.debug("Handling GET request for edit user data page...");
+
         try {
             Long userId = getUserIdFromSession(session);
-            UserResponseDTO user = userService.getById(String.valueOf(userId))
-                    .orElseThrow(() -> new NoDataFoundException("User not found with ID: " + userId));
+            UserResponseDTO user = userService.getById(String.valueOf(userId));
 
             model.addAttribute("user", user);
             if (message != null && !message.isEmpty()) {
@@ -41,7 +43,7 @@ public class UserEditController {
             model.addAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
             model.addAttribute("user", null);
         } catch (NoDataFoundException e) {
-            model.addAttribute(MESSAGE_PARAM, "Error! " + e.getMessage());
+            model.addAttribute(MESSAGE_PARAM, e.getMessage());
             model.addAttribute("user", null);
         } catch (Exception e) {
             model.addAttribute(MESSAGE_PARAM, "An unexpected error occurred while loading the profile");
@@ -54,6 +56,8 @@ public class UserEditController {
     public String updateProfile(@RequestParam String username,
                                 @RequestParam(required = false) String password,
                                 HttpSession session, RedirectAttributes redirectAttributes) {
+        log.debug("Handling POST request for edit user data page...");
+
         try {
             Long userId = getUserIdFromSession(session);
 
@@ -75,7 +79,7 @@ public class UserEditController {
             redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
             return "redirect:/user/edit";
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! " + e.getMessage());
+            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, e.getMessage());
             return "redirect:/user/edit";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "An unexpected error occurred while updating the profile");

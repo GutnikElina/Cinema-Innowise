@@ -3,7 +3,7 @@ package org.cinema.service;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Service interface for managing film sessions.
@@ -46,15 +46,15 @@ public interface SessionService {
     /**
      * Retrieves all film sessions.
      *
-     * @return a set of {@link FilmSessionResponseDTO}.
+     * @return a list of {@link FilmSessionResponseDTO}.
      */
-    Set<FilmSessionResponseDTO> findAll();
+    List<FilmSessionResponseDTO> findAll();
 
     /**
      * Retrieves film sessions by date.
      *
      * @param date the date to filter sessions by.
-     * @return a set of {@link FilmSessionResponseDTO}.
+     * @return a list of {@link FilmSessionResponseDTO}.
      */
-    Set<FilmSessionResponseDTO> findByDate(String date);
+    List<FilmSessionResponseDTO> findByDate(String date);
 }

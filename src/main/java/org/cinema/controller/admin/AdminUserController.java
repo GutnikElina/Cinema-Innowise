@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class AdminUserController {
     public String showUsersPage(@RequestParam(value = "action", required = false) String action,
                                 @RequestParam(value = "id", required = false) String userId,
                                 Model model) {
-        log.debug("Handling GET request for users...");
+        log.debug("Handling GET request for admin users page...");
 
         try {
             if ("edit".equals(action)) {
@@ -62,7 +63,7 @@ public class AdminUserController {
                                     @RequestParam(required = false) String password,
                                     @RequestParam(required = false) String role,
                                     RedirectAttributes redirectAttributes) {
-        log.debug("Handling POST request for users operations...");
+        log.debug("Handling POST request for admin users page...");
 
         try {
             String message = processAction(action, id, username, password, role);
@@ -95,7 +96,7 @@ public class AdminUserController {
 
     private void loadDataForView(Model model) {
         log.debug("Loading data for view...");
-        Set<UserResponseDTO> users = userService.findAll();
+        List<UserResponseDTO> users = userService.findAll();
         model.addAttribute("users", users);
     }
 
@@ -127,8 +128,7 @@ public class AdminUserController {
     }
 
     private void handleEditAction(String userId, Model model) {
-        UserResponseDTO user = userService.getById(userId)
-                .orElseThrow(() -> new NoDataFoundException("Error! User with ID " + userId + " doesn't exist."));
+        UserResponseDTO user = userService.getById(userId);
         model.addAttribute("user", user);
     }
 

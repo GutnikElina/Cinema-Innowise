@@ -9,6 +9,7 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class FilmSessionCreateDTO {
+    private Long movieId;
     private BigDecimal price;
     private LocalDate date;
     private LocalTime startTime;

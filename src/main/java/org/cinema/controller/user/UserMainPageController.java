@@ -6,7 +6,6 @@ import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
 import org.cinema.service.MovieService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,7 @@ public class UserMainPageController {
     public String getUserMainPage(@RequestParam(value = "movieTitle", required = false) String movieTitle,
                                   @RequestParam(value = "message", required = false) String message,
                                   Model model) {
-        log.debug("Handling GET request for search movies...");
+        log.debug("Handling GET request for user main page...");
 
         try {
             if (movieTitle != null && !movieTitle.trim().isEmpty()) {
@@ -48,7 +47,7 @@ public class UserMainPageController {
             handleError(model, "Error! Invalid input: " + e.getMessage(),
                     "Validation error during movie search", e);
         } catch (NoDataFoundException e) {
-            handleError(model, "Error! " + e.getMessage(),
+            handleError(model, e.getMessage(),
                     "No movies found: {}", e, e.getMessage());
         } catch (OmdbApiException e) {
             handleError(model, "Error! Failed to communicate with OMDB API. Please try again later.",
@@ -63,6 +62,8 @@ public class UserMainPageController {
     @GetMapping("/search")
     public String searchMovies(@RequestParam(value = "movieTitle", required = false) String movieTitle,
                                RedirectAttributes redirectAttributes) {
+        log.debug("Handling GET request for search movies...");
+
         try {
             if (movieTitle != null && !movieTitle.trim().isEmpty()) {
                 log.debug("Start to fetch movies with title: {}", movieTitle);
@@ -79,7 +80,7 @@ public class UserMainPageController {
             redirectAttributes.addFlashAttribute("message", "Error! Invalid input: " + e.getMessage());
         } catch (NoDataFoundException e) {
             log.error("No movies found", e);
-            redirectAttributes.addFlashAttribute("message", "Error! " + e.getMessage());
+            redirectAttributes.addFlashAttribute("message", e.getMessage());
             redirectAttributes.addFlashAttribute("movies", Collections.emptyList());
         } catch (OmdbApiException e) {
             log.error("OMDB API error during movie search", e);

@@ -10,6 +10,7 @@ import java.time.LocalTime;
 @Builder
 public class FilmSessionUpdateDTO {
     private Long id;
+    private Long movieId;
     private BigDecimal price;
     private LocalDate date;
     private LocalTime startTime;

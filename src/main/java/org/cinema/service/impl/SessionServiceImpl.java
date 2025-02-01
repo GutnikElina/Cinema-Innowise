@@ -1,6 +1,7 @@
 package org.cinema.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
@@ -16,60 +17,45 @@ import org.cinema.repository.MovieRepository;
 import org.cinema.repository.SessionRepository;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
-import java.util.Optional;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
     private final SessionRepository sessionRepository;
     private final MovieRepository movieRepository;
 
-    @Autowired
-    private SessionServiceImpl(SessionRepository sessionRepository,
-                               MovieRepository movieRepository) {
-        this.sessionRepository = sessionRepository;
-        this.movieRepository = movieRepository;
-    }
-
     @Override
     @Transactional
     public String save(FilmSessionCreateDTO createDTO, Long movieId) {
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() ->
-                new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!")
-        );
+        Movie movie = findMovieById(movieId);
 
         FilmSession filmSession = FilmSessionCreateMapper.INSTANCE.toEntity(createDTO);
         filmSession.setMovie(movie);
 
-        if (sessionRepository.existsOverlappingSession(movieId, filmSession.getDate(),
-                filmSession.getStartTime(), filmSession.getEndTime())) {
-            throw new EntityAlreadyExistException("Film session already exists on this film and time. Try again.");
-        }
+        checkForOverlappingSessions(movieId, filmSession);
 
         sessionRepository.save(filmSession);
-
-        return "Film session successfully added.";
+        log.info("Film session successfully added for movie '{}'.", filmSession.getMovie().getTitle());
+        return "Success! Film session successfully added.";
     }
 
     @Override
     @Transactional
     public String update(FilmSessionUpdateDTO updateDTO, Long movieId) {
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() ->
-                new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!")
-        );
+        Movie movie = findMovieById(movieId);
 
         FilmSession filmSession = FilmSessionUpdateMapper.INSTANCE.toEntity(updateDTO);
         filmSession.setMovie(movie);
 
         sessionRepository.save(filmSession);
-
-        return "Film session successfully updated.";
+        log.info("Film session successfully updated with id '{}'.", filmSession.getId());
+        return "Success! Film session successfully updated.";
     }
 
     @Override
@@ -77,31 +63,42 @@ public class SessionServiceImpl implements SessionService {
     public String delete(String id) {
         Long sessionId = ValidationUtil.parseLong(id);
         sessionRepository.deleteById(sessionId);
-        return "Film session successfully deleted.";
+        log.info("Film session successfully deleted with id '{}'.", id);
+        return "Success! Film session successfully deleted.";
     }
 
     @Override
     public FilmSessionResponseDTO getById(String id) {
         Long sessionId = ValidationUtil.parseLong(id);
-        Optional<FilmSession> session = sessionRepository.findById(sessionId);
-        return session.map(FilmSessionResponseMapper.INSTANCE::toDTO)
-                .orElseThrow(() -> new NoDataFoundException("Film session not found."));
-    }
-
-    @Override
-    public Set<FilmSessionResponseDTO> findAll() {
-        Set<FilmSession> sessions = sessionRepository.findAll().stream().collect(Collectors.toSet());
-        return sessions.stream()
+        return sessionRepository.findById(sessionId)
                 .map(FilmSessionResponseMapper.INSTANCE::toDTO)
-                .collect(Collectors.toSet());
+                .orElseThrow(() -> new NoDataFoundException("Error! Film session not found."));
     }
 
     @Override
-    public Set<FilmSessionResponseDTO> findByDate(String dateStr) {
+    public List<FilmSessionResponseDTO> findAll() {
+        return sessionRepository.findAll().stream()
+                .map(FilmSessionResponseMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FilmSessionResponseDTO> findByDate(String dateStr) {
         ValidationUtil.validateDate(dateStr);
-        Set<FilmSession> sessions = sessionRepository.findByDate(LocalDate.parse(dateStr));
-        return sessions.stream()
+        return sessionRepository.findByDate(LocalDate.parse(dateStr)).stream()
                 .map(FilmSessionResponseMapper.INSTANCE::toDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
+    }
+
+    private Movie findMovieById(Long movieId) {
+        return movieRepository.findById(movieId)
+                .orElseThrow(() -> new NoDataFoundException("Error! Movie with ID " + movieId + " doesn't exist!"));
+    }
+
+    private void checkForOverlappingSessions(Long movieId, FilmSession filmSession) {
+        if (sessionRepository.existsOverlappingSession(movieId, filmSession.getDate(),
+                filmSession.getStartTime(), filmSession.getEndTime())) {
+            throw new EntityAlreadyExistException("Error! Film session already exists on this film and time. Try again.");
+        }
     }
 }

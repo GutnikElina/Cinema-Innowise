@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.userDTO.UserResponseDTO;
+import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,8 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -30,32 +29,25 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         String username = ((UserDetails) authentication.getPrincipal()).getUsername();
 
-        Optional<UserResponseDTO> userOptional = userService.findByUsername(username);
-        if (userOptional.isPresent()) {
-            UserResponseDTO user = userOptional.get();
+        UserResponseDTO user = userService.findByUsername(username);
 
-            HttpSession session = request.getSession();
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("username", user.getUsername());
-
-            log.info("User ID {} stored in session", user.getId());
-        } else {
-            log.warn("User {} not found in database", username);
-        }
+        HttpSession session = request.getSession();
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("username", user.getUsername());
 
         String redirectUrl = determineTargetUrl(authentication);
-        log.info("Successfully redirected to {}", redirectUrl);
+        log.debug("Redirecting to {}", redirectUrl);
+
         response.sendRedirect(redirectUrl);
     }
 
     private String determineTargetUrl(Authentication authentication) {
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        GrantedAuthority authority = authentication.getAuthorities().iterator().next();
 
-        authorities.forEach(authority -> log.info("Authority: {}", authority.getAuthority()));
-
-        boolean isAdmin = authorities.stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
-
-        return isAdmin ? "/Cinema/admin" : "/Cinema/user";
+        if (authority.getAuthority().equals("ROLE_ADMIN")) {
+            return "/Cinema/admin";
+        } else {
+            return "/Cinema/user";
+        }
     }
 }

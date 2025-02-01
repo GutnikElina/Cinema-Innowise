@@ -1,7 +1,7 @@
 package org.cinema.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.model.Role;
+import org.apache.commons.lang3.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,16 +33,6 @@ public class ValidationUtil {
         if (password.length() < 5) {
             log.error("Validation failed: password is too short");
             throw new IllegalArgumentException("Password must be at least 5 characters long.");
-        }
-    }
-
-    public static void validateRole(String role) {
-        validateNotBlank(role, "Role");
-        try {
-            Role.valueOf(role.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            log.error("Validation failed: role '{}' is not valid", role);
-            throw new IllegalArgumentException("Invalid role selected.");
         }
     }
 
@@ -120,20 +110,15 @@ public class ValidationUtil {
         }
     }
 
-    public static int parseId(String id) {
+    public static void parseId(String id) {
         validateNotBlank(id, "ID");
         try {
             int parsedId = Integer.parseInt(id);
             validatePositive(parsedId, id, "int");
-            return parsedId;
         } catch (NumberFormatException e) {
             log.error("Validation failed: int ID '{}' has invalid format", id);
             throw new IllegalArgumentException("ID must be a valid positive integer.");
         }
-    }
-
-    public static void validateTitle(String title) {
-        validateNotBlank(title, "Movie title");
     }
 
     public static void validateTime(String startTimeStr, String endTimeStr) {
@@ -150,14 +135,10 @@ public class ValidationUtil {
     }
 
     public static void validateNotBlank(String value, String fieldName) {
-        if (isNullOrBlank(value)) {
+        if (StringUtils.isBlank(value)) {
             log.error("Validation failed: {} is null or empty", fieldName);
             throw new IllegalArgumentException(fieldName + " cannot be null or empty.");
         }
-    }
-
-    private static boolean isNullOrBlank(String str) {
-        return str == null || str.isBlank();
     }
 
     private static void validatePositive(long value, String id, String type) {

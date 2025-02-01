@@ -39,7 +39,7 @@
     <p class="lead">Manage users, sessions, and tickets efficiently.</p>
     <form method="get" action="${pageContext.request.contextPath}/admin" class="mt-4">
     <div class="input-group">
-        <input type="text" name="movieTitle" class="form-control" placeholder="Search movies..." required>
+        <input type="text" id="movieTitle" name="movieTitle" class="form-control" placeholder="Search movies..." required>
         <button type="submit" class="btn btn-primary">Search</button>
       </div>
     </form>

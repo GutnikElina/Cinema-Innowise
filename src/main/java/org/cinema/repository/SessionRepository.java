@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Repository interface for managing {@link FilmSession} entities.
@@ -19,9 +19,9 @@ public interface SessionRepository extends JpaRepository<FilmSession, Long> {
      * Retrieves all film sessions for the given date.
      *
      * @param date the date for which film sessions are to be retrieved.
-     * @return a set of {@link FilmSession} entities for the given date.
+     * @return a list of {@link FilmSession} entities for the given date.
      */
-    Set<FilmSession> findByDate(LocalDate date);
+    List<FilmSession> findByDate(LocalDate date);
 
     /**
      * Checks if a film session overlaps with an existing one.

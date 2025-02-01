@@ -1,21 +1,21 @@
 package org.cinema.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/tickets/purchase")
 @RequiredArgsConstructor
@@ -31,8 +31,10 @@ public class TicketPurchaseController {
                                    @RequestParam(required = false) String sessionId,
                                    @RequestParam(required = false) String message,
                                    Model model) {
+        log.debug("Handling GET request for purchase page...");
+
         try {
-            Set<FilmSessionResponseDTO> filmSessions;
+            List<FilmSessionResponseDTO> filmSessions;
 
             if (date == null || date.isEmpty()) {
                 filmSessions = sessionService.findAll();
@@ -64,7 +66,7 @@ public class TicketPurchaseController {
             model.addAttribute("filmSessions", Collections.emptySet());
             model.addAttribute("selectedSession", null);
         } catch (NoDataFoundException e) {
-            model.addAttribute(MESSAGE_PARAM, "Error! " + e.getMessage());
+            model.addAttribute(MESSAGE_PARAM, e.getMessage());
             model.addAttribute("filmSessions", Collections.emptySet());
             model.addAttribute("selectedSession", null);
         } catch (Exception e) {
@@ -81,6 +83,8 @@ public class TicketPurchaseController {
                                  @RequestParam String seatNumber,
                                  @SessionAttribute("userId") Long userId,
                                  RedirectAttributes redirectAttributes) {
+        log.debug("Handling POST request for purchase page...");
+
         try {
             TicketCreateDTO ticketCreateDTO = TicketCreateDTO.builder()
                     .userId(userId)
@@ -96,7 +100,7 @@ public class TicketPurchaseController {
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
         } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! " + e.getMessage());
+            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, e.getMessage());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "An unexpected error occurred while processing the purchase.");
         }

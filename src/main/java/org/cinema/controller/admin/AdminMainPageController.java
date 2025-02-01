@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.apache.commons.lang3.StringUtils;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,54 +24,38 @@ public class AdminMainPageController {
     private final MovieService movieService;
 
     @GetMapping
-    public String showAdminPage(@RequestParam(value = "movieTitle", required = false) String movieTitle,
-                                Model model, RedirectAttributes redirectAttributes) {
+    public String showAdminPage(@RequestParam(value = "movieTitle", required = false) String movieTitle, Model model) {
         log.debug("Handling GET request for admin page...");
 
-        if (movieTitle != null && !movieTitle.trim().isEmpty()) {
-            return processMovieSearch(movieTitle.trim(), model, redirectAttributes);
-        } else {
-            log.debug("No movie title provided or movie title is empty");
+        if (StringUtils.isBlank(movieTitle)) {
+            log.debug("No movie title provided.");
             model.addAttribute("movies", Collections.emptyList());
+        } else {
+            return processMovieSearch(movieTitle.trim(), model);
         }
-
         return "admin";
     }
 
-    private String processMovieSearch(String movieTitle, Model model, RedirectAttributes redirectAttributes) {
+    private String processMovieSearch(String movieTitle, Model model) {
         try {
             log.debug("Searching for movies with title: {}", movieTitle);
             List<MovieResponseDTO> movies = movieService.searchMovies(movieTitle);
             model.addAttribute("movies", movies);
-
         } catch (IllegalArgumentException e) {
-            handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(),
-                    "Validation error for movie search", e);
-            model.addAttribute("movies", Collections.emptyList());
-
+            handleError(model, "Error! Invalid input: " + e.getMessage(), e);
         } catch (NoDataFoundException e) {
-            handleError(redirectAttributes, "Error! No movies found for title " + movieTitle,
-                    "No movies found for title '{}':{}", e, movieTitle);
-            model.addAttribute("movies", Collections.emptyList());
-
+            handleError(model, "Error! No movies found for title: " + movieTitle, e);
         } catch (OmdbApiException e) {
-            handleError(redirectAttributes, "Error! Failed to communicate with OMDB API. Please try again later.",
-                    "OMDB API error for title '{}'", e, movieTitle);
-            model.addAttribute("movies", Collections.emptyList());
-
+            handleError(model, "Error! Failed to communicate with OMDB API. Please try again later.", e);
         } catch (Exception e) {
-            handleError(redirectAttributes, "An unexpected error occurred while searching for movies",
-                    "Unexpected error during movie search for title '{}'", e, movieTitle);
-            model.addAttribute("movies", Collections.emptyList());
+            handleError(model, "An unexpected error occurred while searching for movies", e);
         }
-
         return "admin";
     }
 
-    private void handleError(RedirectAttributes redirectAttributes, String userMessage, String logMessage,
-                             Exception e, Object... logParams) {
-        log.error(logMessage, logParams, e);
-        redirectAttributes.addFlashAttribute("movies", Collections.emptyList());
-        redirectAttributes.addFlashAttribute("message", userMessage);
+    private void handleError(Model model, String userMessage, Exception e) {
+        log.error(userMessage, e);
+        model.addAttribute("movies", Collections.emptyList());
+        model.addAttribute("message", userMessage);
     }
 }

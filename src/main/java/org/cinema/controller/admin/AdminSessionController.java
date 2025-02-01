@@ -5,152 +5,110 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.filmSessionDTO.FilmSessionCreateDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.filmSessionDTO.FilmSessionUpdateDTO;
-import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.exception.EntityAlreadyExistException;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.exception.OmdbApiException;
 import org.cinema.service.MovieService;
 import org.cinema.service.SessionService;
-import org.cinema.util.ValidationUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import jakarta.validation.Valid;
 
 @Slf4j
 @Controller
 @RequestMapping("/admin/sessions")
 @RequiredArgsConstructor
+@Validated
 public class AdminSessionController {
+
+    private static final String MESSAGE_PARAM = "message";
+    private static final String ID_PARAM = "id";
+    private static final String SESSION_TO_EDIT = "sessionToEdit";
+    private static final String FILM_SESSION_PARAM = "filmSessions";
+    private static final String MOVIES_PARAM = "movies";
+    private static final String SESSION_PAGE = "sessions";
+    private static final String URL_REDIRECT = "redirect:/admin/sessions";
 
     private final SessionService sessionService;
     private final MovieService movieService;
 
     @GetMapping
-    public String getSessions(@RequestParam(value = "action", required = false) String action,
-                              @RequestParam(value = "id", required = false) String sessionId,
-                              Model model, RedirectAttributes redirectAttributes) {
-        log.debug("Handling GET request for film sessions...");
+    public String getSessions(Model model) {
+        log.debug("Fetching all sessions...");
+        model.addAttribute(FILM_SESSION_PARAM, sessionService.findAll());
+        model.addAttribute(MOVIES_PARAM, movieService.findAll());
+        return SESSION_PAGE;
+    }
+
+    @GetMapping("/edit")
+    public String getEditSession(@RequestParam(ID_PARAM) String sessionId, Model model) {
         try {
-            if ("edit".equals(action) && sessionId != null) {
-                handleEditAction(sessionId, model);
-            }
-
-            log.debug("Fetching all sessions...");
-            Set<FilmSessionResponseDTO> filmSessions = sessionService.findAll();
-            model.addAttribute("filmSessions", filmSessions);
-
-            List<MovieResponseDTO> movies = movieService.findAll();
-            model.addAttribute("movies", movies);
-
-        } catch (IllegalArgumentException e) {
-            handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(),
-                    "Validation error for session operation", e);
+            FilmSessionResponseDTO sessionToEdit = sessionService.getById(sessionId);
+            model.addAttribute(SESSION_TO_EDIT, sessionToEdit);
+            model.addAttribute(MOVIES_PARAM, movieService.findAll());
+            model.addAttribute(FILM_SESSION_PARAM, sessionService.findAll());
         } catch (NoDataFoundException e) {
-            handleError(redirectAttributes, "Error! No sessions found.",
-                    "No sessions found: {}", e, e.getMessage());
-        } catch (Exception e) {
-            handleError(redirectAttributes, "An unexpected error occurred while fetching sessions",
-                    "Unexpected error during sessions fetching: {}", e, e.getMessage());
+            log.error("Session not found: {}", e.getMessage());
+            model.addAttribute(MESSAGE_PARAM, "Error! Session not found.");
         }
-        return "sessions";
+        return SESSION_PAGE;
     }
 
-    @PostMapping
-    public String handleSessionActions(@RequestParam("action") String action,
-                                       @RequestParam Map<String, String> params,
-                                       RedirectAttributes redirectAttributes) {
-        log.debug("Handling POST request for film sessions...");
+    @PostMapping("/add")
+    public String addSession(@Valid @ModelAttribute FilmSessionCreateDTO createDTO,
+                             RedirectAttributes redirectAttributes) {
         try {
-            String message = switch (action) {
-                case "add" -> handleAddAction(params);
-                case "edit" -> handleEditSubmitAction(params);
-                case "delete" -> handleDeleteAction(params.get("id"));
-                default -> {
-                    log.warn("Unknown action requested: {}", action);
-                    yield "Unknown action requested";
-                }
-            };
-            redirectAttributes.addFlashAttribute("message", message);
-
-        } catch (IllegalArgumentException e) {
-            handleError(redirectAttributes, "Error! Invalid input: " + e.getMessage(),
-                    "Validation error for session operation", e);
-        } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            handleError(redirectAttributes, "Error! " + e.getMessage(),
-                    "Business error during session operation: {}", e, e.getMessage());
-        } catch (OmdbApiException e) {
-            handleError(redirectAttributes, "Error! Failed to communicate with OMDB API. Please try again later.",
-                    "OMDB API error during session operation", e);
+            String message = sessionService.save(createDTO, createDTO.getMovieId());
+            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
         } catch (Exception e) {
-            handleError(redirectAttributes, "An unexpected error occurred while processing the session",
-                    "Unexpected error during session operation: {}", e, e.getMessage());
+            handleError(redirectAttributes, resolveErrorMessage(e), e);
         }
-        return "redirect:/admin/sessions";
+        return URL_REDIRECT;
     }
 
-    private void handleEditAction(String sessionId, Model model) {
-        log.debug("Handling edit action for session ID: {}", sessionId);
-        if (sessionId.isEmpty()) {
-            throw new IllegalArgumentException("Session ID is required for editing");
+    @PostMapping("/edit")
+    public String editSession(@Valid @ModelAttribute FilmSessionUpdateDTO updateDTO,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            String message = sessionService.update(updateDTO, updateDTO.getMovieId());
+            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
+        } catch (Exception e) {
+            handleError(redirectAttributes, resolveErrorMessage(e), e);
         }
-        FilmSessionResponseDTO sessionToEdit = sessionService.getById(sessionId);
-        if (sessionToEdit == null) {
-            throw new NoDataFoundException("Session not found for ID: " + sessionId);
+        return URL_REDIRECT;
+    }
+
+    @PostMapping("/delete")
+    public String deleteSession(@RequestParam(ID_PARAM) String sessionId,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            String message = sessionService.delete(sessionId);
+            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
+        } catch (Exception e) {
+            handleError(redirectAttributes, resolveErrorMessage(e), e);
         }
-        model.addAttribute("sessionToEdit", sessionToEdit);
+        return URL_REDIRECT;
     }
 
-    private String handleAddAction(Map<String, String> params) {
-        log.debug("Handling add action for new session...");
-        Long movieId = ValidationUtil.parseLong(params.get("movieId"));
-
-        ValidationUtil.validateDate(params.get("date"));
-        ValidationUtil.validatePrice(params.get("price"));
-        ValidationUtil.validateCapacity(params.get("capacity"));
-        ValidationUtil.validateTime(params.get("startTime"), params.get("endTime"));
-
-        FilmSessionCreateDTO createDTO = FilmSessionCreateDTO.builder()
-                .price(new BigDecimal(params.get("price")))
-                .date(LocalDate.parse(params.get("date")))
-                .startTime(LocalTime.parse(params.get("startTime")))
-                .endTime(LocalTime.parse(params.get("endTime")))
-                .capacity(Integer.parseInt(params.get("capacity")))
-                .build();
-
-        return sessionService.save(createDTO, movieId);
+    private void handleError(RedirectAttributes redirectAttributes, String userMessage, Exception e) {
+        log.error(userMessage, e);
+        redirectAttributes.addFlashAttribute(MESSAGE_PARAM, userMessage);
     }
 
-    private String handleEditSubmitAction(Map<String, String> params) {
-        log.debug("Handling edit submit action...");
-        Long movieId = ValidationUtil.parseLong(params.get("movieId"));
-
-        FilmSessionUpdateDTO updateDTO = FilmSessionUpdateDTO.builder()
-                .id(ValidationUtil.parseLong(params.get("id")))
-                .price(new BigDecimal(params.get("price")))
-                .date(LocalDate.parse(params.get("date")))
-                .startTime(LocalTime.parse(params.get("startTime")))
-                .endTime(LocalTime.parse(params.get("endTime")))
-                .capacity(Integer.parseInt(params.get("capacity")))
-                .build();
-
-        return sessionService.update(updateDTO, movieId);
-    }
-
-    private String handleDeleteAction(String sessionId) {
-        log.debug("Handling delete action for session ID: {}", sessionId);
-        return sessionService.delete(sessionId);
-    }
-
-    private void handleError(RedirectAttributes redirectAttributes, String userMessage, String logMessage,
-                             Exception e, Object... logParams) {
-        log.error(logMessage, logParams, e);
-        redirectAttributes.addFlashAttribute("message", userMessage);
+    private String resolveErrorMessage(Exception e) {
+        if (e instanceof IllegalArgumentException) {
+            return "Error! Invalid input: " + e.getMessage();
+        } else if (e instanceof NoDataFoundException) {
+            return "Error! No data found. " + e.getMessage();
+        } else if (e instanceof EntityAlreadyExistException) {
+            return e.getMessage();
+        } else if (e instanceof OmdbApiException) {
+            return "Error! Failed to communicate with OMDB API. Please try again later.";
+        } else {
+            return "An unexpected error occurred during working with sessions";
+        }
     }
 }

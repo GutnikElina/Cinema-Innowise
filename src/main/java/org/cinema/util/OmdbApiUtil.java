@@ -28,6 +28,7 @@ import org.cinema.model.MovieAPI;
 @Slf4j
 @NoArgsConstructor
 public class OmdbApiUtil {
+
     private static final Properties properties = new Properties();
     private static final String API_KEY;
     private static final String BASE_URL;
@@ -57,7 +58,7 @@ public class OmdbApiUtil {
      */
     public static List<MovieAPI> searchMovies(String title) {
         log.debug("Starting movie search for title: {}", title);
-        ValidationUtil.validateTitle(title);
+        ValidationUtil.validateNotBlank(title, "movie_title");
 
         try {
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);

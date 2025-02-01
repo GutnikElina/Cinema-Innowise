@@ -1,13 +1,13 @@
 package org.cinema.wrapper;
 
+import lombok.RequiredArgsConstructor;
 import org.cinema.model.User;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserWrapper implements UserDetails {
 
     private final User user;

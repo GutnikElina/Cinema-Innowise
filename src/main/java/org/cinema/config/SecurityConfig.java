@@ -38,7 +38,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
                         .anyRequest().permitAll())
-                //.exceptionHandling((ex) -> ex.accessDeniedPage("/denied"))
                 .build();
     }
 

@@ -1,30 +1,26 @@
 package org.cinema.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cinema.config.LocaleConfig;
 import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.mapper.movieMapper.MovieResponseMapper;
+import org.cinema.mapper.movieMapper.MovieApiMapper;
 import org.cinema.model.Movie;
 import org.cinema.model.MovieAPI;
 import org.cinema.repository.MovieRepository;
 import org.cinema.service.MovieService;
 import org.cinema.util.OmdbApiUtil;
 import org.cinema.util.ValidationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
-
-    @Autowired
-    private MovieServiceImpl(MovieRepository movieRepository) {
-        this.movieRepository = movieRepository;
-    }
 
     @Override
     public List<MovieResponseDTO> findAll() {
@@ -36,7 +32,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<MovieResponseDTO> searchMovies(String title) {
-        ValidationUtil.validateTitle(title);
+        ValidationUtil.validateNotBlank(title, "movie_title");
 
         List<Movie> moviesFromDb = movieRepository.findByTitleContainingIgnoreCase(title);
         if (!moviesFromDb.isEmpty()) {
@@ -48,7 +44,7 @@ public class MovieServiceImpl implements MovieService {
 
         List<MovieAPI> apiMovies = OmdbApiUtil.searchMovies(title);
         return apiMovies.stream()
-                .map(this::convertToMovie)
+                .map(MovieApiMapper.INSTANCE::toEntity)
                 .peek(this::saveMovieToDatabase)
                 .map(MovieResponseMapper.INSTANCE::toDTO)
                 .toList();
@@ -56,18 +52,6 @@ public class MovieServiceImpl implements MovieService {
 
     private void saveMovieToDatabase(Movie movie) {
         movieRepository.save(movie);
-        log.info("Saved movie '{}' to database", movie.getTitle());
-    }
-
-    private Movie convertToMovie(MovieAPI apiMovie) {
-        Movie movie = new Movie();
-        movie.setTitle(apiMovie.getTitle());
-        movie.setYear(apiMovie.getYear());
-        movie.setPoster(apiMovie.getPoster());
-        movie.setPlot(apiMovie.getPlot());
-        movie.setGenre(apiMovie.getGenre());
-        movie.setImdbRating(apiMovie.getImdbRating());
-        movie.setRuntime(apiMovie.getRuntime());
-        return movie;
+        log.debug("Saved movie '{}' to database", movie.getTitle());
     }
 }
