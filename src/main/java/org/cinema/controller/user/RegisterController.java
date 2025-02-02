@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.cinema.dto.userDTO.UserUpdateDTO;
+import org.cinema.constants.PageConstant;
+import org.cinema.constants.ParamConstant;
+import org.cinema.constants.RedirectConstant;
 import org.cinema.service.UserService;
 import org.cinema.handler.ErrorHandler;
-import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +27,9 @@ public class RegisterController {
         log.debug("Handling GET request for registration page...");
 
         if (StringUtils.isNotBlank(message)) {
-            model.addAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            model.addAttribute(ParamConstant.MESSAGE_PARAM, message);
         }
-        return ConstantsUtil.REGISTRATION_PAGE;
+        return PageConstant.REGISTRATION_PAGE;
     }
 
     @PostMapping
@@ -36,10 +38,10 @@ public class RegisterController {
 
         try {
             userService.register(userUpdateDTO);
-            return ConstantsUtil.REDIRECT_LOGIN;
+            return RedirectConstant.REDIRECT_LOGIN;
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_REGISTER;
+        return RedirectConstant.REDIRECT_REGISTER;
     }
 }

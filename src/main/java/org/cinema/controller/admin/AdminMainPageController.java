@@ -2,10 +2,11 @@ package org.cinema.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.constants.PageConstant;
+import org.cinema.constants.ParamConstant;
 import org.cinema.dto.movieDTO.MovieResponseDTO;
 import org.cinema.handler.ErrorHandler;
 import org.cinema.service.MovieService;
-import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,27 +25,27 @@ public class AdminMainPageController {
     private final MovieService movieService;
 
     @GetMapping
-    public String showAdminPage(@RequestParam(value = ConstantsUtil.MOVIE_TITLE_PARAM, required = false) String movieTitle,
+    public String showAdminPage(@RequestParam(value = ParamConstant.MOVIE_TITLE_PARAM, required = false) String movieTitle,
                                 Model model) {
         log.debug("Handling GET request for admin page...");
 
         if (StringUtils.isBlank(movieTitle)) {
             log.debug("No movie title provided.");
-            model.addAttribute(ConstantsUtil.MOVIES_PARAM, Collections.emptyList());
+            model.addAttribute(ParamConstant.MOVIES_PARAM, Collections.emptyList());
         } else {
             return processMovieSearch(movieTitle.trim(), model);
         }
-        return ConstantsUtil.ADMIN_PAGE;
+        return PageConstant.ADMIN_PAGE;
     }
 
     private String processMovieSearch(String movieTitle, Model model) {
         try {
             log.debug("Searching for movies with title: {}", movieTitle);
             List<MovieResponseDTO> movies = movieService.searchMovies(movieTitle);
-            model.addAttribute(ConstantsUtil.MOVIES_PARAM, movies);
+            model.addAttribute(ParamConstant.MOVIES_PARAM, movies);
         } catch (Exception e) {
             ErrorHandler.handleError(model, e);
         }
-        return ConstantsUtil.ADMIN_PAGE;
+        return PageConstant.ADMIN_PAGE;
     }
 }

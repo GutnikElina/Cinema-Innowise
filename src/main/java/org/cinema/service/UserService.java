@@ -68,7 +68,7 @@ public interface UserService {
      * Finds a user by their username.
      *
      * @param username the username of the user.
-     * @return an {@link Optional} containing the {@link UserResponseDTO}, if found.
+     * @return containing the {@link UserResponseDTO}, if found.
      */
     UserResponseDTO findByUsername(String username);
 }

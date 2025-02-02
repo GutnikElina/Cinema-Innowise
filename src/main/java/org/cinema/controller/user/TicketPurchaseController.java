@@ -7,9 +7,11 @@ import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.handler.ErrorHandler;
 import org.cinema.mapper.ticketMapper.TicketCreateMapper;
+import org.cinema.constants.PageConstant;
+import org.cinema.constants.ParamConstant;
+import org.cinema.constants.RedirectConstant;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
-import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,19 +36,19 @@ public class TicketPurchaseController {
 
         try {
             List<FilmSessionResponseDTO> filmSessions = getFilmSessions(date, model);
-            model.addAttribute(ConstantsUtil.SESSIONS_PARAM, filmSessions);
+            model.addAttribute(ParamConstant.SESSIONS_PARAM, filmSessions);
 
             if (StringUtils.isNotBlank(sessionId)) {
                 addSelectedSessionToModel(sessionId, model);
             }
 
             if (StringUtils.isNotBlank(message)) {
-                model.addAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+                model.addAttribute(ParamConstant.MESSAGE_PARAM, message);
             }
         } catch (Exception e) {
             ErrorHandler.handleError(model, e);
         }
-        return ConstantsUtil.PURCHASE_PAGE;
+        return PageConstant.PURCHASE_PAGE;
     }
 
     @PostMapping
@@ -60,11 +62,11 @@ public class TicketPurchaseController {
             TicketCreateDTO ticketCreateDTO = TicketCreateMapper.INSTANCE.toDTO(userId,
                     Long.valueOf(sessionId), seatNumber);
             String message = ticketService.purchaseTicket(ticketCreateDTO);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_USER_PURCHASE;
+        return RedirectConstant.REDIRECT_USER_PURCHASE;
     }
 
     private List<FilmSessionResponseDTO> getFilmSessions(String date, Model model) {
@@ -75,11 +77,11 @@ public class TicketPurchaseController {
             filmSessions = sessionService.findByDate(date);
 
             if (filmSessions.isEmpty()) {
-                model.addAttribute(ConstantsUtil.MESSAGE_PARAM,
+                model.addAttribute(ParamConstant.MESSAGE_PARAM,
                         "No film sessions found for the selected date. Displaying all sessions.");
                 filmSessions = sessionService.findAll();
             }
-            model.addAttribute(ConstantsUtil.SELECTED_DATE_PARAM, date);
+            model.addAttribute(ParamConstant.SELECTED_DATE_PARAM, date);
         }
         return filmSessions;
     }
@@ -87,10 +89,10 @@ public class TicketPurchaseController {
     private void addSelectedSessionToModel(String sessionId, Model model) {
         try {
             FilmSessionResponseDTO selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
-            model.addAttribute(ConstantsUtil.SELECTED_SESSION_PARAM, selectedSession);
-            model.addAttribute("sessionId", sessionId);
+            model.addAttribute(ParamConstant.SELECTED_SESSION_PARAM, selectedSession);
+            model.addAttribute(ParamConstant.SESSION_ID_PARAM, sessionId);
         } catch (Exception e) {
-            model.addAttribute(ConstantsUtil.MESSAGE_PARAM, "Failed to load session details.");
+            model.addAttribute(ParamConstant.MESSAGE_PARAM, "Failed to load session details.");
             log.error("Error loading session details for sessionId {}", sessionId, e);
         }
     }

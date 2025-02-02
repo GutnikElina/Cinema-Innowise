@@ -23,7 +23,8 @@ public class CustomUserDetailsServiceImpl
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Error! User with username '" + username + "' not found!"));
+                .orElseThrow(() -> new UsernameNotFoundException("Error! User with username '" +
+                        username + "' not found!"));
 
         log.info("Loaded user: {} with role: {}", user.getUsername(), user.getRole());
         return new UserWrapper(user);

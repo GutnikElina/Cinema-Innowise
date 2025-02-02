@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.ticketDTO.TicketResponseDTO;
 import org.cinema.service.TicketService;
 import org.cinema.handler.ErrorHandler;
-import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
+import org.cinema.constants.PageConstant;
+import org.cinema.constants.ParamConstant;
+import org.cinema.constants.RedirectConstant;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -21,16 +23,16 @@ public class MyTicketsController {
     private final TicketService ticketService;
 
     @GetMapping
-    public String getUserTickets(@SessionAttribute(ConstantsUtil.USER_ID_PARAM) Long userId, Model model) {
+    public String getUserTickets(@SessionAttribute(ParamConstant.USER_ID_PARAM) Long userId, Model model) {
         log.debug("Handling GET request for getting user's tickets...");
 
         try {
             List<TicketResponseDTO> tickets = ticketService.findByUserId(userId.toString());
-            model.addAttribute(ConstantsUtil.TICKETS_PARAM, tickets);
+            model.addAttribute(ParamConstant.TICKETS_PARAM, tickets);
         } catch (Exception e) {
             ErrorHandler.handleError(model, e);
         }
-        return ConstantsUtil.MY_TICKET_PAGE;
+        return PageConstant.MY_TICKET_PAGE;
     }
 
     @PostMapping("/returnMyTickets")
@@ -40,15 +42,15 @@ public class MyTicketsController {
 
         try {
             if (ticketId != null) {
-                String message = ticketService.processTicketAction(ConstantsUtil.RETURN_TICKETS_PARAM, ticketId);
-                redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+                String message = ticketService.processTicketAction(ParamConstant.RETURN_TICKETS_PARAM, ticketId);
+                redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
             } else {
-                redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM,
+                redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM,
                         "Error! No ticket ID provided");
             }
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_USER_TICKETS;
+        return RedirectConstant.REDIRECT_USER_TICKETS;
     }
 }

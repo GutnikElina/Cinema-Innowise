@@ -6,8 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface MovieApiMapper {
-    MovieApiMapper INSTANCE = Mappers.getMapper(MovieApiMapper.class);
+public interface MovieApiCreateMapper {
+    MovieApiCreateMapper INSTANCE = Mappers.getMapper(MovieApiCreateMapper.class);
 
     Movie toEntity(MovieAPI movieAPI);
 }

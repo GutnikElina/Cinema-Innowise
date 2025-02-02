@@ -3,7 +3,6 @@ package org.cinema.dto.ticketDTO;
 import lombok.Builder;
 import lombok.Data;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
-
 import java.time.LocalDateTime;
 
 @Data

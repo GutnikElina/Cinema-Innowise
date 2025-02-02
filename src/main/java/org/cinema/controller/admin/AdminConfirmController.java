@@ -2,9 +2,11 @@ package org.cinema.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.constants.PageConstant;
+import org.cinema.constants.ParamConstant;
+import org.cinema.constants.RedirectConstant;
 import org.cinema.handler.ErrorHandler;
 import org.cinema.service.TicketService;
-import org.cinema.util.ConstantsUtil;
 import org.cinema.util.ValidationUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,16 +25,16 @@ public class AdminConfirmController {
     public String showTicketsPage(Model model) {
         log.debug("Fetching tickets...");
         try {
-            model.addAttribute(ConstantsUtil.TICKETS_PARAM, ticketService.findAll());
+            model.addAttribute(ParamConstant.TICKETS_PARAM, ticketService.findAll());
         } catch (Exception e) {
             ErrorHandler.handleError(model, e);
         }
-        return ConstantsUtil.CONFIRM_TICKETS_PAGE;
+        return PageConstant.CONFIRM_TICKETS_PAGE;
     }
 
     @PostMapping("/{action}")
-    public String handleTicketAction(@RequestParam(ConstantsUtil.ID_PARAM) String ticketId,
-                                     @PathVariable(ConstantsUtil.ACTION_PARAM) String action,
+    public String handleTicketAction(@RequestParam(ParamConstant.ID_PARAM) String ticketId,
+                                     @PathVariable(ParamConstant.ACTION_PARAM) String action,
                                      RedirectAttributes redirectAttributes) {
         return processTicketAction(ticketId, action, redirectAttributes);
     }
@@ -42,10 +44,10 @@ public class AdminConfirmController {
             ValidationUtil.validateParameters(action, ticketId);
             log.debug("Processing action '{}' for ticket ID '{}'", action, ticketId);
             String message = ticketService.processTicketAction(action, ValidationUtil.parseLong(ticketId));
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_ADMIN_SESSIONS;
+        return RedirectConstant.REDIRECT_ADMIN_SESSIONS;
     }
 }

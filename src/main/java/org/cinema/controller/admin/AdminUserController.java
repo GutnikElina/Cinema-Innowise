@@ -3,12 +3,13 @@ package org.cinema.controller.admin;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.constants.ParamConstant;
+import org.cinema.constants.RedirectConstant;
 import org.cinema.dto.userDTO.UserCreateDTO;
 import org.cinema.dto.userDTO.UserResponseDTO;
 import org.cinema.exception.NoDataFoundException;
 import org.cinema.handler.ErrorHandler;
 import org.cinema.service.UserService;
-import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -27,21 +28,21 @@ public class AdminUserController {
     @GetMapping
     public String getUsers(Model model) {
         log.debug("Fetching all users...");
-        model.addAttribute(ConstantsUtil.USERS_PARAM, userService.findAll());
-        return ConstantsUtil.USERS_PARAM;
+        model.addAttribute(ParamConstant.USERS_PARAM, userService.findAll());
+        return ParamConstant.USERS_PARAM;
     }
 
     @GetMapping("/edit")
-    public String getEditUser(@RequestParam(ConstantsUtil.ID_PARAM) String userId, Model model) {
+    public String getEditUser(@RequestParam(ParamConstant.ID_PARAM) String userId, Model model) {
         try {
             UserResponseDTO userToEdit = userService.getById(userId);
-            model.addAttribute(ConstantsUtil.USER_TO_EDIT, userToEdit);
-            model.addAttribute(ConstantsUtil.USERS_PARAM, userService.findAll());
+            model.addAttribute(ParamConstant.USER_TO_EDIT, userToEdit);
+            model.addAttribute(ParamConstant.USERS_PARAM, userService.findAll());
         } catch (NoDataFoundException e) {
             log.error("User not found: {}", e.getMessage());
-            model.addAttribute(ConstantsUtil.MESSAGE_PARAM, "Error! User not found.");
+            model.addAttribute(ParamConstant.MESSAGE_PARAM, "Error! User not found.");
         }
-        return ConstantsUtil.USERS_PARAM;
+        return ParamConstant.USERS_PARAM;
     }
 
     @PostMapping("/add")
@@ -49,11 +50,11 @@ public class AdminUserController {
                           RedirectAttributes redirectAttributes) {
         try {
             String message = userService.save(createDTO);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_ADMIN_USERS;
+        return RedirectConstant.REDIRECT_ADMIN_USERS;
     }
 
     @PostMapping("/edit")
@@ -62,22 +63,22 @@ public class AdminUserController {
                            RedirectAttributes redirectAttributes) {
         try {
             String message = userService.update(id, updateDTO);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_ADMIN_USERS;
+        return RedirectConstant.REDIRECT_ADMIN_USERS;
     }
 
     @PostMapping("/delete")
-    public String deleteUser(@RequestParam(ConstantsUtil.ID_PARAM) String userId,
+    public String deleteUser(@RequestParam(ParamConstant.ID_PARAM) String userId,
                              RedirectAttributes redirectAttributes) {
         try {
             String message = userService.delete(userId);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_ADMIN_USERS;
+        return RedirectConstant.REDIRECT_ADMIN_USERS;
     }
 }

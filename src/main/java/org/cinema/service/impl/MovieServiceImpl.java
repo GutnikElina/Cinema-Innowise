@@ -3,8 +3,8 @@ package org.cinema.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.movieDTO.MovieResponseDTO;
+import org.cinema.mapper.movieMapper.MovieApiCreateMapper;
 import org.cinema.mapper.movieMapper.MovieResponseMapper;
-import org.cinema.mapper.movieMapper.MovieApiMapper;
 import org.cinema.model.Movie;
 import org.cinema.model.MovieAPI;
 import org.cinema.repository.MovieRepository;
@@ -44,7 +44,7 @@ public class MovieServiceImpl implements MovieService {
 
         List<MovieAPI> apiMovies = OmdbApiUtil.searchMovies(title);
         return apiMovies.stream()
-                .map(MovieApiMapper.INSTANCE::toEntity)
+                .map(MovieApiCreateMapper.INSTANCE::toEntity)
                 .peek(this::saveMovieToDatabase)
                 .map(MovieResponseMapper.INSTANCE::toDTO)
                 .toList();

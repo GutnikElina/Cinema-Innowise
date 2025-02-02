@@ -3,6 +3,9 @@ package org.cinema.controller.admin;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cinema.constants.PageConstant;
+import org.cinema.constants.ParamConstant;
+import org.cinema.constants.RedirectConstant;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
 import org.cinema.dto.ticketDTO.TicketResponseDTO;
 import org.cinema.dto.ticketDTO.TicketUpdateDTO;
@@ -11,7 +14,6 @@ import org.cinema.handler.ErrorHandler;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
 import org.cinema.service.UserService;
-import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -32,25 +34,25 @@ public class AdminTicketController {
     @GetMapping
     public String getTickets(Model model) {
         log.debug("Fetching all tickets...");
-        model.addAttribute(ConstantsUtil.TICKETS_PARAM, ticketService.findAll());
-        model.addAttribute(ConstantsUtil.USERS_PARAM, userService.findAll());
-        model.addAttribute(ConstantsUtil.SESSIONS_PARAM, sessionService.findAll());
-        return ConstantsUtil.TICKET_PAGE;
+        model.addAttribute(ParamConstant.TICKETS_PARAM, ticketService.findAll());
+        model.addAttribute(ParamConstant.USERS_PARAM, userService.findAll());
+        model.addAttribute(ParamConstant.SESSIONS_PARAM, sessionService.findAll());
+        return PageConstant.TICKET_PAGE;
     }
 
     @GetMapping("/edit")
-    public String getEditTicket(@RequestParam(ConstantsUtil.ID_PARAM) String ticketId, Model model) {
+    public String getEditTicket(@RequestParam(ParamConstant.ID_PARAM) String ticketId, Model model) {
         try {
             TicketResponseDTO ticketToEdit = ticketService.getById(ticketId);
-            model.addAttribute(ConstantsUtil.TICKET_TO_EDIT, ticketToEdit);
-            model.addAttribute(ConstantsUtil.TICKETS_PARAM, ticketService.findAll());
-            model.addAttribute(ConstantsUtil.USERS_PARAM, userService.findAll());
-            model.addAttribute(ConstantsUtil.SESSIONS_PARAM, sessionService.findAll());
+            model.addAttribute(ParamConstant.TICKET_TO_EDIT, ticketToEdit);
+            model.addAttribute(ParamConstant.TICKETS_PARAM, ticketService.findAll());
+            model.addAttribute(ParamConstant.USERS_PARAM, userService.findAll());
+            model.addAttribute(ParamConstant.SESSIONS_PARAM, sessionService.findAll());
         } catch (NoDataFoundException e) {
             log.error("Ticket not found: {}", e.getMessage());
-            model.addAttribute(ConstantsUtil.MESSAGE_PARAM, "Error! Ticket not found.");
+            model.addAttribute(ParamConstant.MESSAGE_PARAM, "Error! Ticket not found.");
         }
-        return ConstantsUtil.TICKET_PAGE;
+        return PageConstant.TICKET_PAGE;
     }
 
     @PostMapping("/add")
@@ -58,11 +60,11 @@ public class AdminTicketController {
                             RedirectAttributes redirectAttributes) {
         try {
             String message = ticketService.save(createDTO);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_ADMIN_TICKETS;
+        return RedirectConstant.REDIRECT_ADMIN_TICKETS;
     }
 
     @PostMapping("/edit")
@@ -70,23 +72,23 @@ public class AdminTicketController {
                              RedirectAttributes redirectAttributes) {
         try {
             String message = ticketService.update(updateDTO);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
 
         }
-        return ConstantsUtil.REDIRECT_ADMIN_TICKETS;
+        return RedirectConstant.REDIRECT_ADMIN_TICKETS;
     }
 
     @PostMapping("/delete")
-    public String deleteTicket(@RequestParam(ConstantsUtil.ID_PARAM) String ticketId,
+    public String deleteTicket(@RequestParam(ParamConstant.ID_PARAM) String ticketId,
                                RedirectAttributes redirectAttributes) {
         try {
             String message = ticketService.delete(ticketId);
-            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
+            redirectAttributes.addFlashAttribute(ParamConstant.MESSAGE_PARAM, message);
         } catch (Exception e) {
             ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return ConstantsUtil.REDIRECT_ADMIN_TICKETS;
+        return RedirectConstant.REDIRECT_ADMIN_TICKETS;
     }
 }
