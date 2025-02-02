@@ -2,17 +2,18 @@ package org.cinema.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.cinema.dto.filmSessionDTO.FilmSessionResponseDTO;
 import org.cinema.dto.ticketDTO.TicketCreateDTO;
-import org.cinema.exception.EntityAlreadyExistException;
-import org.cinema.exception.NoDataFoundException;
+import org.cinema.handler.ErrorHandler;
+import org.cinema.mapper.ticketMapper.TicketCreateMapper;
 import org.cinema.service.SessionService;
 import org.cinema.service.TicketService;
+import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -20,8 +21,6 @@ import java.util.List;
 @RequestMapping("/user/tickets/purchase")
 @RequiredArgsConstructor
 public class TicketPurchaseController {
-
-    private static final String MESSAGE_PARAM = "message";
 
     private final TicketService ticketService;
     private final SessionService sessionService;
@@ -34,48 +33,20 @@ public class TicketPurchaseController {
         log.debug("Handling GET request for purchase page...");
 
         try {
-            List<FilmSessionResponseDTO> filmSessions;
+            List<FilmSessionResponseDTO> filmSessions = getFilmSessions(date, model);
+            model.addAttribute(ConstantsUtil.SESSIONS_PARAM, filmSessions);
 
-            if (date == null || date.isEmpty()) {
-                filmSessions = sessionService.findAll();
-            } else {
-                filmSessions = sessionService.findByDate(date);
-
-                if (filmSessions.isEmpty()) {
-                    model.addAttribute(MESSAGE_PARAM, "No film sessions found for the selected date. Displaying all sessions.");
-                    filmSessions = sessionService.findAll();
-                }
-
-                model.addAttribute("selectedDate", date);
+            if (StringUtils.isNotBlank(sessionId)) {
+                addSelectedSessionToModel(sessionId, model);
             }
 
-            model.addAttribute("filmSessions", filmSessions);
-
-            if (sessionId != null && !sessionId.trim().isEmpty()) {
-                FilmSessionResponseDTO selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
-                model.addAttribute("selectedSession", selectedSession);
-                model.addAttribute("sessionId", sessionId);
+            if (StringUtils.isNotBlank(message)) {
+                model.addAttribute(ConstantsUtil.MESSAGE_PARAM, message);
             }
-
-            if (message != null && !message.isEmpty()) {
-                model.addAttribute(MESSAGE_PARAM, message);
-            }
-
-        } catch (IllegalArgumentException e) {
-            model.addAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
-            model.addAttribute("filmSessions", Collections.emptySet());
-            model.addAttribute("selectedSession", null);
-        } catch (NoDataFoundException e) {
-            model.addAttribute(MESSAGE_PARAM, e.getMessage());
-            model.addAttribute("filmSessions", Collections.emptySet());
-            model.addAttribute("selectedSession", null);
         } catch (Exception e) {
-            model.addAttribute(MESSAGE_PARAM, "An unexpected error occurred while loading sessions.");
-            model.addAttribute("filmSessions", Collections.emptySet());
-            model.addAttribute("selectedSession", null);
+            ErrorHandler.handleError(model, e);
         }
-
-        return "purchase";
+        return ConstantsUtil.PURCHASE_PAGE;
     }
 
     @PostMapping
@@ -86,25 +57,41 @@ public class TicketPurchaseController {
         log.debug("Handling POST request for purchase page...");
 
         try {
-            TicketCreateDTO ticketCreateDTO = TicketCreateDTO.builder()
-                    .userId(userId)
-                    .sessionId(Long.valueOf(sessionId))
-                    .seatNumber(seatNumber)
-                    .build();
-
+            TicketCreateDTO ticketCreateDTO = TicketCreateMapper.INSTANCE.toDTO(userId,
+                    Long.valueOf(sessionId), seatNumber);
             String message = ticketService.purchaseTicket(ticketCreateDTO);
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
-
-            return "redirect:/user/tickets/purchase";
-
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
-        } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, e.getMessage());
+            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "An unexpected error occurred while processing the purchase.");
+            ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
+        return ConstantsUtil.REDIRECT_USER_PURCHASE;
+    }
 
-        return "redirect:/user/tickets/purchase";
+    private List<FilmSessionResponseDTO> getFilmSessions(String date, Model model) {
+        List<FilmSessionResponseDTO> filmSessions;
+        if (StringUtils.isBlank(date)) {
+            filmSessions = sessionService.findAll();
+        } else {
+            filmSessions = sessionService.findByDate(date);
+
+            if (filmSessions.isEmpty()) {
+                model.addAttribute(ConstantsUtil.MESSAGE_PARAM,
+                        "No film sessions found for the selected date. Displaying all sessions.");
+                filmSessions = sessionService.findAll();
+            }
+            model.addAttribute(ConstantsUtil.SELECTED_DATE_PARAM, date);
+        }
+        return filmSessions;
+    }
+
+    private void addSelectedSessionToModel(String sessionId, Model model) {
+        try {
+            FilmSessionResponseDTO selectedSession = ticketService.getSessionDetailsWithTickets(sessionId);
+            model.addAttribute(ConstantsUtil.SELECTED_SESSION_PARAM, selectedSession);
+            model.addAttribute("sessionId", sessionId);
+        } catch (Exception e) {
+            model.addAttribute(ConstantsUtil.MESSAGE_PARAM, "Failed to load session details.");
+            log.error("Error loading session details for sessionId {}", sessionId, e);
+        }
     }
 }

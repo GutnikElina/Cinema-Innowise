@@ -64,12 +64,12 @@
               </c:choose>
             </td>
             <td>
-              <form method="post" action="${pageContext.request.contextPath}/admin/users" class="d-inline delete-form">
+              <form method="post" action="${pageContext.request.contextPath}/admin/users/delete" class="d-inline delete-form">
                 <input type="hidden" name="id" value="${user.id}">
                 <input type="hidden" name="action" value="delete">
                 <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
               </form>
-              <form method="get" action="${pageContext.request.contextPath}/admin/users" class="d-inline">
+              <form method="get" action="${pageContext.request.contextPath}/admin/users/edit" class="d-inline">
                 <input type="hidden" name="id" value="${user.id}">
                 <input type="hidden" name="action" value="edit">
                 <button type="submit" class="btn btn-warning btn-sm">Edit</button>
@@ -85,7 +85,7 @@
   <div class="row justify-content-between">
     <div class="col-md-6">
       <h2 class="text-center">Add User</h2>
-      <form method="post" action="${pageContext.request.contextPath}/admin/users">
+      <form method="post" action="${pageContext.request.contextPath}/admin/users/add">
         <div class="mb-3">
           <input type="text" class="form-control" name="username" placeholder="Name" required>
         </div>
@@ -105,22 +105,21 @@
       </form>
     </div>
 
-    <c:if test="${not empty user}">
+    <c:if test="${not empty userToEdit}">
       <div class="col-md-6" id="editForm">
         <h2 class="text-center">Edit User</h2>
-        <form method="post" action="${pageContext.request.contextPath}/admin/users">
-          <input type="hidden" name="action" value="update">
-          <input type="hidden" name="id" value="${user.id}">
+        <form method="post" action="${pageContext.request.contextPath}/admin/users/edit">
+          <input type="hidden" name="id" value="${userToEdit.id}">
           <div class="mb-3">
-            <input type="text" class="form-control" name="username" value="${user.username}" placeholder="Name" required>
+            <input type="text" class="form-control" name="username" value="${userToEdit.username}" placeholder="Name" required>
           </div>
           <div class="mb-3">
             <input type="password" class="form-control" name="password" placeholder="Password" required>
           </div>
           <div class="mb-3">
             <select class="form-select" name="role">
-              <option value="ROLE_USER" <c:if test="${user.role == 'ROLE_USER'}">selected</c:if>>User</option>
-              <option value="ROLE_ADMIN" <c:if test="${user.role == 'ROLE_ADMIN'}">selected</c:if>>Administrator</option>
+              <option value="ROLE_USER" <c:if test="${userToEdit.role == 'ROLE_USER'}">selected</c:if>>User</option>
+              <option value="ROLE_ADMIN" <c:if test="${userToEdit.role == 'ROLE_ADMIN'}">selected</c:if>>Administrator</option>
             </select>
           </div>
           <div class="text-center">

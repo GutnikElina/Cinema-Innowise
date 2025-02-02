@@ -15,6 +15,5 @@ public interface TicketResponseMapper {
     @Mapping(target = "filmSession", source = "filmSession")
     @Mapping(target = "movieTitle", source = "filmSession.movie.title")
     TicketResponseDTO toDTO(Ticket ticket);
-
     Ticket toEntity(TicketResponseDTO createDTO);
 }

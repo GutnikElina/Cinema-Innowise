@@ -42,44 +42,41 @@ public class ValidationUtil {
         parseId(ticketIdParam);
     }
 
-    public static void validateDate(String dateStr) {
-        validateNotBlank(dateStr, "Date");
+    public static void validateDate(LocalDate date) {
+        validateNotBlank(String.valueOf(date), "Date");
         try {
-            LocalDate date = LocalDate.parse(dateStr);
             if (date.isBefore(LocalDate.now())) {
-                log.error("Validation failed: date '{}' is in the past", dateStr);
+                log.error("Validation failed: date '{}' is in the past", date);
                 throw new IllegalArgumentException("Date cannot be in the past.");
             }
         } catch (Exception e) {
-            log.error("Validation failed: date '{}' has invalid format or value", dateStr);
+            log.error("Validation failed: date '{}' has invalid format or value", date);
             throw new IllegalArgumentException("Invalid date format or value.");
         }
     }
 
-    public static void validatePrice(String priceStr) {
-        validateNotBlank(priceStr, "Price");
+    public static void validatePrice(BigDecimal price) {
+        validateNotBlank(String.valueOf(price), "Price");
         try {
-            BigDecimal price = new BigDecimal(priceStr);
             if (price.compareTo(BigDecimal.ZERO) <= 0) {
-                log.error("Validation failed: price '{}' is not positive", priceStr);
+                log.error("Validation failed: price '{}' is not positive", price);
                 throw new IllegalArgumentException("Price must be a positive value.");
             }
         } catch (NumberFormatException e) {
-            log.error("Validation failed: price '{}' has invalid format", priceStr);
+            log.error("Validation failed: price '{}' has invalid format", price);
             throw new IllegalArgumentException("Invalid price format.");
         }
     }
 
-    public static void validateCapacity(String capacityStr) {
-        validateNotBlank(capacityStr, "Capacity");
+    public static void validateCapacity(Integer capacity) {
+        validateNotBlank(String.valueOf(capacity), "Capacity");
         try {
-            int capacity = Integer.parseInt(capacityStr);
             if (capacity <= 0) {
-                log.error("Validation failed: capacity '{}' is not positive", capacityStr);
+                log.error("Validation failed: capacity '{}' is not positive", capacity);
                 throw new IllegalArgumentException("Capacity must be a positive number.");
             }
         } catch (NumberFormatException e) {
-            log.error("Validation failed: capacity '{}' has invalid format", capacityStr);
+            log.error("Validation failed: capacity '{}' has invalid format", capacity);
             throw new IllegalArgumentException("Invalid capacity format.");
         }
     }
@@ -121,15 +118,12 @@ public class ValidationUtil {
         }
     }
 
-    public static void validateTime(String startTimeStr, String endTimeStr) {
-        validateNotBlank(startTimeStr, "Start time");
-        validateNotBlank(endTimeStr, "End time");
-
-        LocalTime startTime = LocalTime.parse(startTimeStr);
-        LocalTime endTime = LocalTime.parse(endTimeStr);
+    public static void validateTime(LocalTime startTime, LocalTime endTime) {
+        validateNotBlank(String.valueOf(startTime), "Start time");
+        validateNotBlank(String.valueOf(endTime), "End time");
 
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
-            log.error("Validation failed: start time '{}' is not before end time '{}'", startTimeStr, endTimeStr);
+            log.error("Validation failed: start time '{}' is not before end time '{}'", startTime, endTime);
             throw new IllegalArgumentException("Start time must be before end time.");
         }
     }

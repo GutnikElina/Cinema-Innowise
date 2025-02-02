@@ -60,26 +60,22 @@
               <c:if test="${ticket.status == 'PENDING'}">
                 <c:choose>
                   <c:when test="${ticket.requestType == 'PURCHASE'}">
-                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm" class="d-inline">
+                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm/confirm" class="d-inline">
                       <input type="hidden" name="id" value="${ticket.id}">
-                      <input type="hidden" name="action" value="confirm">
                       <button type="submit" class="btn btn-success btn-sm">Confirm</button>
                     </form>
-                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm" class="d-inline">
+                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm/cancel" class="d-inline">
                       <input type="hidden" name="id" value="${ticket.id}">
-                      <input type="hidden" name="action" value="cancel">
                       <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
                     </form>
                   </c:when>
                   <c:when test="${ticket.requestType == 'RETURN'}">
-                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm" class="d-inline">
+                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm/return" class="d-inline">
                       <input type="hidden" name="id" value="${ticket.id}">
-                      <input type="hidden" name="action" value="return">
                       <button type="submit" class="btn btn-primary btn-sm">Return</button>
                     </form>
-                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm" class="d-inline">
+                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm/cancel" class="d-inline">
                       <input type="hidden" name="id" value="${ticket.id}">
-                      <input type="hidden" name="action" value="cancel">
                       <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
                     </form>
                   </c:when>
@@ -87,20 +83,21 @@
               </c:if>
 
               <c:if test="${ticket.status == 'CONFIRMED'}">
-                <c:if test="${ticket.requestType == 'RETURN'}">
-                  <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm" class="d-inline">
-                    <input type="hidden" name="id" value="${ticket.id}">
-                    <input type="hidden" name="action" value="return">
-                    <button type="submit" class="btn btn-primary btn-sm">Return</button>
-                  </form>
-                  <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm" class="d-inline">
-                    <input type="hidden" name="id" value="${ticket.id}">
-                    <input type="hidden" name="action" value="cancel">
-                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
-                  </form>
-                </c:if>
+                <c:choose>
+                  <c:when test="${ticket.requestType == 'RETURN'}">
+                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm/return" class="d-inline">
+                      <input type="hidden" name="id" value="${ticket.id}">
+                      <button type="submit" class="btn btn-primary btn-sm">Return</button>
+                    </form>
+                  </c:when>
+                  <c:otherwise>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/tickets/confirm/cancel" class="d-inline">
+                      <input type="hidden" name="id" value="${ticket.id}">
+                      <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                    </form>
+                  </c:otherwise>
+                </c:choose>
               </c:if>
-
             </td>
           </tr>
         </c:forEach>

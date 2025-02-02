@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.userDTO.UserResponseDTO;
-import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

@@ -3,62 +3,52 @@ package org.cinema.controller.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cinema.dto.ticketDTO.TicketResponseDTO;
-import org.cinema.exception.NoDataFoundException;
 import org.cinema.service.TicketService;
+import org.cinema.handler.ErrorHandler;
+import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/tickets")
 @RequiredArgsConstructor
-@Slf4j
 public class MyTicketsController {
-
-    private static final String MESSAGE_PARAM = "message";
 
     private final TicketService ticketService;
 
     @GetMapping
-    public String getUserTickets(@SessionAttribute("userId") Long userId, Model model, RedirectAttributes redirectAttributes) {
+    public String getUserTickets(@SessionAttribute(ConstantsUtil.USER_ID_PARAM) Long userId, Model model) {
         log.debug("Handling GET request for getting user's tickets...");
+
         try {
             List<TicketResponseDTO> tickets = ticketService.findByUserId(userId.toString());
-            model.addAttribute("tickets", tickets);
-        } catch (IllegalArgumentException | NoDataFoundException e) {
-            handleError(redirectAttributes, e.getMessage());
+            model.addAttribute(ConstantsUtil.TICKETS_PARAM, tickets);
         } catch (Exception e) {
-            handleError(redirectAttributes, "An unexpected error occurred while loading tickets");
+            ErrorHandler.handleError(model, e);
         }
-        return "myTickets";
+        return ConstantsUtil.MY_TICKET_PAGE;
     }
 
-    @PostMapping
-    public String processTicketAction(@RequestParam String action,
-                                      @RequestParam(required = false) Long ticketId,
+    @PostMapping("/returnMyTickets")
+    public String processTicketAction(@RequestParam(required = false) Long ticketId,
                                       RedirectAttributes redirectAttributes) {
-        log.debug("Handling POST request for editing status of ticket...");
+        log.debug("Handling POST request for returning ticket...");
 
         try {
-            if ("returnMyTicket".equals(action)) {
-                String message = ticketService.processTicketAction(action, ticketId);
-                redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
+            if (ticketId != null) {
+                String message = ticketService.processTicketAction(ConstantsUtil.RETURN_TICKETS_PARAM, ticketId);
+                redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM, message);
             } else {
-                redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! Unknown action requested");
+                redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM,
+                        "Error! No ticket ID provided");
             }
-        } catch (IllegalArgumentException | NoDataFoundException e) {
-            handleError(redirectAttributes, e.getMessage());
         } catch (Exception e) {
-            handleError(redirectAttributes, "An unexpected error occurred while processing ticket action");
+            ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
-        return "redirect:/user/tickets";
-    }
-
-    private void handleError(RedirectAttributes redirectAttributes, String message) {
-        redirectAttributes.addFlashAttribute(MESSAGE_PARAM, message);
-        redirectAttributes.addFlashAttribute("tickets", Collections.emptySet());
+        return ConstantsUtil.REDIRECT_USER_TICKETS;
     }
 }

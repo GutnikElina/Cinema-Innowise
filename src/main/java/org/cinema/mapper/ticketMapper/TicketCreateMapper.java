@@ -10,4 +10,5 @@ public interface TicketCreateMapper {
     TicketCreateMapper INSTANCE = Mappers.getMapper(TicketCreateMapper.class);
 
     Ticket toEntity(TicketCreateDTO createDTO);
+    TicketCreateDTO toDTO(Long userId, Long sessionId, String seatNumber);
 }

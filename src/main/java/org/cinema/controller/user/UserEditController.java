@@ -2,11 +2,13 @@ package org.cinema.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.cinema.dto.userDTO.UserResponseDTO;
 import org.cinema.dto.userDTO.UserUpdateDTO;
-import org.cinema.exception.EntityAlreadyExistException;
-import org.cinema.exception.NoDataFoundException;
+import org.cinema.handler.ErrorHandler;
+import org.cinema.mapper.userMapper.UserUpdateMapper;
 import org.cinema.service.UserService;
+import org.cinema.util.ConstantsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,37 +24,29 @@ import jakarta.servlet.http.HttpSession;
 @RequiredArgsConstructor
 public class UserEditController {
 
-    private static final String MESSAGE_PARAM = "message";
-
     private final UserService userService;
 
-    @GetMapping()
-    public String showEditProfilePage(@RequestParam(required = false) String message, Model model, HttpSession session) {
+    @GetMapping
+    public String showEditProfilePage(@RequestParam(required = false) String message,
+                                      Model model, HttpSession session) {
         log.debug("Handling GET request for edit user data page...");
 
         try {
             Long userId = getUserIdFromSession(session);
             UserResponseDTO user = userService.getById(String.valueOf(userId));
+            model.addAttribute(ConstantsUtil.USER_PARAM, user);
 
-            model.addAttribute("user", user);
-            if (message != null && !message.isEmpty()) {
-                model.addAttribute(MESSAGE_PARAM, message);
+            if (StringUtils.isNotBlank(message)) {
+                model.addAttribute(ConstantsUtil.MESSAGE_PARAM, message);
             }
-
-        } catch (IllegalArgumentException e) {
-            model.addAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
-            model.addAttribute("user", null);
-        } catch (NoDataFoundException e) {
-            model.addAttribute(MESSAGE_PARAM, e.getMessage());
-            model.addAttribute("user", null);
         } catch (Exception e) {
-            model.addAttribute(MESSAGE_PARAM, "An unexpected error occurred while loading the profile");
-            model.addAttribute("user", null);
+            ErrorHandler.handleError(model, e);
         }
-        return "editProfile";
+
+        return ConstantsUtil.EDIT_PROFILE_PAGE;
     }
 
-    @PostMapping()
+    @PostMapping
     public String updateProfile(@RequestParam String username,
                                 @RequestParam(required = false) String password,
                                 HttpSession session, RedirectAttributes redirectAttributes) {
@@ -60,35 +54,19 @@ public class UserEditController {
 
         try {
             Long userId = getUserIdFromSession(session);
-
-            if (password == null || password.trim().isEmpty()) {
-                password = "null";
-            }
-
-            UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
-                    .username(username)
-                    .password(password)
-                    .build();
-
+            password = StringUtils.defaultIfBlank(password, "null");
+            UserUpdateDTO userUpdateDTO = UserUpdateMapper.INSTANCE.toDTO(username, password);
             userService.updateProfile(userId, userUpdateDTO);
-
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Success! Profile updated successfully.");
-            return "redirect:/user/edit";
-
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "Error! Invalid input: " + e.getMessage());
-            return "redirect:/user/edit";
-        } catch (NoDataFoundException | EntityAlreadyExistException e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, e.getMessage());
-            return "redirect:/user/edit";
+            redirectAttributes.addFlashAttribute(ConstantsUtil.MESSAGE_PARAM,
+                    "Success! Profile updated successfully.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute(MESSAGE_PARAM, "An unexpected error occurred while updating the profile");
-            return "redirect:/user/edit";
+            ErrorHandler.handleError(redirectAttributes, ErrorHandler.resolveErrorMessage(e), e);
         }
+        return ConstantsUtil.REDIRECT_USER_EDIT;
     }
 
     private Long getUserIdFromSession(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute(ConstantsUtil.USER_ID_PARAM);
         if (userId == null) {
             throw new IllegalArgumentException("User ID not found in session");
         }

@@ -82,16 +82,17 @@
                         <td>${ticket.status}</td>
                         <td>${ticket.requestType}</td>
                         <td class="table-actions">
-                            <form method="post" action="${pageContext.request.contextPath}/user/tickets" style="display:inline;">
-                                <input type="hidden" name="action" value="returnMyTicket">
+                            <form method="post" action="${pageContext.request.contextPath}/user/tickets/returnMyTickets" style="display:inline;">
                                 <input type="hidden" name="ticketId" value="${ticket.id}">
                                 <button
                                         type="submit"
-                                        class="btn btn-warning btn-sm <c:if test='${!((ticket.status == "PENDING" || ticket.status == "CONFIRMED") && ticket.requestType != "RETURN")}'>btn-secondary</c:if>'"
+                                        class="btn btn-warning btn-sm
+                                        <c:if test='${!((ticket.status == "PENDING" || ticket.status == "CONFIRMED") && ticket.requestType != "RETURN")}'>btn-secondary</c:if>'"
                                         <c:if test="${!((ticket.status == 'PENDING' || ticket.status == 'CONFIRMED') && ticket.requestType != 'RETURN')}">disabled</c:if>>
                                     Return
                                 </button>
                             </form>
+
                         </td>
                     </tr>
                 </c:forEach>

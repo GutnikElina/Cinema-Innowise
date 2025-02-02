@@ -62,12 +62,12 @@
                         <td>${ticket.status}</td>
                         <td>${ticket.requestType}</td>
                         <td>
-                            <form method="post" action="${pageContext.request.contextPath}/admin/tickets" class="d-inline">
+                            <form method="post" action="${pageContext.request.contextPath}/admin/tickets/delete" class="d-inline">
                                 <input type="hidden" name="id" value="${ticket.id}">
                                 <input type="hidden" name="action" value="delete">
                                 <button type="submit" class="btn btn-danger btn-sm delete-btn">Delete</button>
                             </form>
-                            <form method="get" action="${pageContext.request.contextPath}/admin/tickets" class="d-inline">
+                            <form method="get" action="${pageContext.request.contextPath}/admin/tickets/edit" class="d-inline">
                                 <input type="hidden" name="id" value="${ticket.id}">
                                 <input type="hidden" name="action" value="edit">
                                 <button type="submit" class="btn btn-warning btn-sm">Edit</button>
@@ -83,7 +83,7 @@
     <div class="row justify-content-between">
         <div class="col-md-6">
             <h2 class="text-center">Add Ticket</h2>
-            <form method="post" action="${pageContext.request.contextPath}/admin/tickets" id="addTicketForm">
+            <form method="post" action="${pageContext.request.contextPath}/admin/tickets/add" id="addTicketForm">
                 <input type="hidden" name="action" value="add">
                 <div class="mb-3">
                     <select class="form-control form-control-sm" name="userId" required>
@@ -132,7 +132,7 @@
         <c:if test="${not empty ticketToEdit}">
             <div class="col-md-6" id="editForm">
                 <h2 class="text-center">Edit Ticket</h2>
-                <form method="post" action="${pageContext.request.contextPath}/admin/tickets">
+                <form method="post" action="${pageContext.request.contextPath}/admin/tickets/edit">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="id" value="${ticketToEdit.id}">
                     <div class="mb-3">
