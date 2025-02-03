@@ -38,7 +38,7 @@
     </c:when>
     <c:otherwise>
       <table class="table table-bordered">
-        <thead>
+        <thead class="table-dark">
         <tr>
           <th>ID</th>
           <th>Name</th>
@@ -87,13 +87,13 @@
       <h2 class="text-center">Add User</h2>
       <form method="post" action="${pageContext.request.contextPath}/admin/users/add">
         <div class="mb-3">
-          <input type="text" class="form-control" name="username" placeholder="Name" required>
+          <input type="text" class="form-control form-control-sm" name="username" placeholder="Name" required>
         </div>
         <div class="mb-3">
-          <input type="password" class="form-control" name="password" placeholder="Password" required>
+          <input type="password" class="form-control form-control-sm" name="password" placeholder="Password" required>
         </div>
         <div class="mb-3">
-          <select class="form-select" name="role">
+          <select class="form-control form-control-sm" name="role">
             <option value="ROLE_USER">User</option>
             <option value="ROLE_ADMIN">Administrator</option>
           </select>
@@ -111,13 +111,13 @@
         <form method="post" action="${pageContext.request.contextPath}/admin/users/edit">
           <input type="hidden" name="id" value="${userToEdit.id}">
           <div class="mb-3">
-            <input type="text" class="form-control" name="username" value="${userToEdit.username}" placeholder="Name" required>
+            <input type="text" class="form-control form-control-sm" name="username" value="${userToEdit.username}" placeholder="Name" required>
           </div>
           <div class="mb-3">
-            <input type="password" class="form-control" name="password" placeholder="Password" required>
+            <input type="password" class="form-control form-control-sm" name="password" placeholder="Password" required>
           </div>
           <div class="mb-3">
-            <select class="form-select" name="role">
+            <select class="form-control form-control-sm" name="role">
               <option value="ROLE_USER" <c:if test="${userToEdit.role == 'ROLE_USER'}">selected</c:if>>User</option>
               <option value="ROLE_ADMIN" <c:if test="${userToEdit.role == 'ROLE_ADMIN'}">selected</c:if>>Administrator</option>
             </select>

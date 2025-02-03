@@ -15,7 +15,7 @@ public class Movie {
     @Column(nullable = false)
     private String title;
 
-    private String test_year;
+    private String year;
 
     private String poster;
 

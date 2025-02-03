@@ -34,7 +34,7 @@
     </c:when>
     <c:otherwise>
       <table class="table table-bordered">
-        <thead>
+        <thead class="table-dark">
         <tr>
           <th>Ticket ID</th>
           <th>User</th>

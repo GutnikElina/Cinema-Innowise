@@ -18,9 +18,7 @@ import org.cinema.repository.SessionRepository;
 import org.cinema.service.SessionService;
 import org.cinema.util.ValidationUtil;
 import org.springframework.stereotype.Service;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +35,7 @@ public class SessionServiceImpl implements SessionService {
     public String save(FilmSessionCreateDTO createDTO, Long movieId) {
         Movie movie = findMovieById(movieId);
 
-        validateParameters(createDTO.getPrice(), createDTO.getDate(),
+        ValidationUtil.validateParameters(createDTO.getPrice(), createDTO.getDate(),
                 createDTO.getCapacity(), createDTO.getStartTime(), createDTO.getEndTime());
 
         FilmSession filmSession = FilmSessionCreateMapper.INSTANCE.toEntity(createDTO);
@@ -55,7 +53,7 @@ public class SessionServiceImpl implements SessionService {
     public String update(FilmSessionUpdateDTO updateDTO, Long movieId) {
         Movie movie = findMovieById(movieId);
 
-        validateParameters(updateDTO.getPrice(), updateDTO.getDate(),
+        ValidationUtil.validateParameters(updateDTO.getPrice(), updateDTO.getDate(),
                 updateDTO.getCapacity(), updateDTO.getStartTime(), updateDTO.getEndTime());
 
         FilmSession filmSession = FilmSessionUpdateMapper.INSTANCE.toEntity(updateDTO);
@@ -108,13 +106,5 @@ public class SessionServiceImpl implements SessionService {
                 filmSession.getStartTime(), filmSession.getEndTime())) {
             throw new EntityAlreadyExistException("Error! Film session already exists on this film and time. Try again.");
         }
-    }
-
-    private void validateParameters(BigDecimal price, LocalDate date, Integer capacity,
-                                    LocalTime start, LocalTime end) {
-        ValidationUtil.validatePrice(price);
-        ValidationUtil.validateDate(date);
-        ValidationUtil.validateCapacity(capacity);
-        ValidationUtil.validateTime(start, end);
     }
 }

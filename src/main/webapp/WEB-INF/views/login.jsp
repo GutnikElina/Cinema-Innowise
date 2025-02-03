@@ -1,5 +1,5 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <html>
 <head>
@@ -15,7 +15,7 @@
       <spring:message code="welcomeBack.message" />
     </h2>
 
-    <c:if test="${param.error != false}">
+    <c:if test="${param.error eq 'true'}">
       <div class="alert alert-danger" role="alert">
         <spring:message code="errorLogin.message" />
       </div>

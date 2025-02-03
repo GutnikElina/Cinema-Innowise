@@ -25,7 +25,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         log.info("Authentication successful for user: {}", authentication.getName());
-
         String username = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserResponseDTO user = userService.findByUsername(username);
@@ -36,7 +35,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         String redirectUrl = determineTargetUrl(authentication);
         log.debug("Redirecting to {}", redirectUrl);
-
         response.sendRedirect(redirectUrl);
     }
 
@@ -44,9 +42,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         GrantedAuthority authority = authentication.getAuthorities().iterator().next();
 
         if (authority.getAuthority().equals("ROLE_ADMIN")) {
-            return "/Cinema/admin";
+            return "/admin";
         } else {
-            return "/Cinema/user";
+            return "/user";
         }
     }
 }

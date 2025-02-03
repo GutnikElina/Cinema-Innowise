@@ -24,9 +24,13 @@ public class JpaConfig {
         HikariConfig hikariConfig = new HikariConfig();
 
         hikariConfig.setDataSourceClassName("com.mysql.cj.jdbc.MysqlDataSource");
-        hikariConfig.addDataSourceProperty("url", "jdbc:mysql://127.0.0.1:3306/cinema_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Moscow");
-        hikariConfig.addDataSourceProperty("user", "root");
-        hikariConfig.addDataSourceProperty("password", "password");
+        hikariConfig.addDataSourceProperty("url", "jdbc:mysql://db:3306/cinema_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Moscow");
+        hikariConfig.addDataSourceProperty("user", "cinema_user");
+        hikariConfig.addDataSourceProperty("password", "cinema_password");
+
+//        hikariConfig.addDataSourceProperty("url", "jdbc:mysql://127.0.0.1:3306/cinema_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Moscow");
+//        hikariConfig.addDataSourceProperty("user", "root");
+//        hikariConfig.addDataSourceProperty("password", "password");
 
         hikariConfig.setMaximumPoolSize(10);
         hikariConfig.setMinimumIdle(5);

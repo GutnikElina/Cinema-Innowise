@@ -29,7 +29,7 @@ cd Cinema-Innowise
 
 2. Запуск приложения:
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
 
 3. Проверка статуса:
@@ -38,7 +38,7 @@ docker-compose ps
 ```
 
 4. Доступ к приложению:
-- Веб-интерфейс: http://localhost:8080
+- Веб-интерфейс: http://localhost:8080/login
 - База данных: localhost:3307
   - Username: cinema_user
   - Password: cinema_password

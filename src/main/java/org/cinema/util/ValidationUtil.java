@@ -99,7 +99,7 @@ public class ValidationUtil {
         validateNotBlank(id, "ID");
         try {
             long parsedId = Long.parseLong(id);
-            validatePositive(parsedId, id, "long");
+            validateIsPositive((int) parsedId);
             return parsedId;
         } catch (NumberFormatException e) {
             log.error("Validation failed: long ID '{}' has invalid format", id);
@@ -111,7 +111,7 @@ public class ValidationUtil {
         validateNotBlank(id, "ID");
         try {
             int parsedId = Integer.parseInt(id);
-            validatePositive(parsedId, id, "int");
+            validateIsPositive(parsedId);
         } catch (NumberFormatException e) {
             log.error("Validation failed: int ID '{}' has invalid format", id);
             throw new IllegalArgumentException("ID must be a valid positive integer.");
@@ -135,10 +135,11 @@ public class ValidationUtil {
         }
     }
 
-    private static void validatePositive(long value, String id, String type) {
-        if (value <= 0) {
-            log.error("Validation failed: {} ID '{}' is not positive", type, id);
-            throw new IllegalArgumentException("ID must be a positive integer.");
-        }
+    public static void validateParameters(BigDecimal price, LocalDate date, Integer capacity,
+                                          LocalTime start, LocalTime end) {
+        validatePrice(price);
+        validateDate(date);
+        validateCapacity(capacity);
+        validateTime(start, end);
     }
 }

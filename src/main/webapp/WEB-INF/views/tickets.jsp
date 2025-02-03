@@ -36,7 +36,7 @@
         </c:when>
         <c:otherwise>
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-dark">
                 <tr>
                     <th>Ticket ID</th>
                     <th>User</th>
@@ -62,7 +62,7 @@
                         <td>${ticket.status}</td>
                         <td>${ticket.requestType}</td>
                         <td>
-                            <form method="post" action="${pageContext.request.contextPath}/admin/tickets/delete" class="d-inline">
+                            <form method="post" action="${pageContext.request.contextPath}/admin/tickets/delete" class="d-inline delete-form">
                                 <input type="hidden" name="id" value="${ticket.id}">
                                 <input type="hidden" name="action" value="delete">
                                 <button type="submit" class="btn btn-danger btn-sm delete-btn">Delete</button>
@@ -181,43 +181,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const forms = document.querySelectorAll('form');
-
-        forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const submitButton = this.querySelector('button[type="submit"]');
-                if (submitButton) {
-                    const spinner = submitButton.querySelector('.spinner-border');
-                    const buttonText = submitButton.querySelector('.button-text');
-
-                    if (spinner && buttonText) {
-                        submitButton.disabled = true;
-                        spinner.classList.remove('d-none');
-                        buttonText.classList.add('d-none');
-                    } else {
-                        submitButton.disabled = true;
-                    }
-                }
-            });
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function() {
+            const editForm = document.getElementById('editForm');
+            if (editForm) {
+                editForm.style.display = 'none';
+            }
         });
-    });
-</script>
-<script>
-    document.getElementById('cancelEditBtn').addEventListener('click', function() {
-        document.getElementById('editForm').style.display = 'none';
-    });
+    }
 </script>
 <script>
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             const form = this.closest('.delete-form');
-            const confirmDelete = confirm('Are you sure you want to delete this ticket?');
+            const confirmDelete = confirm('Are you sure you want to delete this user?');
             if (confirmDelete) {
                 form.submit();
             }
         });
     });
 </script>
-
 </body>
