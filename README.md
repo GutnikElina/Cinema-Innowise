@@ -21,9 +21,9 @@
 
 ### Шаги для запуска
 
-1. Клонирование репозитория:
+1. Клонирование репозитория и переход на ветку spring:
 ```bash
-git clone https://github.com/GutnikElina/Cinema-Innowise.git
+git clone -b spring https://github.com/GutnikElina/Cinema-Innowise.git
 cd Cinema-Innowise
 ```
 
